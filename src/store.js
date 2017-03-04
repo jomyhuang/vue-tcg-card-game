@@ -1,4 +1,6 @@
 import Vue from 'vue'
+// require karma/mocha unit test vuex
+import 'babel-polyfill'
 import Vuex from 'vuex'
 // import storeDB from './components/CardDB.json'
 import storeDB from './components/SDWCardDB.json'
@@ -18,6 +20,7 @@ const state = {
   },
   storemsg: 'vuex store test',
   cardDB: {},
+  // page
   pageFullList: [],
   pageList: [],
   pageKeyList: [],
