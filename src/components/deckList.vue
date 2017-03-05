@@ -1,8 +1,8 @@
 <template>
   <div class="deckList">
     <h3>套牌列表</h3>
-    <ul v-for="(card,key,index) in deckList">
-      <li>
+    <ul>
+      <li v-for="(card,key,index) in deckList">
         <div>
           {{card.cardno}} {{card.name}} {{card.class}} {{card.race}} {{card.color}}
           <deckControl :card="card"></deckControl>
