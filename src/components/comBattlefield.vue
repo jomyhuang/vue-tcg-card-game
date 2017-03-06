@@ -1,8 +1,8 @@
 <template>
   <div class="comHand">
-    <h4>Hand : {{player.hand.length}} cards</h4>
+    <h4>battlefield : {{player.battlefield.length}} cards</h4>
     <div class="flex-container">
-      <div class="flex-item" v-for="(card,key,index) in player.hand">
+      <div class="flex-item" v-for="(card,key,index) in player.battlefield">
         <div><h4>{{card.name}}</h4></div>
         <div>
           <span v-for="n in card.star">🌟</span>
@@ -22,10 +22,10 @@
 // import deckList from './deckList.vue'
 
 export default {
-  name: 'comHand',
+  name: 'comBattlefield',
   data () {
     return {
-      msg: 'comHand msg'
+      msg: 'comBattlefield msg'
     }
   },
   props: {

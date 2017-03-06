@@ -24,6 +24,8 @@ const state = {
   pageFilter: 'all',
 
   // game app
+  currentPlayer: null,
+  placeholderCard: null,
   player1: {
     id: 'playerId1',
     hero: 'heroId1',
@@ -34,6 +36,7 @@ const state = {
       'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
       'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
     ],
+    battlefield: [],
     hand: [],
     graveyard: [],
     secrets: [],
@@ -53,6 +56,7 @@ const state = {
       'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
       'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
     ],
+    battlefield: [],
     hand: [],
     graveyard: [],
     secrets: [],
@@ -189,15 +193,46 @@ const mutations = {
             console.log( `GAME_INIT: warning ${cardid} not found` )
           }
         } )
-        player.hand.push( player.cardPool[0] )
-        player.hand.push( player.cardPool[1] )
-        player.hand.push( player.cardPool[2] )
 
         console.log( `cardPool lenth ${player.cardPool.length}`, player.cardPool )
         console.log( `deck lenth ${player.deck.length}`, player.deck )
       } )
 
-    console.log( 'commit INIT_GAME end')
+    console.log( 'commit INIT_GAME end' )
+  },
+  SELECT_PLAYER ( state, player ) {
+    state.currentPlayer = player
+    console.log( `commit SELECT_PLAYER ${state.currentPlayer.id}` )
+  },
+  DRAW( state ) {
+    if( state.currentPlayer.deck.length > 0 ) {
+      state.placeholderCard = state.currentPlayer.deck.pop()
+      console.log( `commit DRAW ${state.placeholderCard.name}` )
+    }
+    else {
+      state.placeholderCard = null
+      console.log( `commit DRAW ERROR no card to draw` )
+    }
+  },
+  TO_HAND( state ) {
+    if( state.placeholderCard ) {
+      state.currentPlayer.hand.push( state.placeholderCard )
+      state.placeholderCard = null
+      // console.log( 'commit TO_HAND OK' )
+    }
+    else {
+      console.log( 'commit TO_HAND ERROR no placeholderCard')
+    }
+  },
+  TO_BATTLEFIELD( state ) {
+    if( state.placeholderCard ) {
+      state.currentPlayer.battlefield.push( state.placeholderCard )
+      state.placeholderCard = null
+      // console.log( 'commit TO_BATTLEFIELD OK' )
+    }
+    else {
+      console.log( 'commit TO_BATTLEFIELD ERROR no placeholderCard')
+    }
   },
 }
 const actions = {
@@ -239,10 +274,29 @@ const actions = {
     console.log( 'action FETCH_SCROLL_NEXT' )
   },
   GAME_INIT( { commit, state } ) {
-
     commit( 'GAME_INIT' )
     console.log( 'action GAME_INIT' )
-  }
+  },
+  SELECT_PLAYER( { commit, state }, player ) {
+    commit( 'SELECT_PLAYER', player )
+    console.log( 'SELECT_PLAYER' )
+  },
+  DRAW( { commit, state }, cards=1 ) {
+
+    for( let i=0; i < cards; i++ ) {
+      commit( 'DRAW' )
+      commit( 'TO_HAND' )
+    }
+    console.log( 'DRAW CARDS', cards )
+  },
+  DRAW_TO_BATTLEFIELD( { commit, state }, cards=1 ) {
+
+    for( let i=0; i < cards; i++ ) {
+      commit( 'DRAW' )
+      commit( 'TO_BATTLEFIELD' )
+    }
+    console.log( 'DRAW CARDS TO battlefield', cards )
+  },
 }
 const getters = {
   testGetter ( state ) {

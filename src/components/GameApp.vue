@@ -21,7 +21,7 @@
   	<div class="row gameboard">
   		<div class="col-md-8">
         <div class="row gameboard">
-          <h3>player1 container</h3>
+          <comBattlefield :player="$store.state.player1"></comBattlefield>
         </div>
         <div class="row gameboard">
           <comHand :player="$store.state.player1"></comHand>
@@ -30,10 +30,13 @@
       <div class="col-md-4 gameboard">
           <h3>deck1</h3>
           <comDeck :player="$store.state.player1"></comDeck>
+          <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
   	</div>
+    <div class="row">
+    </div>
   </div>
 </template>
 
@@ -42,6 +45,7 @@
 // import deckControl from './deckControl.vue'
 import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
+import comBattlefield from './comBattlefield.vue'
 
 export default {
   name: 'GameApp',
@@ -52,7 +56,8 @@ export default {
   },
   components: {
     comDeck,
-    comHand
+    comHand,
+    comBattlefield,
   },
   created () {
   },
@@ -69,7 +74,10 @@ export default {
         console.log('game Init')
     },
     gameStart () {
-        console.log('game Start')
+        console.log('game Start' )
+        this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
+        this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
+        this.$store.dispatch( 'DRAW', 5 )
     }
   }
 }
