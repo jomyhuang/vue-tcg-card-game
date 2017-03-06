@@ -1,24 +1,14 @@
 <template>
-  <div class="gameapp">
-    	<div class="row">
-    		<div class="col-md-12">
-            <h1>{{ msg }}</h1>
-    		</div>
-    	</div>
-    	<div class="row">
-    		<div class="col-md-2">
-          <div>
-            <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
-            <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
-          </div>
-    		</div>
-    		<div class="col-md-10">
-          <div class="container-fluid">
-            <h3>this is flexbox container</h3>
-          </div>
-    		</div>
-    	</div>
+  <div class="comHand">
+    <h4>Hand : {{player.hand.length}} cards</h4>
+    <div class="flex-container">
+      <ul>
+        <li v-for="(card,key,index) in player.hand">
+          {{card.no}} {{card.name}}
+        </li>
+      </ul>
     </div>
+  </div>
 </template>
 
 <script>
@@ -27,10 +17,15 @@
 // import deckList from './deckList.vue'
 
 export default {
-  name: 'GameApp',
+  name: 'comHand',
   data () {
     return {
-      msg: 'SDW GAME APP'
+      msg: 'comHand msg'
+    }
+  },
+  props: {
+    player: {
+      type: Object
     }
   },
   components: {
@@ -50,9 +45,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: bold;
-}
 
 .flex-container {
     display: -webkit-flex;

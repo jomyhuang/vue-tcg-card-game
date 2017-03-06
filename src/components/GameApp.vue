@@ -1,28 +1,35 @@
 <template>
   <div class="gameapp">
-  	<div class="row">
+  	<div class="row gameboard">
   		<div class="col-md-12">
   			<h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
         <el-button @click="gameInit()">GAME INIT</el-button>
         <el-button @click="gameStart()">GAME START</el-button>
   		</div>
   	</div>
-    <div class="row">
-  		<div class="col-md-4">
+    <div class="row gameboard">
+  		<div class="col-md-4 gameboard">
           <h3>player 2 deck</h3>
+          <comDeck :player="$store.state.player2"></comDeck>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
-  		<div class="col-md-8">
+  		<div class="col-md-8 gameboard">
         <h3>player2 container</h3>
   		</div>
   	</div>
-  	<div class="row">
+  	<div class="row gameboard">
   		<div class="col-md-8">
-        <h3>player1 container</h3>
+        <div class="row gameboard">
+          <h3>player1 container</h3>
+        </div>
+        <div class="row gameboard">
+          <comHand :player="$store.state.player1"></comHand>
+        </div>
   		</div>
-      <div class="col-md-4">
-          <h3>player1 deck</h3>
+      <div class="col-md-4 gameboard">
+          <h3>deck1</h3>
+          <comDeck :player="$store.state.player1"></comDeck>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
@@ -33,7 +40,8 @@
 <script>
 // import cardDB from './cardDB.json'
 // import deckControl from './deckControl.vue'
-// import deckList from './deckList.vue'
+import comDeck from './comDeck.vue'
+import comHand from './comHand.vue'
 
 export default {
   name: 'GameApp',
@@ -43,10 +51,13 @@ export default {
     }
   },
   components: {
+    comDeck,
+    comHand
   },
   created () {
   },
   mounted () {
+    this.$store.dispatch( 'GAME_INIT' )
   },
   beforeDestroy () {
   },
@@ -71,7 +82,9 @@ h1, h2 {
 }
 
 .gameboard {
+  border: thin solid #0000ff;
   background-color: lightblue;
+  padding: 15px;
 }
 
 .flex-container {

@@ -46,7 +46,7 @@ const state = {
   player2: {
     id: 'playerId2',
     hero: 'heroId2',
-    name: 'Jimmy',
+    name: 'Jomy',
     cardPool: [],
     deck: [
       'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10',
@@ -89,7 +89,7 @@ const mutations = {
     // state.cardDB = JSON.parse(storeDB || '[]')
     state.pageFullList = []
     // exam = Object.keys(exam).map(function(k){return exam[k]});
-    Object.keys(state.cardDB).map( (k) => state.pageFullList.push( state.cardDB[k] ) )
+    Object.keys(state.cardDB).forEach( (k) => state.pageFullList.push( state.cardDB[k] ) )
     state.pageKeyList = state.pageFullList
 
     console.log( 'JSON to fulllist/keylist array', state.pageFullList )
@@ -160,30 +160,41 @@ const mutations = {
     state.storemsg = 'GAME INIT'
 
     // make deck to card pool clone from cardDB
-    // [ state.player1 ].map( (player) => {
+    // [ state.player1 ].( (player) => {
     // const list = [ (state.player1, deck1), (state.player2,deck1) ]
-    const list = [ [state.player1,deck1], [state.player2,deck1] ]
+    // let test = [ 1, 2, 3 ].map( x => x * x )
 
-    list.map( (pack) => {
+    const list = [ [state.player1,deck1], [state.player2,deck1]]
+
+    list.forEach( ([player,deckfile]) => {
       // console.log(pack)
       // const (player,deckfile) = pack...
-      let player = pack[0]
-      let deckfile = pack[1]
+      // let player = pack[0]
+      // let deckfile = pack[1]
       console.log( 'init deck ', player.id )
       player.cardPool = []
       player.deck = []
-      deckfile.map( (cardid) => {
+      deckfile.forEach( (cardid) => {
           let card = state.cardDB[ cardid ]
           if( card ) {
             // clone /or make gamecard object
-            const gamecard = player.cardPool.push( card )
+            // simple clone
+            const gamecard = Object.assign( {}, card )
+            player.cardPool.push( gamecard )
             player.deck.push( gamecard )
+            // if( (gamecard === card) )
+            //     console.log( 'same card' )
           } else {
             // throw init error
-            console.log( `GAME_INIT: warning ${cardid} not found`)
+            console.log( `GAME_INIT: warning ${cardid} not found` )
           }
         } )
-        console.log( 'card pool', player.cardPool, 'card deck', player.deck )
+        player.hand.push( player.cardPool[0] )
+        player.hand.push( player.cardPool[1] )
+        player.hand.push( player.cardPool[2] )
+
+        console.log( `cardPool lenth ${player.cardPool.length}`, player.cardPool )
+        console.log( `deck lenth ${player.deck.length}`, player.deck )
       } )
 
     console.log( 'commit INIT_GAME end')
@@ -231,7 +242,6 @@ const actions = {
 
     commit( 'GAME_INIT' )
     console.log( 'action GAME_INIT' )
-
   }
 }
 const getters = {
