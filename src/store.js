@@ -25,7 +25,7 @@ const state = {
 
   // game app
   currentPlayer: null,
-  placeholderCard: null,
+  placeholder: null,
   player1: {
     id: 'playerId1',
     hero: 'heroId1',
@@ -39,6 +39,7 @@ const state = {
     battlefield: [],
     hand: [],
     graveyard: [],
+    base: [],
     secrets: [],
     effects: [],
     auras: [],
@@ -59,6 +60,7 @@ const state = {
     battlefield: [],
     hand: [],
     graveyard: [],
+    base: [],
     secrets: [],
     effects: [],
     auras: [],
@@ -125,7 +127,6 @@ const mutations = {
     state.storemsg = 'FETCH_REFRESH'
     console.log( 'commit FETCH_REFRESH pageTotalPage', state.pageTotalPage )
     console.log( 'FETCH_REFRESH pagePerItems' , state.pagePerItems, 'filter', state.pageFilter )
-
   },
   FETCH_PAGE ( state, pageno = 1 ) {
     state.pageList = []
@@ -184,6 +185,8 @@ const mutations = {
             // clone /or make gamecard object
             // simple clone
             const gamecard = Object.assign( {}, card )
+            // new prop for game
+            Vue.set( gamecard, 'facedown', false )
             player.cardPool.push( gamecard )
             player.deck.push( gamecard )
             // if( (gamecard === card) )
@@ -204,35 +207,102 @@ const mutations = {
     state.currentPlayer = player
     console.log( `commit SELECT_PLAYER ${state.currentPlayer.id}` )
   },
+  SELECT_CARD( state, card=null ) {
+    state.placeholder = card
+    if( state.placeholder )
+      console.log( `commit SELECT_CARD ${state.placeholder.name}` )
+    else
+      console.log( 'commit SELECT_CARD null' )
+  },
+  PICK_CARD( state, card=null ) {
+    if( card ) {
+      const pilelist = [ ['hand', state.currentPlayer.hand],
+                    ['battlefield', state.currentPlayer.battlefield],
+                    ['base', state.currentPlayer.base],
+                    ['graveyard', state.currentPlayer.graveyard],
+                  ]
+
+      let found = false
+      state.placeholder = null
+      for( let i=0; i < pilelist.length; i++ ) {
+        let pack = pilelist[i]
+        let pilename = pack[0]
+        let pile = pack[1]
+        // console.log(`find ${card.name} in ${pilename}`)
+        let index = pile.indexOf(card)
+        if( index > -1 ) {
+          pile.splice(index,1)
+          state.placeholder = card
+          found = true
+          console.log( `commit PICK_CARD find ${card.name} from ${pilename} index ${index}` )
+          break
+        }
+      }
+
+      if( !found ) {
+        state.placeholder = null
+        console.log( `commit PICK_CARD ERROR ${card.name} not found in all pile` )
+        throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
+      }
+    }
+    else
+      console.log( 'commit set PICK_CARD null' )
+  },
   DRAW( state ) {
     if( state.currentPlayer.deck.length > 0 ) {
-      state.placeholderCard = state.currentPlayer.deck.pop()
-      console.log( `commit DRAW ${state.placeholderCard.name}` )
+      state.placeholder = state.currentPlayer.deck.pop()
+      console.log( `commit DRAW ${state.placeholder.name}` )
     }
     else {
-      state.placeholderCard = null
+      state.placeholder = null
       console.log( `commit DRAW ERROR no card to draw` )
     }
   },
+  SET_FACEDOWN( state ) {
+    if( !state.placeholder ) {
+      console.log( 'commit SET_FACEDOWN ERROR no placeholder card')
+      return
+    }
+    state.placeholder.facedown = true
+  },
+  SET_FACEUP( state ) {
+    if( !state.placeholder ) {
+      console.log( 'commit SET_FACEUP ERROR no placeholder card')
+      return
+    }
+    state.placeholder.facedown = false
+  },
   TO_HAND( state ) {
-    if( state.placeholderCard ) {
-      state.currentPlayer.hand.push( state.placeholderCard )
-      state.placeholderCard = null
-      // console.log( 'commit TO_HAND OK' )
+    if( !state.placeholder ) {
+      console.log( 'commit TO_HAND ERROR no placeholder card')
+      return
     }
-    else {
-      console.log( 'commit TO_HAND ERROR no placeholderCard')
-    }
+    state.currentPlayer.hand.push( state.placeholder )
+    state.placeholder = null
   },
   TO_BATTLEFIELD( state ) {
-    if( state.placeholderCard ) {
-      state.currentPlayer.battlefield.push( state.placeholderCard )
-      state.placeholderCard = null
-      // console.log( 'commit TO_BATTLEFIELD OK' )
+    if( !state.placeholder ) {
+      console.log( 'commit TO_HAND ERROR no placeholder card')
+      return
     }
-    else {
-      console.log( 'commit TO_BATTLEFIELD ERROR no placeholderCard')
+    state.currentPlayer.battlefield.push( state.placeholder )
+    state.placeholder = null
+  },
+  TO_BASE( state ) {
+    if( !state.placeholder ) {
+      console.log( 'commit TO_BASE ERROR no placeholder card')
+      return
     }
+    state.currentPlayer.base.push( state.placeholder )
+    state.placeholder = null
+  },
+  TO_GRAVEYARD( state ) {
+    if( !state.placeholder ) {
+      console.log( 'commit TO_BASE ERROR no placeholder card')
+      return
+    }
+    state.currentPlayer.graveyard.push( state.placeholder )
+    state.placeholder = null
   },
 }
 const actions = {
@@ -269,7 +339,6 @@ const actions = {
     // console.log( 'val2', val2 )
   },
   FETCH_SCROLL_NEXT( { commit, state } ) {
-
     commit( 'FETCH_SCROLL_NEXT' )
     console.log( 'action FETCH_SCROLL_NEXT' )
   },
@@ -281,21 +350,26 @@ const actions = {
     commit( 'SELECT_PLAYER', player )
     console.log( 'SELECT_PLAYER' )
   },
-  DRAW( { commit, state }, cards=1 ) {
-
-    for( let i=0; i < cards; i++ ) {
+  DRAW( { commit, state }, many=1 ) {
+    for( let i=0; i < many; i++ ) {
       commit( 'DRAW' )
       commit( 'TO_HAND' )
     }
-    console.log( 'DRAW CARDS', cards )
+    console.log( 'DRAW CARDS', many )
   },
-  DRAW_TO_BATTLEFIELD( { commit, state }, cards=1 ) {
-
-    for( let i=0; i < cards; i++ ) {
+  DRAW_TO_BATTLEFIELD( { commit, state }, many=1 ) {
+    for( let i=0; i < many; i++ ) {
       commit( 'DRAW' )
+      commit( 'SET_FACEDOWN' )
       commit( 'TO_BATTLEFIELD' )
     }
-    console.log( 'DRAW CARDS TO battlefield', cards )
+    console.log( 'DRAW CARDS TO battlefield', many )
+  },
+  SET_FACEUP( { commit, state }, card ) {
+    commit( 'SELECT_CARD', card )
+    commit( 'SET_FACEUP' )
+    commit( 'SELECT_CARD', null )
+    console.log( 'action SET_FACEUP' )
   },
 }
 const getters = {
@@ -310,7 +384,6 @@ const getters = {
   },
   selectCards( state ) {
     let cards = []
-
     state.pageFullList.forEach( (card) => {
       if ( card.count > 0 )
         cards.push(card)

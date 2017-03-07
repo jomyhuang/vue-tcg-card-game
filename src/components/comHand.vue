@@ -2,15 +2,8 @@
   <div class="comHand">
     <h4>Hand : {{player.hand.length}} cards</h4>
     <div class="flex-container">
-      <div class="flex-item" v-for="(card,key,index) in player.hand">
-        <div><h4>{{card.name}}</h4></div>
-        <div>
-          <span v-for="n in card.star">🌟</span>
-        </div>
-        <div>{{card.class}} {{card.race}} {{card.color}}</div>
-        <div># {{card.cardno}}  [{{card.pro}}]</div>
-        <div>{{card.attack1}} {{card.power1}}</div>
-        <div>{{card.attack2}} {{card.power2}}</div>
+      <div v-for="(card,key,index) in player.hand">
+        <comCard :card="card"></comCard>
       </div>
     </div>
   </div>
@@ -19,7 +12,7 @@
 <script>
 // import cardDB from './cardDB.json'
 // import deckControl from './deckControl.vue'
-// import deckList from './deckList.vue'
+import comCard from './comCard.vue'
 
 export default {
   name: 'comHand',
@@ -34,6 +27,7 @@ export default {
     }
   },
   components: {
+    comCard,
   },
   created () {
   },

@@ -2,7 +2,24 @@
   <div class="comDeck">
       <h5>#{{player.id}} {{player.name}}</h5>
       <h5>hero {{player.hero}}</h5>
-      <h3>{{player.deck.length}}</h3>
+      <h3>套牌 {{player.deck.length}} <i class="el-icon-view" @click.stop.prevent="toggleViewDeck()"></i></h3>
+      <div v-show="viewDeck">
+        <ul>
+          <li v-for="card in player.deck">{{card.name}}</li>
+        </ul>
+      </div>
+      <h3>休息仓 {{player.base.length}} <i class="el-icon-view" @click.stop.prevent="toggleViewBase()"></i></h3>
+      <div v-show="viewBase">
+        <ul>
+          <li v-for="card in player.base">{{card.name}}</li>
+        </ul>
+      </div>
+      <h3>黑洞 {{player.graveyard.length}} <i class="el-icon-view" @click.stop.prevent="toggleViewGraveyard()"></i></h3>
+      <div v-show="viewGraveyard">
+        <ul>
+          <li v-for="card in player.graveyard">{{card.name}}</li>
+        </ul>
+      </div>
     </div>
 </template>
 
@@ -15,7 +32,10 @@ export default {
   name: 'comDeck',
   data () {
     return {
-      msg: 'comDeck msg'
+      msg: 'comDeck msg',
+      viewDeck: false,
+      viewBase: false,
+      viewGraveyard: false,
     }
   },
   props: {
@@ -34,6 +54,18 @@ export default {
   computed: {
   },
   methods: {
+    toggle(view) {
+      view = !view
+    },
+    toggleViewDeck () {
+      this.viewDeck = !this.viewDeck
+    },
+    toggleViewBase() {
+      this.viewBase = !this.viewBase
+    },
+    toggleViewGraveyard() {
+      this.viewGraveyard = !this.viewGraveyard
+    }
   }
 }
 </script>

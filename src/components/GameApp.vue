@@ -76,8 +76,8 @@ export default {
     gameStart () {
         console.log('game Start' )
         this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
-        this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
         this.$store.dispatch( 'DRAW', 5 )
+        this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
     }
   }
 }
