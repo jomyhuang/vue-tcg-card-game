@@ -1,6 +1,6 @@
 <template>
   <div class="comHand">
-    <h4>battlefield : {{player.battlefield.length}} cards</h4>
+    <h4>Battlefield : {{player.battlefield.length}} cards</h4>
     <div class="flex-container">
       <div v-for="(card,key,index) in player.battlefield">
         <comCard :card="card"></comCard>

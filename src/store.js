@@ -26,6 +26,18 @@ const state = {
   // game app
   currentPlayer: null,
   placeholder: null,
+  battle: {
+    attacker: {
+      player: null,
+      main: null,
+      support: null,
+    },
+    defenser: {
+      player: null,
+      main: null,
+      support: null,
+    },
+  },
   player1: {
     id: 'playerId1',
     hero: 'heroId1',
@@ -69,7 +81,6 @@ const state = {
     maxMana: 10,
   },
 }
-
 const mutations = {
   TOGGLE_LOADING (state) {
     state.callingAPI = !state.callingAPI
