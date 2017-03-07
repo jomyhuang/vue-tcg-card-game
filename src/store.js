@@ -26,6 +26,7 @@ const state = {
   // game app
   currentPlayer: null,
   placeholder: null,
+  selectlist: [],
   battle: {
     attacker: {
       player: null,
@@ -197,7 +198,11 @@ const mutations = {
             // simple clone
             const gamecard = Object.assign( {}, card )
             // new prop for game
-            Vue.set( gamecard, 'facedown', false )
+            Vue.set( gamecard,'facedown',false )
+            Vue.set( gamecard,'selected',false )
+            Vue.set( gamecard,'canselect',false )
+
+            // end
             player.cardPool.push( gamecard )
             player.deck.push( gamecard )
             // if( (gamecard === card) )
@@ -224,6 +229,14 @@ const mutations = {
       console.log( `commit SELECT_CARD ${state.placeholder.name}` )
     else
       console.log( 'commit SELECT_CARD null' )
+  },
+  SELECT_CARDLIST( state, list=[] ) {
+    state.selectlist = list
+    if( state.selectlist.length > 0 )
+      console.log( `commit SELECT_CARDLIST ${state.selectlist.length}` )
+    else {
+      console.log( 'commit SELECT_CARDLIST is 0' )
+    }
   },
   PICK_CARD( state, card=null ) {
     if( card ) {
@@ -256,8 +269,10 @@ const mutations = {
         throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
       }
     }
-    else
+    else {
+      state.placeholder = null
       console.log( 'commit set PICK_CARD null' )
+    }
   },
   DRAW( state ) {
     if( state.currentPlayer.deck.length > 0 ) {
@@ -282,6 +297,26 @@ const mutations = {
       return
     }
     state.placeholder.facedown = false
+  },
+  SET_SELECTED( state, value ) {
+    if( !state.placeholder ) {
+      console.log( 'commit SET_SELECTED ERROR no placeholder card')
+      return
+    }
+    let flag = false
+    if( value == undefined )
+      flag = !state.placeholder.selected
+    else {
+      flag = value
+    }
+    state.placeholder.selected = flag
+  },
+  SET_CANSELECT( state, value=false ) {
+    if( !state.placeholder ) {
+      console.log( 'commit SET_SELECTED ERROR no placeholder card')
+      return
+    }
+    state.placeholder.canselect = value
   },
   TO_HAND( state ) {
     if( !state.placeholder ) {
@@ -382,6 +417,27 @@ const actions = {
     commit( 'SELECT_CARD', null )
     console.log( 'action SET_FACEUP' )
   },
+  SELECT_CARD_ON( { commit, state }, list ) {
+    if( list != undefined )
+      commit( 'SELECT_CARDLIST', list )
+
+    state.selectlist.forEach( (card) => {
+      commit( 'SELECT_CARD', card )
+      commit( 'SET_SELECTED', false )
+      commit( 'SET_CANSELECT', true )
+    })
+  },
+  SELECT_CARD_OFF( { commit, state }, list ) {
+    if( list != undefined )
+      commit( 'SELECT_CARDLIST', list )
+
+    state.selectlist.forEach( (card) => {
+      commit( 'SELECT_CARD', card )
+      // commit( 'SET_SELECTED', false )
+      commit( 'SET_CANSELECT', false )
+    })
+  }
+
 }
 const getters = {
   testGetter ( state ) {

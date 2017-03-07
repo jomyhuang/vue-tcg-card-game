@@ -31,6 +31,7 @@
           <h3>deck1</h3>
           <comDeck :player="$store.state.player1"></comDeck>
           <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
+          <el-button @click="playcard()">PLAY</el-button>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
@@ -70,14 +71,18 @@ export default {
   },
   methods: {
     gameInit () {
-        this.$store.dispatch( 'GAME_INIT' )
-        console.log('game Init')
+      this.$store.dispatch( 'GAME_INIT' )
+      console.log('game Init')
     },
     gameStart () {
-        console.log('game Start' )
-        this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
-        this.$store.dispatch( 'DRAW', 5 )
-        this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
+      console.log('game Start')
+      this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
+      this.$store.dispatch( 'DRAW', 5 )
+      this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
+    },
+    playcard () {
+      this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
+      this.$store.dispatch( 'SELECT_CARD_ON', this.$store.state.currentPlayer.hand )
     }
   }
 }
