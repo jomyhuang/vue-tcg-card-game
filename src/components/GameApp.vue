@@ -21,7 +21,7 @@
   	<div class="row gameboard">
   		<div class="col-md-8">
         <div class="row gameboard">
-          <comBattlefield :player="$store.state.player1"></comBattlefield>
+          <comZone :player="$store.state.player1"></comZone>
         </div>
         <div class="row gameboard">
           <comHand :player="$store.state.player1"></comHand>
@@ -46,7 +46,7 @@
 // import deckControl from './deckControl.vue'
 import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
-import comBattlefield from './comBattlefield.vue'
+import comZone from './comZone.vue'
 
 export default {
   name: 'GameApp',
@@ -58,7 +58,7 @@ export default {
   components: {
     comDeck,
     comHand,
-    comBattlefield,
+    comZone,
   },
   created () {
   },
@@ -78,11 +78,12 @@ export default {
       console.log('game Start')
       this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
       this.$store.dispatch( 'DRAW', 5 )
-      this.$store.dispatch( 'DRAW_TO_BATTLEFIELD', 5 )
+      this.$store.dispatch( 'DRAW_TO_ZONE', 5 )
     },
     playcard () {
-      this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
-      this.$store.dispatch( 'SELECT_CARD_ON', this.$store.state.currentPlayer.hand )
+      // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
+      // this.$store.dispatch( 'SELECT_CARDLIST', this.$store.state.currentPlayer.hand )
+      this.$store.dispatch( 'ACT_SELECT_CARD_START', { list: 'hand' } )
     }
   }
 }

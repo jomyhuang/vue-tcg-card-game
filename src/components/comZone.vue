@@ -1,8 +1,8 @@
 <template>
   <div class="comHand">
-    <h4>Battlefield : {{player.battlefield.length}} cards</h4>
+    <h4>Zone : {{player.zone.length}} cards</h4>
     <div class="flex-container">
-      <div v-for="(card,key,index) in player.battlefield">
+      <div v-for="(card,key,index) in player.zone">
         <comCard :card="card"></comCard>
       </div>
     </div>
@@ -15,10 +15,10 @@
 import comCard from './comCard.vue'
 
 export default {
-  name: 'comBattlefield',
+  name: 'comeZone',
   data () {
     return {
-      msg: 'comBattlefield msg'
+      msg: 'comeZone msg'
     }
   },
   props: {

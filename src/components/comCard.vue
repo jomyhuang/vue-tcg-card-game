@@ -20,7 +20,7 @@
         <br/>
         <i class="el-icon-minus" @click.stop.prevent="tograveyrad($event)">GRAVEYARD</i>
         <br/>
-        <div v-if="card.canselect">
+        <div v-if="card.selectable">
           <i class="el-icon-minus" @click.stop.prevent="selectcard($event)">
             <span v-if="card.selected">UNSELECT</span>
             <span v-else="card.selected">SELECT</span>
@@ -68,10 +68,11 @@ export default {
       this.$store.commit('TO_GRAVEYARD')
     },
     selectcard(event) {
+      this.$store.dispatch('ACT_SELECTED_CARD',this.card)
       // this.$store.commit('PICK_CARD',this.card)
-      this.$store.commit('SELECT_CARD',this.card)
-      this.$store.commit('SET_SELECTED')
-      this.$store.dispatch('SELECT_CARD_OFF')
+      // this.$store.commit('SELECT_CARD',this.card)
+      // this.$store.commit('SET_SELECTED')
+      this.$store.dispatch('ACT_SELECT_CARD_END')
     },
   }
 }

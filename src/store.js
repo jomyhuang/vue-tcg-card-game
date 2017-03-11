@@ -26,7 +26,9 @@ const state = {
   // game app
   currentPlayer: null,
   placeholder: null,
-  selectlist: [],
+  placelist: [],
+  // ACT_SELECT_CARD_...
+
   battle: {
     attacker: {
       player: null,
@@ -49,7 +51,7 @@ const state = {
       'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
       'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
     ],
-    battlefield: [],
+    zone: [],
     hand: [],
     graveyard: [],
     base: [],
@@ -70,7 +72,7 @@ const state = {
       'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
       'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
     ],
-    battlefield: [],
+    zone: [],
     hand: [],
     graveyard: [],
     base: [],
@@ -188,7 +190,7 @@ const mutations = {
       // const (player,deckfile) = pack...
       // let player = pack[0]
       // let deckfile = pack[1]
-      console.log( 'init deck ', player.id )
+      // console.log( 'init deck ', player.id )
       player.cardPool = []
       player.deck = []
       deckfile.forEach( (cardid) => {
@@ -200,9 +202,9 @@ const mutations = {
             // new prop for game
             Vue.set( gamecard,'facedown',false )
             Vue.set( gamecard,'selected',false )
-            Vue.set( gamecard,'canselect',false )
+            Vue.set( gamecard,'selectable',false )
 
-            // end
+            // end prop
             player.cardPool.push( gamecard )
             player.deck.push( gamecard )
             // if( (gamecard === card) )
@@ -230,10 +232,23 @@ const mutations = {
     else
       console.log( 'commit SELECT_CARD null' )
   },
-  SELECT_CARDLIST( state, list=[] ) {
-    state.selectlist = list
-    if( state.selectlist.length > 0 )
-      console.log( `commit SELECT_CARDLIST ${state.selectlist.length}` )
+  // SELECT_CARDLIST( state, actlist=[] ) {
+  SELECT_CARDLIST( state, {
+    list='hand',
+    many=1,
+    action=null,
+    callback={}
+  } = {} ) {
+
+    if( typeof(list)=="string" ) {
+      state.placelist = eval(`state.currentPlayer.${list}`)
+    }
+    else {
+      state.placelist = list
+    }
+
+    if( state.placelist.length > 0 )
+      console.log( `commit SELECT_CARDLIST ${state.placelist.length}` )
     else {
       console.log( 'commit SELECT_CARDLIST is 0' )
     }
@@ -241,7 +256,7 @@ const mutations = {
   PICK_CARD( state, card=null ) {
     if( card ) {
       const pilelist = [ ['hand', state.currentPlayer.hand],
-                    ['battlefield', state.currentPlayer.battlefield],
+                    ['zone', state.currentPlayer.zone],
                     ['base', state.currentPlayer.base],
                     ['graveyard', state.currentPlayer.graveyard],
                   ]
@@ -310,13 +325,14 @@ const mutations = {
       flag = value
     }
     state.placeholder.selected = flag
+    console.log( `commit SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
   },
-  SET_CANSELECT( state, value=false ) {
+  SET_SELECTABLE( state, value=false ) {
     if( !state.placeholder ) {
-      console.log( 'commit SET_SELECTED ERROR no placeholder card')
+      console.log( 'commit SET_SELECTABLE ERROR no placeholder card')
       return
     }
-    state.placeholder.canselect = value
+    state.placeholder.selectable = value
   },
   TO_HAND( state ) {
     if( !state.placeholder ) {
@@ -326,12 +342,12 @@ const mutations = {
     state.currentPlayer.hand.push( state.placeholder )
     state.placeholder = null
   },
-  TO_BATTLEFIELD( state ) {
+  TO_ZONE( state ) {
     if( !state.placeholder ) {
-      console.log( 'commit TO_HAND ERROR no placeholder card')
+      console.log( 'commit TO_ZONE ERROR no placeholder card')
       return
     }
-    state.currentPlayer.battlefield.push( state.placeholder )
+    state.currentPlayer.zone.push( state.placeholder )
     state.placeholder = null
   },
   TO_BASE( state ) {
@@ -394,22 +410,26 @@ const actions = {
   },
   SELECT_PLAYER( { commit, state }, player ) {
     commit( 'SELECT_PLAYER', player )
-    console.log( 'SELECT_PLAYER' )
+    console.log( 'action SELECT_PLAYER' )
+  },
+  SELECT_CARDLIST( { commit, state }, list ) {
+    commit( 'SELECT_CARDLIST', list )
+    console.log( 'action SELECT_CARDLIST' )
   },
   DRAW( { commit, state }, many=1 ) {
     for( let i=0; i < many; i++ ) {
       commit( 'DRAW' )
       commit( 'TO_HAND' )
     }
-    console.log( 'DRAW CARDS', many )
+    console.log( 'action DRAW CARDS', many )
   },
-  DRAW_TO_BATTLEFIELD( { commit, state }, many=1 ) {
+  DRAW_TO_ZONE( { commit, state }, many=1 ) {
     for( let i=0; i < many; i++ ) {
       commit( 'DRAW' )
       commit( 'SET_FACEDOWN' )
-      commit( 'TO_BATTLEFIELD' )
+      commit( 'TO_ZONE' )
     }
-    console.log( 'DRAW CARDS TO battlefield', many )
+    console.log( 'action DRAW CARDS TO zone', many )
   },
   SET_FACEUP( { commit, state }, card ) {
     commit( 'SELECT_CARD', card )
@@ -417,24 +437,38 @@ const actions = {
     commit( 'SELECT_CARD', null )
     console.log( 'action SET_FACEUP' )
   },
-  SELECT_CARD_ON( { commit, state }, list ) {
-    if( list != undefined )
-      commit( 'SELECT_CARDLIST', list )
+  ACT_SELECT_CARD_START( { commit, state }, actlist ) {
+    commit( 'SELECT_CARDLIST', actlist )
 
-    state.selectlist.forEach( (card) => {
+    state.placelist.forEach( (card) => {
       commit( 'SELECT_CARD', card )
       commit( 'SET_SELECTED', false )
-      commit( 'SET_CANSELECT', true )
+      commit( 'SET_SELECTABLE', true )
     })
   },
-  SELECT_CARD_OFF( { commit, state }, list ) {
-    if( list != undefined )
-      commit( 'SELECT_CARDLIST', list )
+  // 带入 dispatch
+  ACT_SELECTED_CARD( { dispatch, commit, state }, card ) {
 
-    state.selectlist.forEach( (card) => {
-      commit( 'SELECT_CARD', card )
+    console.log( `action ACT_SELECTED_CARD ${card.name}` )
+
+    commit('SELECT_CARD',card)
+    commit('SET_SELECTED')
+    // do action & callback
+    // can't do action another action
+    // this.$store.dispatch('ACT_SELECT_CARD_END')
+    // action
+    dispatch('ACT_SELECT_CARD_END')
+    // action do promise
+    // return dispatch('ACT_SELECT_CARD_END')
+  },
+  ACT_SELECT_CARD_END( { commit, state } ) {
+
+    // push into selected list
+    // do next select or end act
+    state.placelist.forEach( (card) => {
+      commit('SELECT_CARD', card)
       // commit( 'SET_SELECTED', false )
-      commit( 'SET_CANSELECT', false )
+      commit('SET_SELECTABLE', false)
     })
   }
 
