@@ -6,6 +6,7 @@ import Vuex from 'vuex'
 import storeDB from './components/SDWCardDB.json'
 import deck1 from './components/player1.deck'
 
+import _ from 'underscore'
 
 Vue.use(Vuex)
 
@@ -28,7 +29,14 @@ const state = {
   placeholder: null,
   placelist: [],
   // ACT_SELECT_CARD_...
-
+  act_selection: {
+    list: [],
+    many: 0,
+    selectedAction: null,
+    selectedMuation: null,
+    thenAction: null,
+    selectedList: [],
+  },
   battle: {
     attacker: {
       player: null,
@@ -215,6 +223,9 @@ const mutations = {
           }
         } )
 
+        // underscore.js
+        player.deck = _.shuffle(player.deck)
+
         console.log( `cardPool lenth ${player.cardPool.length}`, player.cardPool )
         console.log( `deck lenth ${player.deck.length}`, player.deck )
       } )
@@ -232,14 +243,7 @@ const mutations = {
     else
       console.log( 'commit SELECT_CARD null' )
   },
-  // SELECT_CARDLIST( state, actlist=[] ) {
-  SELECT_CARDLIST( state, {
-    list='hand',
-    many=1,
-    action=null,
-    callback={}
-  } = {} ) {
-
+  SELECT_CARDLIST( state, list='hand' ) {
     if( typeof(list)=="string" ) {
       state.placelist = eval(`state.currentPlayer.${list}`)
     }
@@ -253,13 +257,91 @@ const mutations = {
       console.log( 'commit SELECT_CARDLIST is 0' )
     }
   },
-  PICK_CARD( state, card=null ) {
+  // FETCH_REFRESH ( state, { pagePerItems = 10, filter = 'all', filterfunc = {} } = {} ) {
+  ACT_SELECTION( state, {
+    list='hand',
+    many=1,
+    selectedMuation=null,
+    selectedAction=null,
+    thenAction=null,
+  } = {} ) {
+
+    // 修改成解构式
+    state.act_selection.list = list
+    state.act_selection.many = many
+    state.act_selection.selectedMuation = selectedMuation
+    state.act_selection.selectedAction = selectedAction
+    state.act_selection.thenAction = thenAction
+    state.act_selection.selectedList = []
+
+    // placelist 处理 copy from SELECT_CARDLIST
+    if( typeof(list)=='string' ) {
+      state.placelist = eval(`state.currentPlayer.${list}`)
+    }
+    else {
+      state.placelist = list
+    }
+    state.placelist.forEach( (card) => {
+      card.selected = false
+      card.selectable = true
+    })
+    // end
+
+    // state.act_selection.selected_count = 0
+    // state.act_selection.selected_list = []
+    console.log('commit ACT_SELECTION')
+  },
+  ACT_SET_SELECTED ( state, value ) {
+    if( !state.placeholder ) {
+      console.log( 'commit ACT_SET_SELECTED ERROR no placeholder card' )
+      return
+    }
+    let flag = false
+    if( value == undefined )
+      flag = !state.placeholder.selected
+    else {
+      flag = value
+    }
+    state.placeholder.selected = flag
+
+    if( state.act_selection.selectedMuation ) {
+      // 处理muation callback
+      console.log( `commit ACT_SET_SELECTED selectedMuation call` )
+      state.act_selection.selectedMuation( state, state.placeholder )
+    }
+
+    // 处理更新selected list
+    state.act_selection.selectedList = state.placelist.filter( (card) => {
+      return card.selected
+    } )
+    // if( state.placeholder.selected ) {
+    //     // action selection
+    //     state.act_selection.selected_list.push( state.placeholder )
+    // }
+    console.log( `commit ACT_SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
+  },
+  // SET_SELECTABLE( state, value=false ) {
+  //   if( !state.placeholder ) {
+  //     console.log( 'commit SET_SELECTABLE ERROR no placeholder card')
+  //     return
+  //   }
+  //   state.placeholder.selectable = value
+  // },
+  ACT_UNSELECTION ( state ) {
+    state.placelist.forEach( (card) => {
+      // card.selected = false
+      card.selectable = false
+    })
+    console.log('commit ACT_UNSELECTION')
+  },
+  PICK_CARD ( state, card=null ) {
     if( card ) {
-      const pilelist = [ ['hand', state.currentPlayer.hand],
-                    ['zone', state.currentPlayer.zone],
-                    ['base', state.currentPlayer.base],
-                    ['graveyard', state.currentPlayer.graveyard],
-                  ]
+      const pilelist = [
+        ['hand', state.currentPlayer.hand],
+        ['zone', state.currentPlayer.zone],
+        ['base', state.currentPlayer.base],
+        ['graveyard', state.currentPlayer.graveyard],
+      ]
 
       let found = false
       state.placeholder = null
@@ -286,10 +368,10 @@ const mutations = {
     }
     else {
       state.placeholder = null
-      console.log( 'commit set PICK_CARD null' )
+      console.log( 'commit PICK_CARD null must assign' )
     }
   },
-  DRAW( state ) {
+  DRAW ( state ) {
     if( state.currentPlayer.deck.length > 0 ) {
       state.placeholder = state.currentPlayer.deck.pop()
       console.log( `commit DRAW ${state.placeholder.name}` )
@@ -299,40 +381,19 @@ const mutations = {
       console.log( `commit DRAW ERROR no card to draw` )
     }
   },
-  SET_FACEDOWN( state ) {
+  SET_FACEDOWN ( state ) {
     if( !state.placeholder ) {
       console.log( 'commit SET_FACEDOWN ERROR no placeholder card')
       return
     }
     state.placeholder.facedown = true
   },
-  SET_FACEUP( state ) {
+  SET_FACEUP ( state ) {
     if( !state.placeholder ) {
       console.log( 'commit SET_FACEUP ERROR no placeholder card')
       return
     }
     state.placeholder.facedown = false
-  },
-  SET_SELECTED( state, value ) {
-    if( !state.placeholder ) {
-      console.log( 'commit SET_SELECTED ERROR no placeholder card')
-      return
-    }
-    let flag = false
-    if( value == undefined )
-      flag = !state.placeholder.selected
-    else {
-      flag = value
-    }
-    state.placeholder.selected = flag
-    console.log( `commit SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
-  },
-  SET_SELECTABLE( state, value=false ) {
-    if( !state.placeholder ) {
-      console.log( 'commit SET_SELECTABLE ERROR no placeholder card')
-      return
-    }
-    state.placeholder.selectable = value
   },
   TO_HAND( state ) {
     if( !state.placeholder ) {
@@ -437,14 +498,21 @@ const actions = {
     commit( 'SELECT_CARD', null )
     console.log( 'action SET_FACEUP' )
   },
-  ACT_SELECT_CARD_START( { commit, state }, actlist ) {
-    commit( 'SELECT_CARDLIST', actlist )
+  ACT_SELECT_CARD_START( { commit, state }, payload ) {
 
-    state.placelist.forEach( (card) => {
-      commit( 'SELECT_CARD', card )
-      commit( 'SET_SELECTED', false )
-      commit( 'SET_SELECTABLE', true )
-    })
+    // payload.callback = (card,state) => {
+    // payload.callback = (card) => {
+    //   state.storemsg = `call back select ${card.name}`
+    //   card.name = card.name + '**'
+    //   console.log(`callback test check ${card.name} / ${state.storemsg}`)
+    // }
+    commit('ACT_SELECTION', payload)
+
+    // state.placelist.forEach( (card) => {
+    //   commit('SELECT_CARD', card)
+    //   commit('SET_SELECTED', false)
+    //   commit('SET_SELECTABLE', true)
+    // })
   },
   // 带入 dispatch
   ACT_SELECTED_CARD( { dispatch, commit, state }, card ) {
@@ -452,26 +520,40 @@ const actions = {
     console.log( `action ACT_SELECTED_CARD ${card.name}` )
 
     commit('SELECT_CARD',card)
-    commit('SET_SELECTED')
-    // do action & callback
-    // can't do action another action
-    // this.$store.dispatch('ACT_SELECT_CARD_END')
-    // action
-    dispatch('ACT_SELECT_CARD_END')
+    commit('ACT_SET_SELECTED')
+
+    // dispatch selected action
+    if( state.act_selection.selectedAction ) {
+      // console.log( `ACT_SELECTED_CARD dispatch ${state.act_selection.action}` )
+      // dispatch(state.act_selection.action,card)
+      console.log( `ACT_SELECTED_CARD selectedAction call` )
+      state.act_selection.selectedAction(state,card)
+    }
+    // if( state.act_selection.callback ) {
+    //   // emit callback
+    //   console.log( `callback ACT_SELECTED_CARD` )
+    // }
+    // console.log( 'act_selection ', state.act_selection )
+
+    if( state.act_selection.selectedList.length >= state.act_selection.many )
+      dispatch('ACT_SELECT_CARD_END')
+
     // action do promise
     // return dispatch('ACT_SELECT_CARD_END')
   },
   ACT_SELECT_CARD_END( { commit, state } ) {
 
-    // push into selected list
-    // do next select or end act
-    state.placelist.forEach( (card) => {
-      commit('SELECT_CARD', card)
-      // commit( 'SET_SELECTED', false )
-      commit('SET_SELECTABLE', false)
-    })
+    commit('ACT_UNSELECTION')
+    if( state.act_selection.thenAction ) {
+      console.log( `ACT_SELECT_CARD_END thenAction call` )
+      state.act_selection.thenAction(state)
+    }
+    // state.placelist.forEach( (card) => {
+    //   commit('SELECT_CARD', card)
+    //   // commit( 'SET_SELECTED', false )
+    //   commit('SET_SELECTABLE', false)
+    // })
   }
-
 }
 const getters = {
   testGetter ( state ) {
@@ -490,7 +572,7 @@ const getters = {
         cards.push(card)
     } )
     return cards
-  }
+  },
 }
 
 export default new Vuex.Store({

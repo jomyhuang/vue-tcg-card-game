@@ -72,7 +72,7 @@ export default {
       // this.$store.commit('PICK_CARD',this.card)
       // this.$store.commit('SELECT_CARD',this.card)
       // this.$store.commit('SET_SELECTED')
-      this.$store.dispatch('ACT_SELECT_CARD_END')
+      // this.$store.dispatch('ACT_SELECT_CARD_END')
     },
   }
 }

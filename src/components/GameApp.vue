@@ -83,7 +83,26 @@ export default {
     playcard () {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
       // this.$store.dispatch( 'SELECT_CARDLIST', this.$store.state.currentPlayer.hand )
-      this.$store.dispatch( 'ACT_SELECT_CARD_START', { list: 'hand' } )
+      // this.$store.dispatch( 'ACT_SELECT_CARD_START', { list: 'hand', action: 'test_action' } )
+      this.$store.dispatch( 'ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `call back select ${card.name}`
+            card.name = card.name + '**'
+            console.log(`callback test check ${card.name} / ${state.storemsg}`)
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('PICK_CARD',card)
+          this.$store.commit('TO_BASE')
+        },
+        thenAction: (state) => {
+            console.log('this is then action end of selection')
+        },
+      })
+        // } ).then( () => {
+        //   console.log('hello promise')
+        // })
     }
   }
 }
