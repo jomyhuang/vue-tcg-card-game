@@ -35,6 +35,7 @@
           <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
           <el-button @click="playcard()">PLAY</el-button>
           <el-button @click="battle()">BATTLE</el-button>
+          <el-button @click="gameloop()">GEN</el-button>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
@@ -50,6 +51,9 @@
 import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
 import comZone from './comZone.vue'
+// import 'babel-polyfill'
+// import _ from 'underscore'
+
 
 export default {
   name: 'GameApp',
@@ -162,10 +166,67 @@ export default {
         },
         thenAction: (state) => {
             console.log('battle 2 finish')
-            // this.battle2()
             console.log(`battle main ${state.battle.attacker.main.name} support ${state.battle.attacker.support.name}`)
         },
       } )
+    },
+    async gameloop () {
+      console.log('start gameloop')
+      // 重构使用 promise async selection
+      // await dispatch('PHASE1').then((value) => {})
+      // await dispatch('PHASE2').then((value) => {})
+      console.log('call game start')
+      this.gameStart()
+
+      await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          } )
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+            console.log('battle 1 finish')
+        },
+      } ).then( () => {
+        // note!
+        console.log('phase 1 dispatch promise.then finish')
+        }
+      )
+
+      await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          } )
+        },
+        thenAction: (state) => {
+            console.log('battle 2 finish')
+        },
+      } ).then( () => {
+        // note!
+        console.log('phase 2 dispatch promise.then finish')
+        }
+      )
+
+      console.log(`battle main ${this.$store.state.battle.attacker.main.name} support ${this.$store.state.battle.attacker.support.name}`)
+      console.log( 'end of gameloop')
     }
   }
 }

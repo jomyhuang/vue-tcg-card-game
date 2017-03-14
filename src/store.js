@@ -41,13 +41,13 @@ const state = {
     attacker: {
       player: null,
       main: null,
-      support: [],
+      support: null,
       hero: null,
     },
     defenser: {
       player: null,
       main: null,
-      support: [],
+      support: null,
       hero: null,
     },
   },
@@ -534,9 +534,10 @@ const actions = {
         // console.log('reject')
       } )
     }
-    console.log('AWAIT SYNC finish')
+    console.log('ACT_SELECT_CARD_START AWAIT SYNC finish')
 
-    return dispatch('ACT_SELECT_CARD_END')
+    // return dispatch('_ACT_SELECT_CARD_END')
+    dispatch('_ACT_SELECT_CARD_END')
   },
   // 带入 dispatch
   ACT_SELECTED_CARD( { dispatch, commit, state }, card ) {
@@ -554,7 +555,7 @@ const actions = {
       state.act_selection.selectedAction(state,card)
     }
   },
-  ACT_SELECT_CARD_END( { commit, state } ) {
+  _ACT_SELECT_CARD_END( { commit, state } ) {
 
     commit('ACT_UNSELECTION')
     if( state.act_selection.thenAction ) {
@@ -567,7 +568,7 @@ const actions = {
     // console.log( '_ACT_SYNC_SELECT_CHECK' )
     return new Promise(function(resolve, reject) {
       setTimeout(()=> {
-        // console.log('hello promise')
+        // console.log('hello promise check')
         // console.log(checkfunc())
         if(state.act_selection.selectedList.length >= state.act_selection.many) {
           resolve()
@@ -576,7 +577,45 @@ const actions = {
         }
       }, 1000 )
     })
-  }
+  },
+  // async _WAIT_ACT_SYNC_SELECT_CHECK( { commit, state, dispatch }, checkfunc=()=>true ) {
+  //
+  //   console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
+  //   let waiting = true
+  //   while( waiting ) {
+  //     await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
+  //       // console.log('resolve')
+  //       waiting = false
+  //     }, (err) => {
+  //       // console.log('reject')
+  //     } )
+  //   }
+  // },
+  ASYNC_ACT_SELECT_CARD_START ({commit,state,dispatch}, payload) {
+
+    console.log('ASYNC_ACT_SELECT_CARD_START')
+    return new Promise( async function(resolve, reject) {
+    // return new Promise( (resolve, reject) => {
+    // 使用箭头函数不能是 async
+      commit('ACT_SELECTION', payload)
+
+      // Waring: Promise 嵌套 Promise + async 失败
+      // dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
+
+      let waiting = true
+      while( waiting ) {
+        await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
+          // console.log('resolve')
+          waiting = false
+        }, (err) => {
+          // console.log('reject')
+        } )
+      }
+      dispatch('_ACT_SELECT_CARD_END')
+      resolve()
+    })
+
+  },
 }
 const getters = {
   testGetter ( state ) {
