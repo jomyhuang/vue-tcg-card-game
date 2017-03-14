@@ -15,7 +15,9 @@
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
   		<div class="col-md-8 gameboard">
-        <h3>player2 container</h3>
+        <div class="row gameboard">
+          <comZone :player="$store.state.player2"></comZone>
+        </div>
   		</div>
   	</div>
   	<div class="row gameboard">
@@ -32,6 +34,7 @@
           <comDeck :player="$store.state.player1"></comDeck>
           <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
           <el-button @click="playcard()">PLAY</el-button>
+          <el-button @click="battle()">BATTLE</el-button>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
@@ -76,6 +79,10 @@ export default {
     },
     gameStart () {
       console.log('game Start')
+      this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player2 )
+      this.$store.dispatch( 'DRAW', 5 )
+      this.$store.dispatch( 'DRAW_TO_ZONE', 5 )
+
       this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
       this.$store.dispatch( 'DRAW', 5 )
       this.$store.dispatch( 'DRAW_TO_ZONE', 5 )
@@ -103,6 +110,62 @@ export default {
         // } ).then( () => {
         //   console.log('hello promise')
         // })
+    },
+    battle() {
+      // this.$store.commit( 'BATTLE_SET', {
+      //   attacker: {
+      //     player: 'jomy',
+      //     main: 'main',
+      //   },
+      //   defenser: {
+      //     support: ['hello','hello2'],
+      //   }
+      // })
+      //
+      // console.log( 'after ', this.$store.state.battle )
+
+      this.$store.dispatch( 'ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          } )
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+            console.log('battle 1 finish')
+            this.battle2()
+        },
+      } )
+    },
+    battle2 () {
+      this.$store.dispatch( 'ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          } )
+        },
+        thenAction: (state) => {
+            console.log('battle 2 finish')
+            // this.battle2()
+            console.log(`battle main ${state.battle.attacker.main.name} support ${state.battle.attacker.support.name}`)
+        },
+      } )
     }
   }
 }

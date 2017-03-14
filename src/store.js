@@ -41,12 +41,14 @@ const state = {
     attacker: {
       player: null,
       main: null,
-      support: null,
+      support: [],
+      hero: null,
     },
     defenser: {
       player: null,
       main: null,
-      support: null,
+      support: [],
+      hero: null,
     },
   },
   player1: {
@@ -54,11 +56,7 @@ const state = {
     hero: 'heroId1',
     name: 'Jimmy',
     cardPool: [],
-    deck: [
-      'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10',
-      'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
-      'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
-    ],
+    deck: [],
     zone: [],
     hand: [],
     graveyard: [],
@@ -75,11 +73,7 @@ const state = {
     hero: 'heroId2',
     name: 'Jomy',
     cardPool: [],
-    deck: [
-      'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10',
-      'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18', 'c19', 'c20',
-      'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c27', 'c28', 'c29', 'c30',
-    ],
+    deck: [],
     zone: [],
     hand: [],
     graveyard: [],
@@ -108,7 +102,7 @@ const mutations = {
   TEST_STORE (state, payload ) {
     state.storemsg = payload
   },
-  INIT_DB ( state ) {
+  INIT_DB (state) {
     state.cardDB = storeDB
 
     // deck init
@@ -275,7 +269,7 @@ const mutations = {
     state.act_selection.selectedList = []
 
     // placelist 处理 copy from SELECT_CARDLIST
-    if( typeof(list)=='string' ) {
+    if( _.isString(list) ) {
       state.placelist = eval(`state.currentPlayer.${list}`)
     }
     else {
@@ -371,7 +365,30 @@ const mutations = {
       console.log( 'commit PICK_CARD null must assign' )
     }
   },
-  DRAW ( state ) {
+  BATTLE_SET (state, payload) {
+
+    // console.log( payload, _.has( payload, 'attacker' ) )
+    if( _.has( payload, 'attacker' ) ) {
+      if( _.has( payload.attacker, 'player' ) )
+        state.battle.attacker.player = payload.attacker.player
+      if( _.has( payload.attacker, 'main' ) )
+        state.battle.attacker.main = payload.attacker.main
+      if( _.has( payload.attacker, 'support' ) )
+        state.battle.attacker.support = payload.attacker.support
+    }
+
+    if( _.has( payload, 'defenser' ) ) {
+      if( _.has( payload.defenser, 'player' ) )
+        state.battle.defenser.player = payload.defenser.player
+      if( _.has( payload.defenser, 'main' ) )
+        state.battle.defenser.main = payload.defenser.main
+      if( _.has( payload.defenser, 'support' ) )
+        state.battle.defenser.support = payload.defenser.support
+    }
+
+    console.log( 'commit BATTLE_SET', state.battle )
+  },
+  DRAW (state) {
     if( state.currentPlayer.deck.length > 0 ) {
       state.placeholder = state.currentPlayer.deck.pop()
       console.log( `commit DRAW ${state.placeholder.name}` )
@@ -498,7 +515,7 @@ const actions = {
     commit( 'SELECT_CARD', null )
     console.log( 'action SET_FACEUP' )
   },
-  ACT_SELECT_CARD_START( { commit, state }, payload ) {
+  async ACT_SELECT_CARD_START( { dispatch, commit, state }, payload ) {
 
     // payload.callback = (card,state) => {
     // payload.callback = (card) => {
@@ -508,11 +525,18 @@ const actions = {
     // }
     commit('ACT_SELECTION', payload)
 
-    // state.placelist.forEach( (card) => {
-    //   commit('SELECT_CARD', card)
-    //   commit('SET_SELECTED', false)
-    //   commit('SET_SELECTABLE', true)
-    // })
+    let waiting = true
+    while( waiting ) {
+      await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
+        // console.log('resolve')
+        waiting = false
+      }, (err) => {
+        // console.log('reject')
+      } )
+    }
+    console.log('AWAIT SYNC finish')
+
+    return dispatch('ACT_SELECT_CARD_END')
   },
   // 带入 dispatch
   ACT_SELECTED_CARD( { dispatch, commit, state }, card ) {
@@ -529,30 +553,29 @@ const actions = {
       console.log( `ACT_SELECTED_CARD selectedAction call` )
       state.act_selection.selectedAction(state,card)
     }
-    // if( state.act_selection.callback ) {
-    //   // emit callback
-    //   console.log( `callback ACT_SELECTED_CARD` )
-    // }
-    // console.log( 'act_selection ', state.act_selection )
-
-    if( state.act_selection.selectedList.length >= state.act_selection.many )
-      dispatch('ACT_SELECT_CARD_END')
-
-    // action do promise
-    // return dispatch('ACT_SELECT_CARD_END')
   },
   ACT_SELECT_CARD_END( { commit, state } ) {
 
     commit('ACT_UNSELECTION')
     if( state.act_selection.thenAction ) {
       console.log( `ACT_SELECT_CARD_END thenAction call` )
-      state.act_selection.thenAction(state)
+      return state.act_selection.thenAction(state)
     }
-    // state.placelist.forEach( (card) => {
-    //   commit('SELECT_CARD', card)
-    //   // commit( 'SET_SELECTED', false )
-    //   commit('SET_SELECTABLE', false)
-    // })
+  },
+  async _ACT_SYNC_SELECT_CHECK( { commit, state, dispatch }, checkfunc=()=>true ) {
+
+    // console.log( '_ACT_SYNC_SELECT_CHECK' )
+    return new Promise(function(resolve, reject) {
+      setTimeout(()=> {
+        // console.log('hello promise')
+        // console.log(checkfunc())
+        if(state.act_selection.selectedList.length >= state.act_selection.many) {
+          resolve()
+        } else {
+          reject()
+        }
+      }, 1000 )
+    })
   }
 }
 const getters = {
