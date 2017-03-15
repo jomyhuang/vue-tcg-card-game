@@ -3,7 +3,7 @@
   	<div class="row gameboard">
   		<div class="col-md-12">
   			<h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
-        <el-button @click="gameInit()">GAME INIT</el-button>
+        <el-button @click="gameTest()">GAME TEST</el-button>
         <el-button @click="gameStart()">GAME START</el-button>
   		</div>
   	</div>
@@ -35,12 +35,17 @@
           <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
           <el-button @click="playcard()">PLAY</el-button>
           <el-button @click="battle()">BATTLE</el-button>
-          <el-button @click="gameloop()">GEN</el-button>
+          <el-button @click="gameloop()">LOOP</el-button>
           <!-- <el-button @click="handleFilter(9)">STAR 9</el-button> -->
           <!-- <el-button @click="$store.dispatch('PAGE_FILTER')">ALL</el-button> -->
   		</div>
   	</div>
-    <div class="row">
+    <div class="row gameboard">
+      <div class="col-md-12">
+  			<h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
+        <el-button @click="gameTest()">GAME TEST</el-button>
+        <el-button @click="gameStart()">GAME START</el-button>
+  		</div>
     </div>
   </div>
 </template>
@@ -77,9 +82,10 @@ export default {
   computed: {
   },
   methods: {
-    gameInit () {
-      this.$store.dispatch( 'GAME_INIT' )
-      console.log('game Init')
+    gameTest () {
+      this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+      this.$store.commit('GAME_NEXT_PLAYER')
+      this.$store.commit('GAME_NEXT_PLAYER')
     },
     gameStart () {
       console.log('game Start')
@@ -177,6 +183,7 @@ export default {
       // await dispatch('PHASE2').then((value) => {})
       console.log('call game start')
       this.gameStart()
+      this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
 
       await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
         list: 'zone',
@@ -203,6 +210,30 @@ export default {
       )
 
       await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: this.$store.state.opponentPlayer.zone,
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          this.$store.commit('BATTLE_SET', {
+            defenser: {
+              main: card,
+            }
+          } )
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+            console.log('battle 1 declare opponent main')
+        },
+      } ).then( () => {
+        // note!
+        console.log('phase 1 declare opponent main dispatch promise.then finish')
+        }
+      )
+
+      await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
         list: 'hand',
         many: 1,
         selectedMuation: (state,card) => {
@@ -225,7 +256,17 @@ export default {
         }
       )
 
+      console.log('Random/first defenser from hand')
+      this.$store.commit('BATTLE_SET', {
+        defenser: {
+          // main: this.$store.state.opponentPlayer.zone[0],
+          support: this.$store.state.opponentPlayer.hand[0],
+        }
+      })
+
       console.log(`battle main ${this.$store.state.battle.attacker.main.name} support ${this.$store.state.battle.attacker.support.name}`)
+      console.log(`battle defenser ${this.$store.state.battle.defenser.main.name} support ${this.$store.state.battle.defenser.support.name}`)
+
       console.log( 'end of gameloop')
     }
   }

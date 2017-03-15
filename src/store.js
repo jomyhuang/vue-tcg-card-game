@@ -26,8 +26,12 @@ const state = {
 
   // game app
   currentPlayer: null,
+  opponentPlayer: null,
+  firstPlayer: null,
+
   placeholder: null,
   placelist: [],
+  placeplayer: null,
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
@@ -37,6 +41,7 @@ const state = {
     thenAction: null,
     selectedList: [],
   },
+  // battle
   battle: {
     attacker: {
       player: null,
@@ -201,7 +206,7 @@ const mutations = {
             // clone /or make gamecard object
             // simple clone
             const gamecard = Object.assign( {}, card )
-            // new prop for game
+            // new prop for game card object
             Vue.set( gamecard,'facedown',false )
             Vue.set( gamecard,'selected',false )
             Vue.set( gamecard,'selectable',false )
@@ -226,9 +231,48 @@ const mutations = {
 
     console.log( 'commit INIT_GAME end' )
   },
+  GAME_SET_CURRENTPLAYER ( state, player ) {
+    if (_.isUndefined(player)) {
+      console.log('GAME_SET_CURRENTPLAYER no player assign')
+      throw 'GAME_SET_CURRENTPLAYER no player assign'
+      return
+    }
+
+    if( _.isNull(state.firstPlayer) )
+      state.firstPlayer = state.player
+
+    if( player === state.player1 ) {
+      state.currentPlayer = player
+      state.opponentPlayer = state.player2
+    } else if ( player === state.player2 ) {
+      state.currentPlayer = player
+      state.opponentPlayer = state.player1
+    } else {
+      state.currentPlayer = player
+      state.opponentPlayer = null
+      console.log('WARING: GAME_SET_CURRENTPLAYER no opponentPlayer')
+    }
+
+    console.log( `commit set GAME_SET_CURRENTPLAYER CURR ${state.currentPlayer.id}` )
+    console.log( `commit set GAME_SET_CURRENTPLAYER OPP ${state.opponentPlayer.id}` )
+  },
+  GAME_NEXT_PLAYER ( state ) {
+    if( _.isNull(state.currentPlayer) ) {
+      console.log('GAME_NEXT_PLAYER error currentPlayer is null')
+      throw 'GAME_NEXT_PLAYER error currentPlayer is null'
+      return
+    }
+
+    let swap = state.currentPlayer
+    state.currentPlayer = state.opponentPlayer
+    state.opponentPlayer = swap
+
+    console.log( `commit set GAME_NEXT_PLAYER CURR ${state.currentPlayer.id}` )
+    console.log( `commit set GAME_NEXT_PLAYER OPP ${state.opponentPlayer.id}` )
+  },
   SELECT_PLAYER ( state, player ) {
-    state.currentPlayer = player
-    console.log( `commit SELECT_PLAYER ${state.currentPlayer.id}` )
+    state.placeplayer = player
+    console.log( `commit SELECT_PLAYER ${state.placeplayer.id}` )
   },
   SELECT_CARD( state, card=null ) {
     state.placeholder = card
@@ -239,7 +283,7 @@ const mutations = {
   },
   SELECT_CARDLIST( state, list='hand' ) {
     if( typeof(list)=="string" ) {
-      state.placelist = eval(`state.currentPlayer.${list}`)
+      state.placelist = eval(`state.placeplayer.${list}`)
     }
     else {
       state.placelist = list
@@ -270,12 +314,12 @@ const mutations = {
 
     // placelist 处理 copy from SELECT_CARDLIST
     if( _.isString(list) ) {
-      state.placelist = eval(`state.currentPlayer.${list}`)
+      state.placelist = eval(`state.placeplayer.${list}`)
     }
     else {
       state.placelist = list
     }
-    state.placelist.forEach( (card) => {
+    state.placelist.forEach((card) => {
       card.selected = false
       card.selectable = true
     })
@@ -308,19 +352,8 @@ const mutations = {
     state.act_selection.selectedList = state.placelist.filter( (card) => {
       return card.selected
     } )
-    // if( state.placeholder.selected ) {
-    //     // action selection
-    //     state.act_selection.selected_list.push( state.placeholder )
-    // }
     console.log( `commit ACT_SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
   },
-  // SET_SELECTABLE( state, value=false ) {
-  //   if( !state.placeholder ) {
-  //     console.log( 'commit SET_SELECTABLE ERROR no placeholder card')
-  //     return
-  //   }
-  //   state.placeholder.selectable = value
-  // },
   ACT_UNSELECTION ( state ) {
     state.placelist.forEach( (card) => {
       // card.selected = false
@@ -331,10 +364,10 @@ const mutations = {
   PICK_CARD ( state, card=null ) {
     if( card ) {
       const pilelist = [
-        ['hand', state.currentPlayer.hand],
-        ['zone', state.currentPlayer.zone],
-        ['base', state.currentPlayer.base],
-        ['graveyard', state.currentPlayer.graveyard],
+        ['hand', state.placeplayer.hand],
+        ['zone', state.placeplayer.zone],
+        ['base', state.placeplayer.base],
+        ['graveyard', state.placeplayer.graveyard],
       ]
 
       let found = false
@@ -365,32 +398,9 @@ const mutations = {
       console.log( 'commit PICK_CARD null must assign' )
     }
   },
-  BATTLE_SET (state, payload) {
-
-    // console.log( payload, _.has( payload, 'attacker' ) )
-    if( _.has( payload, 'attacker' ) ) {
-      if( _.has( payload.attacker, 'player' ) )
-        state.battle.attacker.player = payload.attacker.player
-      if( _.has( payload.attacker, 'main' ) )
-        state.battle.attacker.main = payload.attacker.main
-      if( _.has( payload.attacker, 'support' ) )
-        state.battle.attacker.support = payload.attacker.support
-    }
-
-    if( _.has( payload, 'defenser' ) ) {
-      if( _.has( payload.defenser, 'player' ) )
-        state.battle.defenser.player = payload.defenser.player
-      if( _.has( payload.defenser, 'main' ) )
-        state.battle.defenser.main = payload.defenser.main
-      if( _.has( payload.defenser, 'support' ) )
-        state.battle.defenser.support = payload.defenser.support
-    }
-
-    console.log( 'commit BATTLE_SET', state.battle )
-  },
   DRAW (state) {
-    if( state.currentPlayer.deck.length > 0 ) {
-      state.placeholder = state.currentPlayer.deck.pop()
+    if( state.placeplayer.deck.length > 0 ) {
+      state.placeholder = state.placeplayer.deck.pop()
       console.log( `commit DRAW ${state.placeholder.name}` )
     }
     else {
@@ -417,7 +427,7 @@ const mutations = {
       console.log( 'commit TO_HAND ERROR no placeholder card')
       return
     }
-    state.currentPlayer.hand.push( state.placeholder )
+    state.placeplayer.hand.push( state.placeholder )
     state.placeholder = null
   },
   TO_ZONE( state ) {
@@ -425,7 +435,7 @@ const mutations = {
       console.log( 'commit TO_ZONE ERROR no placeholder card')
       return
     }
-    state.currentPlayer.zone.push( state.placeholder )
+    state.placeplayer.zone.push( state.placeholder )
     state.placeholder = null
   },
   TO_BASE( state ) {
@@ -433,7 +443,7 @@ const mutations = {
       console.log( 'commit TO_BASE ERROR no placeholder card')
       return
     }
-    state.currentPlayer.base.push( state.placeholder )
+    state.placeplayer.base.push( state.placeholder )
     state.placeholder = null
   },
   TO_GRAVEYARD( state ) {
@@ -441,8 +451,34 @@ const mutations = {
       console.log( 'commit TO_BASE ERROR no placeholder card')
       return
     }
-    state.currentPlayer.graveyard.push( state.placeholder )
+    state.placeplayer.graveyard.push( state.placeholder )
     state.placeholder = null
+  },
+  // BATTLE
+  BATTLE_SET (state, payload) {
+    // console.log( payload, _.has( payload, 'attacker' ) )
+    if( _.has( payload, 'attacker' ) ) {
+      if( _.has( payload.attacker, 'player' ) )
+        state.battle.attacker.player = payload.attacker.player
+      if( _.has( payload.attacker, 'main' ) )
+        state.battle.attacker.main = payload.attacker.main
+      if( _.has( payload.attacker, 'support' ) )
+        state.battle.attacker.support = payload.attacker.support
+    }
+
+    if( _.has( payload, 'defenser' ) ) {
+      if( _.has( payload.defenser, 'player' ) )
+        state.battle.defenser.player = payload.defenser.player
+      if( _.has( payload.defenser, 'main' ) )
+        state.battle.defenser.main = payload.defenser.main
+      if( _.has( payload.defenser, 'support' ) )
+        state.battle.defenser.support = payload.defenser.support
+    }
+
+    state.battle.attacker.player = state.currentPlayer
+    state.battle.defenser.player = state.opponentPlayer
+
+    console.log( 'commit BATTLE_SET', state.battle )
   },
 }
 const actions = {
@@ -451,6 +487,7 @@ const actions = {
     commit( 'FETCH_REFRESH' )
     console.log( 'action INIT_DB')
   },
+  // paging APP ------------------------------------------------
   FETCH_REFRESH( { commit, state }, pagePerItems = 10 ) {
     commit( 'FETCH_REFRESH', { pagePerItems: pagePerItems, filter: state.pageFilter }  )
     commit( 'FETCH_PAGE', 1 )
@@ -482,6 +519,7 @@ const actions = {
     commit( 'FETCH_SCROLL_NEXT' )
     console.log( 'action FETCH_SCROLL_NEXT' )
   },
+  // end of paging APP ------------------------------------------------
   GAME_INIT( { commit, state } ) {
     commit( 'GAME_INIT' )
     console.log( 'action GAME_INIT' )
@@ -517,12 +555,6 @@ const actions = {
   },
   async ACT_SELECT_CARD_START( { dispatch, commit, state }, payload ) {
 
-    // payload.callback = (card,state) => {
-    // payload.callback = (card) => {
-    //   state.storemsg = `call back select ${card.name}`
-    //   card.name = card.name + '**'
-    //   console.log(`callback test check ${card.name} / ${state.storemsg}`)
-    // }
     commit('ACT_SELECTION', payload)
 
     let waiting = true
@@ -570,7 +602,11 @@ const actions = {
       setTimeout(()=> {
         // console.log('hello promise check')
         // console.log(checkfunc())
-        if(state.act_selection.selectedList.length >= state.act_selection.many) {
+        // if( !checkfunc(state) ) {
+        //     commit('ACT_SET_SELECTED',false)
+        //     reject()
+        // }
+        if( state.act_selection.selectedList.length >= state.act_selection.many ) {
           resolve()
         } else {
           reject()
@@ -578,43 +614,44 @@ const actions = {
       }, 1000 )
     })
   },
-  // async _WAIT_ACT_SYNC_SELECT_CHECK( { commit, state, dispatch }, checkfunc=()=>true ) {
-  //
-  //   console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
-  //   let waiting = true
-  //   while( waiting ) {
-  //     await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
-  //       // console.log('resolve')
-  //       waiting = false
-  //     }, (err) => {
-  //       // console.log('reject')
-  //     } )
-  //   }
-  // },
+  async _WAIT_ACT_SYNC_SELECT_CHECK( { commit, state, dispatch }, checkfunc=()=>true ) {
+
+    console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
+    let waiting = true
+    while( waiting ) {
+      // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
+      await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
+        // console.log('resolve')
+        waiting = false
+      }, (err) => {
+        // console.log('reject')
+      } )
+    }
+  },
   ASYNC_ACT_SELECT_CARD_START ({commit,state,dispatch}, payload) {
 
     console.log('ASYNC_ACT_SELECT_CARD_START')
     return new Promise( async function(resolve, reject) {
     // return new Promise( (resolve, reject) => {
-    // 使用箭头函数不能是 async
+    // 注意：使用箭头函数不能是 async
       commit('ACT_SELECTION', payload)
 
-      // Waring: Promise 嵌套 Promise + async 失败
-      // dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
+      // OK 1
+      await dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
 
-      let waiting = true
-      while( waiting ) {
-        await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
-          // console.log('resolve')
-          waiting = false
-        }, (err) => {
-          // console.log('reject')
-        } )
-      }
+      // OK 2
+      // let waiting = true
+      // while( waiting ) {
+      //   await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
+      //     // console.log('resolve')
+      //     waiting = false
+      //   }, (err) => {
+      //     // console.log('reject')
+      //   } )
+      // }
       dispatch('_ACT_SELECT_CARD_END')
       resolve()
     })
-
   },
 }
 const getters = {
