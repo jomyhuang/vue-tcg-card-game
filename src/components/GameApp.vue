@@ -197,9 +197,16 @@ export default {
       // await dispatch('PHASE2').then((value) => {})
       if( !this.initial ) {
         await this.$store.dispatch('GAME_START').then( ()=> {
-          console.log('TEST OK!')
+          // console.log('TEST OK!')
         })
-        this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+        let firstplayer = null
+        await this.$store.dispatch('GAME_WHO_FIRST').then( (who)=> {
+          firstplayer = who
+        } )
+        await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+        // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+
+        console.log(`gameloop first ${this.$store.state.firstPlayer.id} current ${this.$store.state.currentPlayer.id}`)
         this.initial = true
       }
       this.$store.commit('BATTLE_INIT')

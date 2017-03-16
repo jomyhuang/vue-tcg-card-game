@@ -231,15 +231,26 @@ const mutations = {
 
     console.log( 'commit INIT_GAME end' )
   },
-  GAME_SET_CURRENTPLAYER ( state, player ) {
+  GAME_SET_FIRSTPLAYER(state, player) {
+    if (_.isUndefined(player)) {
+      console.log('GAME_SET_FIRSTPLAYER no player assign')
+      throw 'GAME_SET_FIRSTPLAYER no player assign'
+      return
+    }
+
+    state.firstPlayer = player
+    console.log( `commit set GAME_SET_FIRSTPLAYER ${state.firstPlayer.id}` )
+  },
+  GAME_SET_CURRENTPLAYER (state, player) {
     if (_.isUndefined(player)) {
       console.log('GAME_SET_CURRENTPLAYER no player assign')
       throw 'GAME_SET_CURRENTPLAYER no player assign'
       return
     }
 
-    if( _.isNull(state.firstPlayer) )
+    if( _.isNull(state.firstPlayer) ) {
       state.firstPlayer = state.player
+    }
 
     if( player === state.player1 ) {
       state.currentPlayer = player
@@ -272,14 +283,15 @@ const mutations = {
   },
   SELECT_PLAYER ( state, player ) {
     state.placeplayer = player
-    console.log( `commit SELECT_PLAYER ${state.placeplayer.id}` )
+    // console.log( `commit SELECT_PLAYER ${state.placeplayer.id}` )
   },
   SELECT_CARD( state, card=null ) {
     state.placeholder = card
-    if( state.placeholder )
-      console.log( `commit SELECT_CARD ${state.placeholder.name}` )
-    else
+    if( state.placeholder ) {
+      // console.log( `commit SELECT_CARD ${state.placeholder.name}` )
+    } else {
       console.log( 'commit SELECT_CARD null' )
+    }
   },
   SELECT_CARDLIST( state, list='hand' ) {
     if( typeof(list)=="string" ) {
@@ -401,7 +413,7 @@ const mutations = {
   DRAW (state) {
     if( state.placeplayer.deck.length > 0 ) {
       state.placeholder = state.placeplayer.deck.pop()
-      console.log( `commit DRAW ${state.placeholder.name}` )
+      // console.log( `commit DRAW ${state.placeholder.name}` )
     }
     else {
       state.placeholder = null
@@ -688,11 +700,13 @@ const actions = {
   },
   GAME_WHO_FIRST({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
-      resolve()
+      resolve(state.player1)
     })
   },
-  GAME_SET_FIRST({commit,state,dispatch}) {
+  GAME_SET_FIRSTPLAYER({commit,state,dispatch},player) {
     return new Promise(function(resolve, reject) {
+      commit('GAME_SET_FIRSTPLAYER', player)
+      commit('GAME_SET_CURRENTPLAYER', player)
       resolve()
     })
   },
@@ -701,7 +715,7 @@ const actions = {
       dispatch('SELECT_PLAYER', state.player2)
       dispatch('DRAW', 5)
       dispatch('DRAW_TO_ZONE', 5)
-
+      
       dispatch('SELECT_PLAYER', state.player1)
       dispatch('DRAW', 5)
       dispatch('DRAW_TO_ZONE', 5)
