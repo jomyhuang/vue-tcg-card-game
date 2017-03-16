@@ -83,7 +83,7 @@ export default {
   created () {
   },
   mounted () {
-    this.$store.dispatch('GAME_INIT')
+    this.$store.dispatch( 'GAME_INIT' )
   },
   beforeDestroy () {
   },
@@ -191,14 +191,11 @@ export default {
     },
     async gameloop () {
       console.log('start gameloop')
-
       // 重构使用 promise async selection
       // await dispatch('PHASE1').then((value) => {})
       // await dispatch('PHASE2').then((value) => {})
       if( !this.initial ) {
-        await this.$store.dispatch('GAME_START').then( ()=> {
-          console.log('TEST OK!')
-        })
+        this.gameStart()
         this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
         this.initial = true
       }

@@ -41,7 +41,7 @@ const state = {
     thenAction: null,
     selectedList: [],
   },
-  // battle
+  // battle package
   battle: {
     attacker: {
       player: null,
@@ -676,6 +676,38 @@ const actions = {
       resolve()
     })
   },
+  // game loop
+  // GAME_WHO_FIRST
+  // GAME_SET_FIRST_PLAYER
+  // GAME_START
+  // GAME_TURN_BEGIN
+  GAME_TEMPLATE({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_WHO_FIRST({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_SET_FIRST({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_START({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      dispatch('SELECT_PLAYER', state.player2)
+      dispatch('DRAW', 5)
+      dispatch('DRAW_TO_ZONE', 5)
+
+      dispatch('SELECT_PLAYER', state.player1)
+      dispatch('DRAW', 5)
+      dispatch('DRAW_TO_ZONE', 5)
+      resolve()
+    })
+  }
 }
 const getters = {
   testGetter ( state ) {
