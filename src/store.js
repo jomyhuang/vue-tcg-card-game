@@ -455,8 +455,31 @@ const mutations = {
     state.placeholder = null
   },
   // BATTLE
+  BATTLE_INIT(state) {
+    state.battle = {
+      attacker: {
+        player: null,
+        main: null,
+        support: null,
+        hero: null,
+      },
+      defenser: {
+        player: null,
+        main: null,
+        support: null,
+        hero: null,
+      },
+    }
+
+    state.battle.attacker.player = state.currentPlayer
+    state.battle.defenser.player = state.opponentPlayer
+    console.log('commit BATTLE_INIT')
+  },
   BATTLE_SET (state, payload) {
     // console.log( payload, _.has( payload, 'attacker' ) )
+    // if(_.isString(payload)) {
+    //
+    // } else {
     if( _.has( payload, 'attacker' ) ) {
       if( _.has( payload.attacker, 'player' ) )
         state.battle.attacker.player = payload.attacker.player
