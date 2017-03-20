@@ -13,6 +13,10 @@ import router from './router'
 // Vue.use(Vuex)
 Vue.use(ElementUI)
 
+// vue2-animate
+// https://github.com/asika32764/vue2-animate
+require('vue2-animate/dist/vue2-animate.min.css')
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

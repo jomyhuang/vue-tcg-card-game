@@ -1,11 +1,10 @@
 <template>
   <div class="comHand">
     <h4>Zone : {{player.zone.length}} cards</h4>
-    <div class="flex-container">
-      <div v-for="(card,key,index) in player.zone">
-        <comCard :card="card"></comCard>
-      </div>
-    </div>
+    <!-- <div class="flex-container"> -->
+    <transition-group name="bounceRight" tag="div" class="flex-container">
+      <comCard v-for="(card,key,index) in player.zone" :card="card" :key="key"></comCard>
+    </transition-group>
   </div>
 </template>
 

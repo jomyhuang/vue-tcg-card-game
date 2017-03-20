@@ -25,6 +25,7 @@ const state = {
   pageFilter: 'all',
 
   // game app
+  gameStarted: false,
   currentPlayer: null,
   opponentPlayer: null,
   firstPlayer: null,
@@ -40,6 +41,11 @@ const state = {
     selectedMuation: null,
     thenAction: null,
     selectedList: [],
+  },
+  // game/turn package
+  turnCount: 0,
+  turn: {
+
   },
   // battle package
   battle: {
@@ -72,6 +78,7 @@ const state = {
     minions: [],
     mana: 0,
     maxMana: 10,
+    agent: null,
   },
   player2: {
     id: 'playerId2',
@@ -89,6 +96,7 @@ const state = {
     minions: [],
     mana: 0,
     maxMana: 10,
+    agent: null,
   },
 }
 const mutations = {
@@ -283,12 +291,12 @@ const mutations = {
   },
   SELECT_PLAYER ( state, player ) {
     state.placeplayer = player
-    // console.log( `commit SELECT_PLAYER ${state.placeplayer.id}` )
+    console.log( `commit SELECT_PLAYER ${state.placeplayer.id}` )
   },
   SELECT_CARD( state, card=null ) {
     state.placeholder = card
     if( state.placeholder ) {
-      // console.log( `commit SELECT_CARD ${state.placeholder.name}` )
+      console.log( `commit SELECT_CARD ${state.placeholder.name}` )
     } else {
       console.log( 'commit SELECT_CARD null' )
     }
@@ -434,7 +442,7 @@ const mutations = {
     }
     state.placeholder.facedown = false
   },
-  TO_HAND( state ) {
+  TO_HAND ( state ) {
     if( !state.placeholder ) {
       console.log( 'commit TO_HAND ERROR no placeholder card')
       return
@@ -442,7 +450,7 @@ const mutations = {
     state.placeplayer.hand.push( state.placeholder )
     state.placeholder = null
   },
-  TO_ZONE( state ) {
+  TO_ZONE ( state ) {
     if( !state.placeholder ) {
       console.log( 'commit TO_ZONE ERROR no placeholder card')
       return
@@ -450,7 +458,7 @@ const mutations = {
     state.placeplayer.zone.push( state.placeholder )
     state.placeholder = null
   },
-  TO_BASE( state ) {
+  TO_BASE ( state ) {
     if( !state.placeholder ) {
       console.log( 'commit TO_BASE ERROR no placeholder card')
       return
@@ -458,13 +466,47 @@ const mutations = {
     state.placeplayer.base.push( state.placeholder )
     state.placeholder = null
   },
-  TO_GRAVEYARD( state ) {
+  TO_GRAVEYARD ( state ) {
     if( !state.placeholder ) {
-      console.log( 'commit TO_BASE ERROR no placeholder card')
+      console.log( 'commit TO_GRAVEYARD ERROR no placeholder card')
       return
     }
     state.placeplayer.graveyard.push( state.placeholder )
     state.placeholder = null
+  },
+  // GAME
+  GAME_SET (state, payload) {
+    // if(_.has(payload, 'turnCount'))
+    //   state.turnCount = payload.turnCount
+    // if(_.has(payload, 'gameStarted'))
+    //   state.gameStarted = payload.gameStarted
+    _.each(payload,(value,key,list) => {
+      // console.log(value,key,list)
+      if(_.has(state,key))
+        state[key] = value
+      else {
+        console.warn(`GAME_SET no key ${key}`)
+      }
+    })
+
+    console.log('gameset payload',payload)
+  },
+  // TURN
+  TURN_SET (state, payload) {
+    // console.log( payload, _.has( payload, 'attacker' ) )
+    // if(_.isString(payload)) {
+    //
+    // } else {
+    // if( _.has( payload, 'attacker' ) ) {
+    //   if( _.has( payload.attacker, 'player' ) )
+    //     state.battle.attacker.player = payload.attacker.player
+    //   if( _.has( payload.attacker, 'main' ) )
+    //     state.battle.attacker.main = payload.attacker.main
+    //   if( _.has( payload.attacker, 'support' ) )
+    //     state.battle.attacker.support = payload.attacker.support
+    // }
+    //
+    console.log( 'commit TURN_SET', state.turn )
   },
   // BATTLE
   BATTLE_INIT(state) {
@@ -492,27 +534,44 @@ const mutations = {
     // if(_.isString(payload)) {
     //
     // } else {
-    if( _.has( payload, 'attacker' ) ) {
-      if( _.has( payload.attacker, 'player' ) )
-        state.battle.attacker.player = payload.attacker.player
-      if( _.has( payload.attacker, 'main' ) )
-        state.battle.attacker.main = payload.attacker.main
-      if( _.has( payload.attacker, 'support' ) )
-        state.battle.attacker.support = payload.attacker.support
+    if( _.has(payload, 'attacker') ) {
+      // if( _.has( payload.attacker, 'player' ) )
+      //   state.battle.attacker.player = payload.attacker.player
+      // if( _.has( payload.attacker, 'main' ) )
+      //   state.battle.attacker.main = payload.attacker.main
+      // if( _.has( payload.attacker, 'support' ) )
+      //   state.battle.attacker.support = payload.attacker.support
+      _.each(payload.attacker,(value,key,list) => {
+        // console.log(value,key,list)
+        if(_.has(state.battle.attacker,key))
+          state.battle.attacker[key] = value
+        else {
+          console.warn(`BATTLE_SET attacker no key ${key}`)
+        }
+      })
     }
 
-    if( _.has( payload, 'defenser' ) ) {
-      if( _.has( payload.defenser, 'player' ) )
-        state.battle.defenser.player = payload.defenser.player
-      if( _.has( payload.defenser, 'main' ) )
-        state.battle.defenser.main = payload.defenser.main
-      if( _.has( payload.defenser, 'support' ) )
-        state.battle.defenser.support = payload.defenser.support
+    if( _.has(payload, 'defenser') ) {
+      // if( _.has( payload.defenser, 'player' ) )
+      //   state.battle.defenser.player = payload.defenser.player
+      // if( _.has( payload.defenser, 'main' ) )
+      //   state.battle.defenser.main = payload.defenser.main
+      // if( _.has( payload.defenser, 'support' ) )
+      //   state.battle.defenser.support = payload.defenser.support
+      _.each(payload.defenser,(value,key,list) => {
+        // console.log(value,key,list)
+        if(_.has(state.battle.defenser,key))
+          state.battle.defenser[key] = value
+        else {
+          console.warn(`BATTLE_SET defenser no key ${key}`)
+        }
+      })
     }
 
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer
 
+    // console.log(payload)
     console.log( 'commit BATTLE_SET', state.battle )
   },
 }
@@ -559,14 +618,14 @@ const actions = {
     commit( 'GAME_INIT' )
     console.log( 'action GAME_INIT' )
   },
-  SELECT_PLAYER( { commit, state }, player ) {
-    commit( 'SELECT_PLAYER', player )
-    console.log( 'action SELECT_PLAYER' )
-  },
-  SELECT_CARDLIST( { commit, state }, list ) {
-    commit( 'SELECT_CARDLIST', list )
-    console.log( 'action SELECT_CARDLIST' )
-  },
+  // SELECT_PLAYER( { commit, state }, player ) {
+  //   commit( 'SELECT_PLAYER', player )
+  //   console.log( 'action SELECT_PLAYER' )
+  // },
+  // SELECT_CARDLIST( { commit, state }, list ) {
+  //   commit( 'SELECT_CARDLIST', list )
+  //   console.log( 'action SELECT_CARDLIST' )
+  // },
   DRAW( { commit, state }, many=1 ) {
     for( let i=0; i < many; i++ ) {
       commit( 'DRAW' )
@@ -689,10 +748,24 @@ const actions = {
     })
   },
   // game loop
+  // GAME_START
   // GAME_WHO_FIRST
   // GAME_SET_FIRST_PLAYER
-  // GAME_START
   // GAME_TURN_BEGIN
+  // ...GAME_CHECK_GAMEOVER
+  // GAME_DRAW
+  // BATTLE_START
+  // ...BATTLE_DECALRE_ATTACKER
+  // ...BATTLE_OPP_DECLARE_DEFENSER
+  // ...BATTLE_PLAY_SUPPORTER
+  // ...BATTLE_OPP_PLAY_SUPPORTER
+  // ...BATTLE_BATTLE_EFFECT
+  // BATTLE_END
+  // ...GAME_CHECK_GAMEOVER
+  // GAME_NEXT_TURN
+  // GAME_SCOREBOARD
+  // GAME_END
+
   GAME_TEMPLATE({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
       resolve()
@@ -712,16 +785,60 @@ const actions = {
   },
   GAME_START({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
-      dispatch('SELECT_PLAYER', state.player2)
+      commit('GAME_SET', { gameStarted: true })
+      commit('SELECT_PLAYER', state.player2)
       dispatch('DRAW', 5)
       dispatch('DRAW_TO_ZONE', 5)
-      
-      dispatch('SELECT_PLAYER', state.player1)
+
+      commit('SELECT_PLAYER', state.player1)
       dispatch('DRAW', 5)
       dispatch('DRAW_TO_ZONE', 5)
       resolve()
     })
-  }
+  },
+  GAME_TURN_BEGIN({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      commit('GAME_SET', { turnCount: state.turnCount+1 })
+      resolve()
+    })
+  },
+  GAME_CHECK_GAMEOVER({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_DRAW({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      commit('SELECT_PLAYER', state.player1)
+      dispatch('DRAW', 1)
+      resolve()
+    })
+  },
+  BATTLE_START({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  BATTLE_END({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_NEXT_TURN({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_SCOREBOARD({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  GAME_END({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
 }
 const getters = {
   testGetter ( state ) {

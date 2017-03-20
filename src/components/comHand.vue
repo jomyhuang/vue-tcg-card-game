@@ -1,11 +1,11 @@
 <template>
   <div class="comHand">
     <h4>Hand : {{player.hand.length}} cards</h4>
-    <div class="flex-container">
-      <div v-for="(card,key,index) in player.hand">
-        <comCard :card="card"></comCard>
-      </div>
-    </div>
+    <!-- <div class="flex-container"> -->
+    <transition-group name="bounceRight" tag="div" class="flex-container">
+      <comCard v-for="(card,key,index) in player.hand" :card="card" :key="key"></comCard>
+    </transition-group>
+    <!-- </div> -->
   </div>
 </template>
 
@@ -64,4 +64,5 @@ export default {
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
+
 </style>

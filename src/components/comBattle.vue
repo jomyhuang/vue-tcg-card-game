@@ -44,7 +44,7 @@ export default {
     // v-model 必须要有 vaule prop
     value: {
       type: Object,
-      default: {},
+      default: () => {},
     },
   },
   watch: {

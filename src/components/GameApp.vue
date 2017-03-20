@@ -44,11 +44,12 @@
       <div class="col-md-12">
   			<h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
         <el-button @click="gameTest()">GAME TEST</el-button>
-        <el-button @click="gameStart()">GAME START</el-button>
+        <el-button @click="gameloop_temp()">TEST LOOP</el-button>
         <el-button @click="gameloop()">GAME LOOP</el-button>
         <el-button @click="battleshow(0)">Battle Show</el-button>
         <!-- <comBattle v-bind:mode="mode" v-model="testv"></comBattle> -->
         <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
+        <comMessage ref="info"></comMessage>
   		</div>
     </div>
   </div>
@@ -61,6 +62,7 @@ import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
 import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
+import comMessage from './comMessage.vue'
 
 // import 'babel-polyfill'
 // import _ from 'underscore'
@@ -79,6 +81,7 @@ export default {
     comHand,
     comZone,
     comBattle,
+    comMessage,
   },
   created () {
   },
@@ -88,20 +91,27 @@ export default {
   beforeDestroy () {
   },
   computed: {
+    currentPlayer: function () {
+      return this.$store.state.currentPlayer
+    },
+    firstPlayer: function () {
+      return this.$store.state.firstPlayer
+    },
   },
   methods: {
     gameTest () {
-      this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
-      this.$store.commit('GAME_NEXT_PLAYER')
-      this.$store.commit('GAME_NEXT_PLAYER')
+      // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+      // this.$store.commit('GAME_NEXT_PLAYER')
+      // this.$store.commit('GAME_NEXT_PLAYER')
+      this.$refs.info.message('讯息测试～')
     },
     gameStart () {
       console.log('game Start')
-      this.$store.dispatch('SELECT_PLAYER', this.$store.state.player2)
+      this.$store.commit('SELECT_PLAYER', this.$store.state.player2)
       this.$store.dispatch('DRAW', 5)
       this.$store.dispatch('DRAW_TO_ZONE', 5)
 
-      this.$store.dispatch('SELECT_PLAYER', this.$store.state.player1)
+      this.$store.commit('SELECT_PLAYER', this.$store.state.player1)
       this.$store.dispatch('DRAW', 5)
       this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
@@ -134,7 +144,7 @@ export default {
         //   console.log('hello promise')
         // })
     },
-    battle() {
+    battle () {
       // this.$store.commit( 'BATTLE_SET', {
       //   attacker: {
       //     player: 'jomy',
@@ -189,26 +199,61 @@ export default {
         },
       } )
     },
+    message (msg) {
+        return this.$refs.info.async_message(msg)
+    },
     async gameloop () {
       console.log('start gameloop')
+
+      if( this.$store.state.gameStarted ) {
+        await this.message('对战已经开始')
+        return
+      }
 
       // 重构使用 promise async selection
       // await dispatch('PHASE1').then((value) => {})
       // await dispatch('PHASE2').then((value) => {})
-      if( !this.initial ) {
-        await this.$store.dispatch('GAME_START').then( ()=> {
-          // console.log('TEST OK!')
-        })
-        let firstplayer = null
-        await this.$store.dispatch('GAME_WHO_FIRST').then( (who)=> {
-          firstplayer = who
-        } )
-        await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
-        // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+      // if( !this.initial ) {
 
-        console.log(`gameloop first ${this.$store.state.firstPlayer.id} current ${this.$store.state.currentPlayer.id}`)
-        this.initial = true
+      let firstplayer = null
+      await this.$store.dispatch('GAME_START').then( async () => {
+        await this.message('游戏开始',2000)
+      }).then( async () => {
+        await this.$store.dispatch('GAME_WHO_FIRST').then( (who) => {
+          firstplayer = who
+        })
+        await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+        await this.message(`${this.firstPlayer.name} 先攻`)
+      })
+
+        // console.log(`gameloop first ${this.$store.state.firstPlayer.id} current ${this.$store.state.currentPlayer.id}`)
+        // this.initial = true
+      // }
+
+      let loop = true
+      while( loop ) {
+
+        await this.$store.dispatch('GAME_TURN_BEGIN').then( async () => {
+          await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.turnCount}回合`)
+        }).then( async () => {
+          await this.$store.dispatch('GAME_DRAW')
+          await this.message('抽牌')
+        })
+
+        await this.$store.dispatch('BATTLE_START')
+        await this.message('战斗开始')
+
+        loop = false
       }
+
+      console.log( 'end of gameloop')
+    },
+
+    /// =========================== OLD GAMELOOP
+    async gameloop_temp () {
+
+      this.gameStart()
+      this.$store.dispatch('GAME_SET_FIRSTPLAYER', this.$store.state.player1)
       this.$store.commit('BATTLE_INIT')
 
       await this.$store.dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
@@ -296,9 +341,10 @@ export default {
 
       console.log(`battle main ${this.$store.state.battle.attacker.main.name} support ${this.$store.state.battle.attacker.support.name}`)
       console.log(`battle defenser ${this.$store.state.battle.defenser.main.name} support ${this.$store.state.battle.defenser.support.name}`)
+    },
+    /// =========================== OLD GAMELOOP
 
-      console.log( 'end of gameloop')
-    }
+    // end of methods
   }
 }
 </script>
