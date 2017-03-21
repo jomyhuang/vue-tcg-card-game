@@ -7,6 +7,7 @@ import storeDB from './components/SDWCardDB.json'
 import deck1 from './components/player1.deck'
 
 import _ from 'underscore'
+import R from 'ramda'
 
 Vue.use(Vuex)
 
@@ -480,33 +481,40 @@ const mutations = {
     //   state.turnCount = payload.turnCount
     // if(_.has(payload, 'gameStarted'))
     //   state.gameStarted = payload.gameStarted
-    _.each(payload,(value,key,list) => {
-      // console.log(value,key,list)
-      if(_.has(state,key))
+
+    // console.log('test Ramda', R.concat('ABC')('DEF'))
+    const settingState = (value,key) => {
+      if(R.has(key)(state)) {
+        // const xKey = R.lensProp(key)
+        // console.log(R.view(xKey,state))
+        // 错误 set 只能返回更新后物件，但无法state无法diff更新
+        // state = R.set(xKey,value,state)
+        // console.log(`ramda set ${key} ${state[key]}`)
         state[key] = value
+      }
       else {
         console.warn(`GAME_SET no key ${key}`)
       }
-    })
+    }
+    R.forEachObjIndexed(settingState,payload)
+
+    // underscore.js
+    // _.each(payload,(value,key,list) => {
+    //   // console.log(value,key,list)
+    //   if(_.has(state,key))
+    //     state[key] = value
+    //   else {
+    //     console.warn(`GAME_SET no key ${key}`)
+    //   }
+    // })
 
     console.log('gameset payload',payload)
   },
   // TURN
   TURN_SET (state, payload) {
-    // console.log( payload, _.has( payload, 'attacker' ) )
-    // if(_.isString(payload)) {
-    //
-    // } else {
-    // if( _.has( payload, 'attacker' ) ) {
-    //   if( _.has( payload.attacker, 'player' ) )
-    //     state.battle.attacker.player = payload.attacker.player
-    //   if( _.has( payload.attacker, 'main' ) )
-    //     state.battle.attacker.main = payload.attacker.main
-    //   if( _.has( payload.attacker, 'support' ) )
-    //     state.battle.attacker.support = payload.attacker.support
-    // }
-    //
-    console.log( 'commit TURN_SET', state.turn )
+
+
+    console.log( 'commit TURN_SET no impelement', state.turn )
   },
   // BATTLE
   BATTLE_INIT(state) {
@@ -530,42 +538,33 @@ const mutations = {
     console.log('commit BATTLE_INIT')
   },
   BATTLE_SET (state, payload) {
-    // console.log( payload, _.has( payload, 'attacker' ) )
-    // if(_.isString(payload)) {
-    //
-    // } else {
-    if( _.has(payload, 'attacker') ) {
-      // if( _.has( payload.attacker, 'player' ) )
-      //   state.battle.attacker.player = payload.attacker.player
-      // if( _.has( payload.attacker, 'main' ) )
-      //   state.battle.attacker.main = payload.attacker.main
-      // if( _.has( payload.attacker, 'support' ) )
-      //   state.battle.attacker.support = payload.attacker.support
-      _.each(payload.attacker,(value,key,list) => {
-        // console.log(value,key,list)
-        if(_.has(state.battle.attacker,key))
-          state.battle.attacker[key] = value
-        else {
-          console.warn(`BATTLE_SET attacker no key ${key}`)
-        }
-      })
+
+    const settingAttacker = (value,key) => {
+      const data = state.battle.attacker
+      if(R.has(key)(data)) {
+        // console.log(`R attacker set ${key} ${value}`)
+        data[key] = value
+      }
+      else {
+        console.warn(`BATTLE_SET attacker no key ${key}`)
+      }
+    }
+    const settingDefenser = (value,key) => {
+      const data = state.battle.defenser
+      if(R.has(key)(data)) {
+        // console.log(`R attacker set ${key} ${value}`)
+        data[key] = value
+      }
+      else {
+        console.warn(`BATTLE_SET defenser no key ${key}`)
+      }
     }
 
-    if( _.has(payload, 'defenser') ) {
-      // if( _.has( payload.defenser, 'player' ) )
-      //   state.battle.defenser.player = payload.defenser.player
-      // if( _.has( payload.defenser, 'main' ) )
-      //   state.battle.defenser.main = payload.defenser.main
-      // if( _.has( payload.defenser, 'support' ) )
-      //   state.battle.defenser.support = payload.defenser.support
-      _.each(payload.defenser,(value,key,list) => {
-        // console.log(value,key,list)
-        if(_.has(state.battle.defenser,key))
-          state.battle.defenser[key] = value
-        else {
-          console.warn(`BATTLE_SET defenser no key ${key}`)
-        }
-      })
+    if(R.has('attacker')(payload)) {
+      R.forEachObjIndexed(settingAttacker,payload.attacker)
+    }
+    if(R.has('defenser')(payload)) {
+      R.forEachObjIndexed(settingDefenser,payload.defenser)
     }
 
     state.battle.attacker.player = state.currentPlayer
@@ -573,6 +572,42 @@ const mutations = {
 
     // console.log(payload)
     console.log( 'commit BATTLE_SET', state.battle )
+
+    // underscore.js
+    // if( _.has(payload, 'attacker') ) {
+    // underscore.js assignment
+    // if( _.has( payload.attacker, 'player' ) )
+    //   state.battle.attacker.player = payload.attacker.player
+    // if( _.has( payload.attacker, 'main' ) )
+    //   state.battle.attacker.main = payload.attacker.main
+    // if( _.has( payload.attacker, 'support' ) )
+    //   state.battle.attacker.support = payload.attacker.support
+    // _.each(payload.attacker,(value,key,list) => {
+    //   // console.log(value,key,list)
+    //   if(_.has(state.battle.attacker,key))
+    //     state.battle.attacker[key] = value
+    //   else {
+    //     console.warn(`BATTLE_SET attacker no key ${key}`)
+    //   }
+    // })
+    // }
+
+    // if( _.has(payload, 'defenser') ) {
+    //   // if( _.has( payload.defenser, 'player' ) )
+    //   //   state.battle.defenser.player = payload.defenser.player
+    //   // if( _.has( payload.defenser, 'main' ) )
+    //   //   state.battle.defenser.main = payload.defenser.main
+    //   // if( _.has( payload.defenser, 'support' ) )
+    //   //   state.battle.defenser.support = payload.defenser.support
+    //   _.each(payload.defenser,(value,key,list) => {
+    //     // console.log(value,key,list)
+    //     if(_.has(state.battle.defenser,key))
+    //       state.battle.defenser[key] = value
+    //     else {
+    //       console.warn(`BATTLE_SET defenser no key ${key}`)
+    //     }
+    //   })
+    // }
   },
 }
 const actions = {

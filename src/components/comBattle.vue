@@ -49,7 +49,7 @@ export default {
   },
   watch: {
     value(val,oldval) {
-      console.log( 'v-model vaule changed :', val, oldval )
+      // console.log( 'v-model vaule changed :', val, oldval )
       // if(val=='on') {
       //   this.battleVisible = true
       // }
