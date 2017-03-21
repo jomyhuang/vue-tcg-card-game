@@ -82,11 +82,11 @@ export default {
   },
   methods: {
     _afterOpen () {
-      console.log('open battle dialog autoclose:', this.autoClose)
+      // console.log('open battle dialog autoclose:', this.autoClose)
       // console.log(`test v-model : ${this.value}`)
       if( this.autoClose > 0) {
         setTimeout( () => {
-          console.log('battle dialog timeout auto close')
+          // console.log('battle dialog timeout auto close')
           this.battleVisible = false
           this.autoClose = 0
         }, this.autoClose )

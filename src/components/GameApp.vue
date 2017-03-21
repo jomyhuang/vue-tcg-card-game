@@ -103,7 +103,11 @@ export default {
       // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
       // this.$store.commit('GAME_NEXT_PLAYER')
       // this.$store.commit('GAME_NEXT_PLAYER')
-      this.$refs.info.message('讯息测试～')
+      // this.$refs.info.message('讯息测试～')
+      this.$store.dispatch('RAMDA_TEST', {
+        name: 'test name',
+        age: 10
+      })
     },
     gameStart () {
       console.log('game Start')
@@ -205,7 +209,7 @@ export default {
     async gameloop () {
       console.log('start gameloop')
 
-      if( this.$store.state.gameStarted ) {
+      if( this.$store.state.game.started ) {
         await this.message('对战已经开始')
         return
       }
@@ -234,7 +238,7 @@ export default {
       while( loop ) {
 
         await this.$store.dispatch('GAME_TURN_BEGIN').then( async () => {
-          await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.turnCount}回合`)
+          await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
         }).then( async () => {
           await this.$store.dispatch('GAME_DRAW')
           await this.message('抽牌')

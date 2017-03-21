@@ -26,7 +26,6 @@ const state = {
   pageFilter: 'all',
 
   // game app
-  gameStarted: false,
   currentPlayer: null,
   opponentPlayer: null,
   firstPlayer: null,
@@ -44,9 +43,13 @@ const state = {
     selectedList: [],
   },
   // game/turn package
-  turnCount: 0,
+  ramda: {    
+  },
+  game: {
+    started: false,
+    turnCount: 0,
+  },
   turn: {
-
   },
   // battle package
   battle: {
@@ -475,44 +478,31 @@ const mutations = {
     state.placeplayer.graveyard.push( state.placeholder )
     state.placeholder = null
   },
-  // GAME
-  GAME_SET (state, payload) {
-    // if(_.has(payload, 'turnCount'))
-    //   state.turnCount = payload.turnCount
-    // if(_.has(payload, 'gameStarted'))
-    //   state.gameStarted = payload.gameStarted
+  STORE_SET (state, payload) {
 
-    // console.log('test Ramda', R.concat('ABC')('DEF'))
+    // meta store set
     const settingState = (value,key) => {
       if(R.has(key)(state)) {
-        // const xKey = R.lensProp(key)
-        // console.log(R.view(xKey,state))
-        // 错误 set 只能返回更新后物件，但无法state无法diff更新
-        // state = R.set(xKey,value,state)
-        // console.log(`ramda set ${key} ${state[key]}`)
         state[key] = value
+        console.log(`META STORE_SET ${key} ${state[key]} to ${value}`)
       }
       else {
-        console.warn(`GAME_SET no key ${key}`)
+        console.warn(`STORE_SET no key ${key}`)
       }
     }
     R.forEachObjIndexed(settingState,payload)
+  },
+  // GAME
+  GAME_SET (state, payload) {
 
-    // underscore.js
-    // _.each(payload,(value,key,list) => {
-    //   // console.log(value,key,list)
-    //   if(_.has(state,key))
-    //     state[key] = value
-    //   else {
-    //     console.warn(`GAME_SET no key ${key}`)
-    //   }
-    // })
+    // ramda.js 可以assign sub-key
+    // state = R.merge(state)(payload) 不行！
+    state.game = R.merge(state.game)(payload)
 
-    console.log('gameset payload',payload)
+    console.log('GAME_SET payload',payload)
   },
   // TURN
   TURN_SET (state, payload) {
-
 
     console.log( 'commit TURN_SET no impelement', state.turn )
   },
@@ -539,33 +529,40 @@ const mutations = {
   },
   BATTLE_SET (state, payload) {
 
-    const settingAttacker = (value,key) => {
-      const data = state.battle.attacker
-      if(R.has(key)(data)) {
-        // console.log(`R attacker set ${key} ${value}`)
-        data[key] = value
-      }
-      else {
-        console.warn(`BATTLE_SET attacker no key ${key}`)
-      }
-    }
-    const settingDefenser = (value,key) => {
-      const data = state.battle.defenser
-      if(R.has(key)(data)) {
-        // console.log(`R attacker set ${key} ${value}`)
-        data[key] = value
-      }
-      else {
-        console.warn(`BATTLE_SET defenser no key ${key}`)
-      }
-    }
+    // const settingAttacker = (value,key) => {
+    //   const data = state.battle.attacker
+    //   if(R.has(key)(data)) {
+    //     // console.log(`R attacker set ${key} ${value}`)
+    //     data[key] = value
+    //   }
+    //   else {
+    //     console.warn(`BATTLE_SET attacker no key ${key}`)
+    //   }
+    // }
+    // const settingDefenser = (value,key) => {
+    //   const data = state.battle.defenser
+    //   if(R.has(key)(data)) {
+    //     // console.log(`R attacker set ${key} ${value}`)
+    //     data[key] = value
+    //   }
+    //   else {
+    //     console.warn(`BATTLE_SET defenser no key ${key}`)
+    //   }
+    // }
 
-    if(R.has('attacker')(payload)) {
-      R.forEachObjIndexed(settingAttacker,payload.attacker)
-    }
-    if(R.has('defenser')(payload)) {
-      R.forEachObjIndexed(settingDefenser,payload.defenser)
-    }
+    // 不行，因为无法clone state
+    // state.battle = R.merge(state.battle)(payload)
+
+    // if(R.has('attacker')(payload)) {
+    //   // R.forEachObjIndexed(settingAttacker,payload.attacker)
+    //   // R.forEachObjIndexed(settingAttacker)(payload.attacker)
+    //
+    state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
+    // }
+    // if(R.has('defenser')(payload)) {
+    //   R.forEachObjIndexed(settingDefenser)(payload.defenser)
+    state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
+    // }
 
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer
@@ -592,25 +589,16 @@ const mutations = {
     // })
     // }
 
-    // if( _.has(payload, 'defenser') ) {
-    //   // if( _.has( payload.defenser, 'player' ) )
-    //   //   state.battle.defenser.player = payload.defenser.player
-    //   // if( _.has( payload.defenser, 'main' ) )
-    //   //   state.battle.defenser.main = payload.defenser.main
-    //   // if( _.has( payload.defenser, 'support' ) )
-    //   //   state.battle.defenser.support = payload.defenser.support
-    //   _.each(payload.defenser,(value,key,list) => {
-    //     // console.log(value,key,list)
-    //     if(_.has(state.battle.defenser,key))
-    //       state.battle.defenser[key] = value
-    //     else {
-    //       console.warn(`BATTLE_SET defenser no key ${key}`)
-    //     }
-    //   })
-    // }
   },
+  RAMDA_TEST (state,payload) {
+    console.log('Ramda test commit',payload)
+  }
 }
 const actions = {
+  RAMDA_TEST({commit, state}, payload) {
+    commit('RAMDA_TEST',payload)
+    console.log('RAMDA_TEST action result')
+  },
   INIT_DB( { commit, state } ) {
     commit( 'INIT_DB' )
     commit( 'FETCH_REFRESH' )
@@ -820,7 +808,7 @@ const actions = {
   },
   GAME_START({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
-      commit('GAME_SET', { gameStarted: true })
+      commit('GAME_SET', { started: true })
       commit('SELECT_PLAYER', state.player2)
       dispatch('DRAW', 5)
       dispatch('DRAW_TO_ZONE', 5)
@@ -833,7 +821,7 @@ const actions = {
   },
   GAME_TURN_BEGIN({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
-      commit('GAME_SET', { turnCount: state.turnCount+1 })
+      commit('GAME_SET', { turnCount: state.game.turnCount+1 })
       resolve()
     })
   },
