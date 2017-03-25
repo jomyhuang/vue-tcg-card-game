@@ -17,6 +17,9 @@
   		</div>
   		<div class="col-md-9 gameboard">
         <div class="row gameboard">
+          <comHand :player="$store.state.player2"></comHand>
+        </div>
+        <div class="row gameboard">
           <comZone :player="$store.state.player2"></comZone>
         </div>
   		</div>
@@ -97,6 +100,12 @@ export default {
     firstPlayer: function () {
       return this.$store.state.firstPlayer
     },
+    opponentPlayer: function () {
+      return this.$store.state.opponentPlayer
+    },
+    turnCount: function () {
+      return this.$store.state.game.turnCount
+    }
   },
   methods: {
     gameTest () {
@@ -240,14 +249,33 @@ export default {
         await this.$store.dispatch('GAME_TURN_BEGIN').then( async () => {
           await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
         }).then( async () => {
-          await this.$store.dispatch('GAME_DRAW')
           await this.message('抽牌')
+          await this.$store.dispatch('GAME_DRAW')
         })
 
-        await this.$store.dispatch('BATTLE_START')
         await this.message('战斗开始')
+        await this.$store.dispatch('BATTLE_START')
 
-        loop = false
+        await this.message(`${this.currentPlayer.name} 宣告攻击精灵`)
+        await this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
+        this.battleshow()
+
+        await this.message(`指定攻击目标`)
+        await this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
+        this.battleshow()
+
+        await this.message(`${this.currentPlayer.name} 派遣支援精灵`)
+        await this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
+
+        await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
+        await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
+        this.battleshow()
+
+        await this.$store.dispatch('BATTLE_END')
+        await this.$store.dispatch('GAME_NEXT_TURN')
+
+        if( this.turnCount >= 2)
+          loop = false
       }
 
       console.log( 'end of gameloop')

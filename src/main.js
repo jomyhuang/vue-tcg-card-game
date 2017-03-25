@@ -7,7 +7,7 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 
 import App from './App'
-import store from './store'
+import store from './store/'
 import router from './router'
 
 // Vue.use(Vuex)
@@ -23,5 +23,7 @@ new Vue({
   store: store,
   router,
   template: '<App/>',
-  components: { App }
+  components: {
+    App
+  }
 })

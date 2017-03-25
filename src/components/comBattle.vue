@@ -3,10 +3,12 @@
     <el-dialog ref="battleDialog" title="精灵战争开战！" v-model="battleVisible" v-on:open="_afterOpen" size="large">
       <div class="row gameboard">
         <div class="col-md-6 gameboard flex-container-right">
+          <h4>攻击方</h4>
           <comCard :card="$store.state.battle.attacker.main"></comCard>
           <comCard :card="$store.state.battle.attacker.support"></comCard>
     		</div>
         <div class="col-md-6 gameboard flex-container">
+          <h4>防守方</h4>
           <comCard :card="$store.state.battle.defenser.main"></comCard>
           <comCard :card="$store.state.battle.defenser.support"></comCard>
     		</div>

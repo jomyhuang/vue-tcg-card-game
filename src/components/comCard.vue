@@ -11,7 +11,7 @@
           <i class="el-icon-plus" @click.stop.prevent="faceup($event)">FACEUP</i>
         </div>
         <div v-else>
-          <div><h4>{{card.name}}</h4></div>
+          <div><h5>{{card.name}}</h5></div>
           <div>
             <span v-for="n in card.star">🌟</span>
           </div>
@@ -21,9 +21,9 @@
           <div>{{card.attack2}} {{card.power2}}</div>
         </div>
         <div>
-          <i class="el-icon-minus" @click.stop.prevent="tobase($event)">BASE</i>
+          <i class="el-icon-minus" @click.stop.prevent="tobase($event)">B</i>
           <br/>
-          <i class="el-icon-minus" @click.stop.prevent="tograveyrad($event)">GRAVEYARD</i>
+          <i class="el-icon-minus" @click.stop.prevent="tograveyrad($event)">G</i>
           <br/>
           <div v-if="card.selectable">
             <i class="el-icon-minus" @click.stop.prevent="selectcard($event)">
@@ -85,12 +85,13 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- card size 150x200 -->
 <style scoped>
 
 .comCard {
     background-color: lightgrey;
-    width: 150px;
-    height: 200px;
+    width: 120px;
+    height: 150px;
     margin: 5px;
     border:none 5px #000000;
     -moz-border-radius: 5px;

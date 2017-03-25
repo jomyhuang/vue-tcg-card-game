@@ -43,7 +43,7 @@ const state = {
     selectedList: [],
   },
   // game/turn package
-  ramda: {    
+  ramda: {
   },
   game: {
     started: false,
@@ -351,11 +351,11 @@ const mutations = {
 
     // state.act_selection.selected_count = 0
     // state.act_selection.selected_list = []
-    console.log('commit ACT_SELECTION')
+    // console.log('commit ACT_SELECTION')
   },
   ACT_SET_SELECTED ( state, value ) {
     if( !state.placeholder ) {
-      console.log( 'commit ACT_SET_SELECTED ERROR no placeholder card' )
+      console.error( 'commit ACT_SET_SELECTED ERROR no placeholder card' )
       return
     }
     let flag = false
@@ -368,7 +368,7 @@ const mutations = {
 
     if( state.act_selection.selectedMuation ) {
       // 处理muation callback
-      console.log( `commit ACT_SET_SELECTED selectedMuation call` )
+      // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
       state.act_selection.selectedMuation( state, state.placeholder )
     }
 
@@ -376,14 +376,14 @@ const mutations = {
     state.act_selection.selectedList = state.placelist.filter( (card) => {
       return card.selected
     } )
-    console.log( `commit ACT_SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
+    // console.log( `commit ACT_SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
   },
   ACT_UNSELECTION ( state ) {
     state.placelist.forEach( (card) => {
       // card.selected = false
       card.selectable = false
     })
-    console.log('commit ACT_UNSELECTION')
+    // console.log('commit ACT_UNSELECTION')
   },
   PICK_CARD ( state, card=null ) {
     if( card ) {
@@ -700,7 +700,7 @@ const actions = {
     if( state.act_selection.selectedAction ) {
       // console.log( `ACT_SELECTED_CARD dispatch ${state.act_selection.action}` )
       // dispatch(state.act_selection.action,card)
-      console.log( `ACT_SELECTED_CARD selectedAction call` )
+      // console.log( `ACT_SELECTED_CARD selectedAction call` )
       state.act_selection.selectedAction(state,card)
     }
   },
@@ -708,7 +708,7 @@ const actions = {
 
     commit('ACT_UNSELECTION')
     if( state.act_selection.thenAction ) {
-      console.log( `ACT_SELECT_CARD_END thenAction call` )
+      // console.log( `ACT_SELECT_CARD_END thenAction call` )
       return state.act_selection.thenAction(state)
     }
   },
@@ -733,7 +733,7 @@ const actions = {
   },
   async _WAIT_ACT_SYNC_SELECT_CHECK( { commit, state, dispatch }, checkfunc=()=>true ) {
 
-    console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
+    // console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
     let waiting = true
     while( waiting ) {
       // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
@@ -747,8 +747,8 @@ const actions = {
   },
   ASYNC_ACT_SELECT_CARD_START ({commit,state,dispatch}, payload) {
 
-    console.log('ASYNC_ACT_SELECT_CARD_START')
-    return new Promise( async function(resolve, reject) {
+    // console.log('ASYNC_ACT_SELECT_CARD_START')
+    return new Promise(async function(resolve, reject) {
     // return new Promise( (resolve, reject) => {
     // 注意：使用箭头函数不能是 async
       commit('ACT_SELECTION', payload)
@@ -839,6 +839,106 @@ const actions = {
   },
   BATTLE_START({commit,state,dispatch}) {
     return new Promise(function(resolve, reject) {
+      resolve()
+    })
+  },
+  BATTLE_DECALRE_ATTACKER({commit,state,dispatch}) {
+    return new Promise(async function(resolve, reject) {
+      await dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          } )
+          commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+            // console.log('battle 1 finish')
+        },
+      } ).then( () => {
+        // note!
+        // console.log('BATTLE_DECALRE_ATTACKER promise.then finish')
+        }
+      )
+      // this.battleshow()
+
+      resolve()
+    })
+  },
+  BATTLE_OPP_DECLARE_DEFENSER({commit,state,dispatch}) {
+    return new Promise(async function(resolve, reject) {
+      await dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: state.opponentPlayer.zone,
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          commit('BATTLE_SET', {
+            defenser: {
+              main: card,
+            }
+          } )
+          commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+            // console.log('battle 1 declare opponent main')
+        },
+      } ).then( () => {
+        // note!
+        // console.log('phase 1 declare opponent main dispatch promise.then finish')
+        }
+      )
+
+      resolve()
+    })
+  },
+  BATTLE_PLAY_SUPPORTER({commit,state,dispatch}) {
+    return new Promise(async function(resolve, reject) {
+      await dispatch( 'ASYNC_ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state,card) => {
+            state.storemsg = `select ${card.name}`
+            card.name = card.name + '**'
+        },
+        selectedAction: (state,card) => {
+          commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          } )
+        },
+        thenAction: (state) => {
+            // console.log('battle 2 finish')
+        },
+      } ).then( () => {
+        // note!
+        // console.log('phase 2 dispatch promise.then finish')
+        }
+      )
+
+      resolve()
+    })
+  },
+  BATTLE_OPP_PLAY_SUPPORTER({commit,state,dispatch}) {
+    return new Promise(function(resolve, reject) {
+      console.log('Random/first defenser from hand')
+      commit('BATTLE_SET', {
+        defenser: {
+          // main: this.$store.state.opponentPlayer.zone[0],
+          support: state.opponentPlayer.hand[0],
+        }
+      })
+
       resolve()
     })
   },
