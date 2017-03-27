@@ -17,6 +17,9 @@ export default {
   }, payload) {
     commit('RAMDA_TEST', payload)
     console.log('RAMDA_TEST action result')
+    let card = state.player1.deck[0]
+    console.log(`test result ${card.name} ${card.play.info} ${card.play.tag}`)
+
   },
   INIT_DB({
     commit,

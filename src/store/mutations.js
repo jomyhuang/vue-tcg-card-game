@@ -131,6 +131,7 @@ export default {
           Vue.set(gamecard, 'facedown', false)
           Vue.set(gamecard, 'selected', false)
           Vue.set(gamecard, 'selectable', false)
+          Vue.set(gamecard, 'play', {})
 
           // end prop
           player.cardPool.push(gamecard)
@@ -493,5 +494,9 @@ export default {
   },
   RAMDA_TEST(state, payload) {
     console.log('Ramda test commit', payload)
+    let card = state.player1.deck[0]
+    console.log(`test ${card.name} ${card.play} ${card.facedown}`)
+    state.player1.deck[0].play.info = 'info1'
+    state.player1.deck[0].play.tag = 'tag'
   }
 }

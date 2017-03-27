@@ -57,7 +57,7 @@ export default {
         })
       })
     },
-    message (msg='游戏消息提示',duration=1000) {
+    message (msg='游戏消息提示',duration=1500) {
       this.$message({
         message: msg,
         duration: duration,
