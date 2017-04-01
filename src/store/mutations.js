@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import storeDB from '@/components/SDWCardDB.json'
-import deck1 from '@/components/player1.deck'
+import deck1 from '@/components/player1.js'
 
 import _ from 'underscore'
 import R from 'ramda'

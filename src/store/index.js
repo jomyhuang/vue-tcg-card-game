@@ -7,8 +7,8 @@ import mutations from './mutations'
 import actions from './action'
 import getters from './getters'
 
-import storeDB from '@/components/SDWCardDB.json'
-import deck1 from '@/components/player1.deck'
+// import storeDB from '@/components/SDWCardDB.json'
+// import deck1 from '@/components/player1.js'
 
 import _ from 'underscore'
 import R from 'ramda'
