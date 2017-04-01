@@ -9,16 +9,22 @@
 
 import _ from 'underscore'
 import R from 'ramda'
+import mutil from '@/mutil'
 
 export default {
   RAMDA_TEST({
     commit,
     state
   }, payload) {
-    commit('RAMDA_TEST', payload)
+    // commit('RAMDA_TEST', payload)
     console.log('RAMDA_TEST action result')
-    let card = state.player1.deck[0]
-    console.log(`test result ${card.name} ${card.play.info} ${card.play.tag}`)
+    // let card = state.player1.deck[0]
+    // console.log(`test result ${card.name} ${card.play.info} ${card.play.tag}`)
+    console.log(mutil.convertPower('1亿2000万'));
+    // console.log(mutil.convertPower('2000万'));
+    // console.log(mutil.convertPower('2亿'));
+    // console.log(mutil.convertPower('2'));
+    // console.log(mutil.convertPower('万'));
 
   },
   INIT_DB({

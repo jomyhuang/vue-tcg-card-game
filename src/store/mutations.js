@@ -4,6 +4,8 @@ import deck1 from '@/components/player1.js'
 
 import _ from 'underscore'
 import R from 'ramda'
+import mutil from '@/mutil'
+
 
 export default {
   TOGGLE_LOADING(state) {
@@ -132,6 +134,9 @@ export default {
           Vue.set(gamecard, 'selected', false)
           Vue.set(gamecard, 'selectable', false)
           Vue.set(gamecard, 'play', {})
+          gamecard.power1 = mutil.convertPower(gamecard.power1)
+          gamecard.power2 = mutil.convertPower(gamecard.power2)
+          // console.log(gamecard.power1);
 
           // end prop
           player.cardPool.push(gamecard)
