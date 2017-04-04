@@ -19,7 +19,7 @@ Vue.use(Vuex)
 
 const state = {
   storemsg: 'vuex store test',
-  cardDB: {},
+  // cardDB: {},
   // page
   pageFullList: [],
   pageList: [],
@@ -36,9 +36,11 @@ const state = {
   opponentPlayer: null,
   firstPlayer: null,
 
+  // chain function
   placeholder: null,
   placelist: [],
   placeplayer: null,
+  pickindex: -1,
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
@@ -54,23 +56,50 @@ const state = {
   game: {
     started: false,
     turnCount: 0,
+    over: false,
+    score: {
+      reason: '',
+      draw: false,
+      win: null,
+      lose: null,
+    },
+    config: {
+      message: false,
+      battelshow: false,
+      battleshow_pauseonly: false,
+      maxturn: 1,
+    },
   },
   turn: {},
-  // battle package
+  // battle package (move to default)
   battle: {
     attacker: {
       player: null,
       main: null,
       support: null,
       hero: null,
+      power: [],
+      chain: [],
     },
     defenser: {
       player: null,
       main: null,
       support: null,
       hero: null,
+      power: [],
+      chain: [],
     },
+    score: {
+      finish: false,
+      winside: null,
+      draw: false,
+      win: null,
+      lose: null,
+    },
+    chain: [],
   },
+  // player list
+  players: [],
   player1: {
     id: 'playerId1',
     hero: 'heroId1',

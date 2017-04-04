@@ -1,10 +1,12 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <h2><router-link to="/cardapp">CardAPP Link</router-link></h2>
-    <h2><router-link to="/gameapp">GameApp Link</router-link></h2>
+    <!-- <router-link to="/cardapp">CardAPP Link</router-link> -->
+    <!-- <router-link to="/gameapp">GameApp Link</router-link> -->
+    <h2><a href="/cardapp#/cardapp">CardAPP Link</a></h2>
+    <h2><a href="/gameapp#/gameapp">GameApp Link</a></h2>
 
-    <div id="demo">
+    <!-- <div id="demo">
       <button @click="show = !show">
         Toggle
       </button>
@@ -12,10 +14,9 @@
       <transition name="bounceRight">
         <p v-if="show">hello</p>
       </transition>
-    </div>
+    </div> -->
 
     <h2>Essential Links</h2>
-    <!-- <transition-group name="fadeDown"> -->
     <ul>
       <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
       <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
@@ -24,7 +25,6 @@
       <br>
       <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
     </ul>
-    <!-- </transition-group> -->
 
     <h2>Ecosystem</h2>
     <ul>

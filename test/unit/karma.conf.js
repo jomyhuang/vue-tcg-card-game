@@ -13,7 +13,8 @@ module.exports = function (config) {
     // 2. add it to the `browsers` array below.
     browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
-    reporters: ['spec', 'coverage'],
+    // reporters: ['spec', 'coverage'],
+    reporters: ['nyan'],
     files: ['./index.js'],
     preprocessors: {
       './index.js': ['webpack', 'sourcemap']
@@ -22,12 +23,12 @@ module.exports = function (config) {
     webpackMiddleware: {
       noInfo: true
     },
-    coverageReporter: {
-      dir: './coverage',
-      reporters: [
-        { type: 'lcov', subdir: '.' },
-        { type: 'text-summary' }
-      ]
-    }
+    // coverageReporter: {
+    //   dir: './coverage',
+    //   reporters: [
+    //     { type: 'lcov', subdir: '.' },
+    //     { type: 'text-summary' }
+    //   ]
+    // }
   })
 }

@@ -1,11 +1,10 @@
 import Vue from 'vue'
-import storeDB from '@/components/SDWCardDB.json'
+import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/player1.js'
 
 import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
-
 
 export default {
   TOGGLE_LOADING(state) {
@@ -24,18 +23,18 @@ export default {
     state.storemsg = payload
   },
   INIT_DB(state) {
-    state.cardDB = storeDB
+    // state.cardDB = storeDB
 
     // deck init
-    console.log('deck1', deck1, 'length', deck1.length)
+    // console.log('deck1', deck1, 'length', deck1.length)
     // 转换成数组便利处理
     // state.cardDB = JSON.parse(storeDB || '[]')
     state.pageFullList = []
     // exam = Object.keys(exam).map(function(k){return exam[k]});
-    Object.keys(state.cardDB).forEach((k) => state.pageFullList.push(state.cardDB[k]))
+    Object.keys(cardDB).forEach((k) => state.pageFullList.push(cardDB[k]))
     state.pageKeyList = state.pageFullList
 
-    console.log('JSON to fulllist/keylist array', state.pageFullList)
+    // console.log('JSON to fulllist/keylist array', state.pageFullList)
 
     state.storemsg = 'INIT_DB loaded'
     console.log('commit INIT_DB')
@@ -101,8 +100,11 @@ export default {
     if (end >= state.pageKeyList.length - 1)
       console.log('commit FETCH_SCROLL_NEXT end of list')
   },
-  GAME_INIT(state) {
-    state.cardDB = storeDB
+  GAME_INIT(state, {
+    decklist = null,
+    shuffle = true,
+  } = {}) {
+    // state.cardDB = storeDB
     state.storemsg = 'GAME INIT'
 
     // make deck to card pool clone from cardDB
@@ -110,12 +112,30 @@ export default {
     // const list = [ (state.player1, deck1), (state.player2,deck1) ]
     // let test = [ 1, 2, 3 ].map( x => x * x )
 
-    const list = [
-      [state.player1, deck1],
-      [state.player2, deck1]
-    ]
+    // console.log('player',state.players);
+    state.players = []
+    // state.players.push(state.player1)
+    // state.players.push(state.player2)
+
+
+    let list = []
+
+    if (decklist) {
+      list = decklist
+      console.log('GAME_INIT setting deck from payload', payload.decklist);
+    } else {
+      list = [
+        [state.player1, deck1],
+        [state.player2, deck1]
+      ]
+      console.log('GAME_INIT setting default deck', list);
+    }
 
     list.forEach(([player, deckfile]) => {
+
+      // joining game
+      state.players.push(player)
+
       // console.log(pack)
       // const (player,deckfile) = pack...
       // let player = pack[0]
@@ -124,7 +144,7 @@ export default {
       player.cardPool = []
       player.deck = []
       deckfile.forEach((cardid) => {
-        let card = state.cardDB[cardid]
+        let card = cardDB[cardid]
         if (card) {
           // clone /or make gamecard object
           // simple clone
@@ -150,13 +170,26 @@ export default {
       })
 
       // underscore.js
-      player.deck = _.shuffle(player.deck)
+      if (shuffle) {
+        player.deck = _.shuffle(player.deck)
+        console.log('GAME_INIT deck shuffle');
+      } else {
+        console.log('GAME_INIT no shuffle')
+      }
 
       // console.log(`cardPool lenth ${player.cardPool.length}`, player.cardPool)
       // console.log(`deck lenth ${player.deck.length}`, player.deck)
     })
 
     // console.log('commit INIT_GAME end')
+  },
+  GAME_SET_PLAYERDECK(state, {
+    player = null,
+    deck = null,
+  } = {}) {
+    // TODO: GAME_SET_PLAYERDECK & joining game
+
+    console.log('GAME_SET_PLAYERDECK ', player, deck)
   },
   GAME_SET_FIRSTPLAYER(state, player) {
     if (_.isUndefined(player)) {
@@ -214,6 +247,7 @@ export default {
   },
   SELECT_CARD(state, card = null) {
     state.placeholder = card
+    state.pickindex = -1
     if (state.placeholder) {
       // console.log( `commit SELECT_CARD ${state.placeholder.name}` )
     } else {
@@ -315,6 +349,7 @@ export default {
         if (index > -1) {
           pile.splice(index, 1)
           state.placeholder = card
+          state.pickindex = index
           found = true
           console.log(`commit PICK_CARD find ${card.name} from ${pilename} index ${index}`)
           break
@@ -328,7 +363,7 @@ export default {
       }
     } else {
       state.placeholder = null
-      console.log('commit PICK_CARD null must assign')
+      console.warn('commit PICK_CARD null must assign')
     }
   },
   DRAW(state) {
@@ -337,7 +372,7 @@ export default {
       // console.log( `commit DRAW ${state.placeholder.name}` )
     } else {
       state.placeholder = null
-      console.log(`commit DRAW ERROR no card to draw`)
+      console.warn(`commit DRAW no card to draw`)
     }
   },
   SET_FACEDOWN(state) {
@@ -362,12 +397,18 @@ export default {
     state.placeplayer.hand.push(state.placeholder)
     state.placeholder = null
   },
-  TO_ZONE(state) {
+  TO_ZONE(state, index) {
     if (!state.placeholder) {
       console.log('commit TO_ZONE ERROR no placeholder card')
       return
     }
-    state.placeplayer.zone.push(state.placeholder)
+    if (!_.isUndefined(index)) {
+      state.placeplayer.zone.splice(index, 0, state.placeholder)
+      console.log(`commit TO_ZONE replace index ${index} ${state.placeplayer.id} ${state.placeholder.name}`)
+    } else {
+      state.placeplayer.zone.push(state.placeholder)
+      console.log(`commit TO_ZONE ${state.placeplayer.id} ${state.placeholder.name}`)
+    }
     state.placeholder = null
   },
   TO_BASE(state) {
@@ -376,6 +417,7 @@ export default {
       return
     }
     state.placeplayer.base.push(state.placeholder)
+    console.log(`commit TO_BASE ${state.placeplayer.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
   TO_GRAVEYARD(state) {
@@ -384,6 +426,7 @@ export default {
       return
     }
     state.placeplayer.graveyard.push(state.placeholder)
+    console.log(`commit TO_GRAVEYARD ${state.placeplayer.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
   STORE_SET(state, payload) {
@@ -421,13 +464,25 @@ export default {
         main: null,
         support: null,
         hero: null,
+        power: [],
+        chain: [],
       },
       defenser: {
         player: null,
         main: null,
         support: null,
         hero: null,
+        power: [],
+        chain: [],
       },
+      score: {
+        finish: false,
+        winside: null,
+        draw: false,
+        win: null,
+        lose: null,
+      },
+      chain: [],
     }
 
     state.battle.attacker.player = state.currentPlayer
@@ -496,6 +551,127 @@ export default {
     // })
     // }
 
+  },
+  BATTLE_CALC(state, {
+    battle = state.battle,
+    score = state.battle.score,
+  } = {}) {
+
+    // battle precheck
+    battle.chain = []
+    battle.chain.push(battle.attacker.main)
+    battle.chain.push(battle.defenser.main)
+    battle.chain.push(battle.attacker.support)
+    battle.chain.push(battle.defenser.support)
+
+    console.log(`BATTLE_CALC chain `, state.battle.chain);
+
+    R.forEach(x => {
+      x.chain = [x.main, x.support]
+    })([battle.attacker, battle.defenser])
+
+    console.log(`BATTLE_CALC attacker chain`, state.battle.attacker.chain);
+
+    // calc power1
+    R.forEach(x => {
+      if (x) {
+        let power = mutil.checkAnti(x.antipro, battle.defenser.main.antipro) ?
+          x.power2 : x.power1
+        battle.attacker.power.push(power)
+      } else {
+        console.warn('BATTLE_CALC attacker calc power object null')
+      }
+    })(battle.attacker.chain)
+    console.log('attacker power ', battle.attacker.power)
+
+    let totalAttacker = R.reduce(R.add, 0)(battle.attacker.power)
+    console.log(`totalAttacker ${totalAttacker}`)
+
+    R.forEach(x => {
+      if (x) {
+        let power = mutil.checkAnti(x.antipro, battle.attacker.main.antipro) ?
+          x.power2 : x.power1
+        battle.defenser.power.push(power)
+      } else {
+        console.warn('BATTLE_CALC default calc power object null')
+      }
+    })(battle.defenser.chain)
+    console.log('defenser power ', battle.defenser.power)
+
+    let totalDefenser = R.reduce(R.add, 0)(battle.defenser.power)
+    console.log(`totalDefenser ${totalDefenser}`)
+
+    // result & score
+    if (totalAttacker == totalDefenser) {
+      score.draw = true
+      score.winside = 'draw'
+      console.log(`battle is DRAW`)
+    } else {
+      if (totalAttacker > totalDefenser) {
+        score.win = battle.attacker
+        score.lose = battle.defenser
+        score.winside = 'attacker'
+        // console.log(`battle result [attacker] WIN ${score.win.player.id} ${score.win.player.name}`)
+      } else {
+        score.win = battle.defenser
+        score.lose = battle.attacker
+        score.winside = 'defenser'
+        // console.log(`battle result [defenser] WIN ${score.win.player.id} ${score.win.player.name}`)
+      }
+      console.log(`battle result [${score.winside}] WIN ${score.win.player.id} ${score.win.player.name}`)
+    }
+    score.finish = true
+  },
+  GAME_CHECK_GAMEOVER(state, payload) {
+    // console.log('commit GAME_CHECK_GAMEOVER check begin')
+    state.game.over = false
+    state.game.score.reason = ''
+
+    // out of deck
+    // zone check
+    R.forEach(x => {
+      if (!state.game.over) {
+        if (x.deck.length <= 0) {
+          state.game.score.lose = x
+          state.game.over = true
+          state.game.score.reason = `${x.id} lose: out of deck`
+        }
+      }
+      if (!state.game.over) {
+        if (x.zone.length <= 0) {
+          state.game.score.lose = x
+          state.game.over = true
+          state.game.score.reason = `${x.id} lose: be defect`
+        }
+      }
+    })([state.currentPlayer, state.opponentPlayer])
+
+    // check draw
+    if (state.currentPlayer.zone.length <= 0 &&
+      state.opponentPlayer.zone.length <= 0) {
+      state.game.score.draw = true
+      state.game.over = true
+      state.game.score.reason = `game is draw`
+    }
+
+    // for test
+    // state.game.over = true
+    // state.game.score.win = state.player1
+    // state.game.score.reason = 'for test'
+
+    // make score
+    if (state.game.over) {
+      if (state.game.score.draw) {
+        state.game.score.win = null
+        state.game.score.lose = null
+      } else {
+        if (state.game.score.win) {
+          state.game.score.lose = mutil.opponent(state.players, state.game.score.win)
+        } else {
+          state.game.score.win = mutil.opponent(state.players, state.game.score.lose)
+        }
+      }
+    }
   },
   RAMDA_TEST(state, payload) {
     console.log('Ramda test commit', payload)

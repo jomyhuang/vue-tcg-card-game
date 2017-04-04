@@ -103,22 +103,31 @@ export default {
     },
     turnCount: function() {
       return this.$store.state.game.turnCount
-    }
+    },
+    score: function() {
+      return this.$store.state.game.score
+    },
+    gameover: function() {
+      return this.$store.state.game.over
+    },
+    config: function() {
+      return this.$store.state.game.config
+    },
   },
   methods: {
     asyncTestFunc() {
       console.log('Hello this is asyncTestFunc run 2')
       return new Promise(async function(resolve, reject) {
-        setTimeout( () => {
-          [1,2,3].map((x)=>console.log(x))
+        setTimeout(() => {
+          [1, 2, 3].map((x) => console.log(x))
           resolve()
-        }, 2000 )
+        }, 2000)
         await new Promise(function(resolve, reject) {
           // setTimeout( () => {
           //   [11,12,13].map((x)=>console.log(x))
           //   resolve()
           // }, 2000 )
-          [11,12,13].map((x)=>console.log(x))
+          [11, 12, 13].map((x) => console.log(x))
           resolve()
         });
         console.log('after await');
@@ -237,24 +246,28 @@ export default {
     },
     message(msg) {
       // return promise from component
-      return this.$refs.info.async_message(msg)
+      // return this.$refs.info.async_message(msg)
+      return this.config.message ? this.$refs.info.async_message(msg) : true
     },
     async async_battleshow(value = 1000) {
+      if (!this.config.battelshow &&
+        !(value == 0 && this.config.battleshow_pauseonly))
+        return
+
       this.battleshow(value)
 
       if (value == 0) {
-        await this.waiting_click(() => !this.$refs.battle.battleVisible)
+        await this.__waiting_click(() => !this.$refs.battle.battleVisible)
       } else {
         await new Promise(function(resolve, reject) {
           setTimeout(function() {
-            console.log('async_battleshow delay out');
+            // console.log('async_battleshow delay out');
             resolve()
           }, value)
         })
       }
     },
-    async waiting_click(checkfunc = () => true) {
-
+    async __waiting_click(checkfunc = () => true) {
       let waiting = true
       while (waiting) {
         await new Promise(function(resolve, reject) {
@@ -297,7 +310,7 @@ export default {
       // }
 
       let loop = true
-      while (loop) {
+      do {
 
         await this.$store.dispatch('GAME_TURN_BEGIN').then(async() => {
           await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
@@ -311,38 +324,50 @@ export default {
 
         await this.message(`${this.currentPlayer.name} 宣告攻击精灵`)
         await this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
-        await this.async_battleshow(0)
-        // fix code - waiting easy
-        // move to async_battleshow
-        // await this.waiting_click( () => !this.$refs.battle.battleVisible )
-        // console.log('waiting next');
-
-        // let waiting = true
-        // while (waiting) {
-        //   await this.async_waitingclose(() => !this.$refs.battle.battleVisible)
-        //     .then((value) => waiting = false)
-        //     .catch((err) => {})
-        // }
+        await this.async_battleshow(1000)
 
         await this.message(`指定攻击目标`)
         await this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
-        await this.async_battleshow(2000)
+        await this.async_battleshow(1000)
 
         await this.message(`${this.currentPlayer.name} 派遣支援精灵`)
         await this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
 
         await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
         await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
-        await this.async_battleshow(2000)
+
+        await this.$store.dispatch('BATTLE_EFFECT')
+
+        await this.async_battleshow(0)
 
         await this.$store.dispatch('BATTLE_END')
+
+        // check game over block
+        await this.$store.dispatch('GAME_CHECK_GAMEOVER').catch((reason) => {
+          console.log(`GAMEOVER: ${reason}`)
+        })
+        if (this.gameover) break
+        // end check game over
+
         await this.$store.dispatch('GAME_NEXT_TURN')
 
-        if (this.turnCount >= 2)
+        if (this.turnCount >= this.config.maxturn)
           loop = false
-      }
 
-      console.log('end of gameloop')
+      } while (!this.gameover && loop)
+
+      if (!loop)
+        console.log(`end of gameloop, turn ${this.turnCount}`)
+
+      if (this.gameover) {
+        console.log(`game over, turn ${this.turnCount}`)
+        if (this.score.draw) {
+          console.log(`game draw is true`)
+        } else {
+          console.log(`game win ${this.score.win.id} ${this.score.win.name}`)
+          console.log(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
+        }
+      }
     },
 
     /// =========================== OLD GAMELOOP

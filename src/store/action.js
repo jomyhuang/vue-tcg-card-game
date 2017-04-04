@@ -279,7 +279,7 @@ export default {
   // ...BATTLE_OPP_DECLARE_DEFENSER
   // ...BATTLE_PLAY_SUPPORTER
   // ...BATTLE_OPP_PLAY_SUPPORTER
-  // ...BATTLE_BATTLE_EFFECT
+  // ...BATTLE_EFFECT
   // BATTLE_END
   // ...GAME_CHECK_GAMEOVER
   // GAME_NEXT_TURN
@@ -321,6 +321,8 @@ export default {
     state,
     dispatch
   }) {
+    // TODO: joining game, set deck, shuffle
+
     return new Promise(function (resolve, reject) {
       commit('GAME_SET', {
         started: true
@@ -530,12 +532,58 @@ export default {
       resolve()
     })
   },
+  BATTLE_EFFECT({
+    commit,
+    state,
+    dispatch
+  }) {
+    return new Promise(function (resolve, reject) {
+      console.log(`BATTLE_EFFECT begin`)
+      commit('BATTLE_CALC')
+      console.log(`BATTLE_EFFECT end`)
+
+      console.log(`BATTLE_EFFECT clear zone begin`)
+      let battle = state.battle
+      let score = state.battle.score
+      if (score.draw) {
+        console.log('battle draw clear');
+        R.forEach(x => {
+          commit('SELECT_PLAYER', x.player)
+          commit('PICK_CARD', x.main)
+          commit('TO_GRAVEYARD')
+          commit('PICK_CARD', x.support)
+          commit('TO_GRAVEYARD')
+        })([battle.attacker, battle.defenser])
+      } else {
+        console.log('battle win clear');
+        let win = battle.score.win
+        commit('SELECT_PLAYER', win.player)
+        commit('PICK_CARD', win.main)
+        let index = state.pickindex
+        commit('TO_BASE')
+        commit('PICK_CARD', win.support)
+        commit('TO_ZONE', index)
+
+        console.log('battle lose clear');
+        let lose = battle.score.lose
+        commit('SELECT_PLAYER', lose.player)
+        commit('PICK_CARD', lose.main)
+        commit('TO_GRAVEYARD')
+        commit('PICK_CARD', lose.support)
+        commit('TO_GRAVEYARD')
+      }
+      console.log(`BATTLE_EFFECT clear zone end`)
+
+      resolve()
+    })
+  },
   BATTLE_END({
     commit,
     state,
     dispatch
   }) {
     return new Promise(function (resolve, reject) {
+      console.log(`BATTLE_END`)
       resolve()
     })
   },
@@ -547,6 +595,23 @@ export default {
     return new Promise(function (resolve, reject) {
       commit('GAME_NEXT_PLAYER')
       resolve()
+    })
+  },
+  GAME_CHECK_GAMEOVER({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    return new Promise(function (resolve, reject) {
+      commit('GAME_CHECK_GAMEOVER')
+      let gameover = state.game.over
+
+      console.log(`GAME_CHECK_GAMEOVER ${gameover}`)
+      if(gameover)
+        reject(state.game.score.reason)
+      else {
+        resolve()
+      }
     })
   },
   GAME_SCOREBOARD({
