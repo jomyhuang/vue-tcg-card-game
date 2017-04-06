@@ -48,7 +48,7 @@
       <el-button @click="run_gameloop()">RUN</el-button>
       <el-button @click="gameReset()">RESET</el-button>
       <el-button @click="gameNewdeck()">NewDeck</el-button>
-      <el-button @click="gameStepBattle()">Battle test</el-button>
+      <el-button @click="gameTestBattle()">Battle test</el-button>
       <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
       <comMessage ref="info"></comMessage>
     </div>
@@ -156,18 +156,18 @@ export default {
         shuffle: false,
       })
     },
-    gameStepBattle() {
+    gameTestBattle() {
       this.gameReset()
       this.gameNewdeck()
 
       this.run_battle( {
         attacker: {
-          main: mutil.findcard('JW15-001'),
-          support: mutil.findcard('JW15-001'),
+          main: mutil.makecard('JW15-001'),
+          support: mutil.makecard('JW15-001'),
         },
         defenser: {
-          main: mutil.findcard('JW15-002'),
-          support: mutil.findcard('JW15-002'),
+          main: mutil.makecard('JW15-002'),
+          support: mutil.makecard('JW15-002'),
         }
       })
     },
@@ -216,61 +216,6 @@ export default {
       // } ).then( () => {
       //   console.log('hello promise')
       // })
-    },
-    battle() {
-      // this.$store.commit( 'BATTLE_SET', {
-      //   attacker: {
-      //     player: 'jomy',
-      //     main: 'main',
-      //   },
-      //   defenser: {
-      //     support: ['hello','hello2'],
-      //   }
-      // })
-      //
-      // console.log( 'after ', this.$store.state.battle )
-
-      this.$store.dispatch('ACT_SELECT_CARD_START', {
-        list: 'zone',
-        many: 1,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '**'
-        },
-        selectedAction: (state, card) => {
-          this.$store.commit('BATTLE_SET', {
-            attacker: {
-              main: card,
-            }
-          })
-          this.$store.commit('SET_FACEUP')
-        },
-        thenAction: (state) => {
-          console.log('battle 1 finish')
-          this.battle2()
-        },
-      })
-    },
-    battle2() {
-      this.$store.dispatch('ACT_SELECT_CARD_START', {
-        list: 'hand',
-        many: 1,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '**'
-        },
-        selectedAction: (state, card) => {
-          this.$store.commit('BATTLE_SET', {
-            attacker: {
-              support: card,
-            }
-          })
-        },
-        thenAction: (state) => {
-          console.log('battle 2 finish')
-          console.log(`battle main ${state.battle.attacker.main.name} support ${state.battle.attacker.support.name}`)
-        },
-      })
     },
     message(msg) {
       // return promise from component
@@ -364,7 +309,10 @@ export default {
         await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
         await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
+        await this.message(`效果：发动阶段`)
         await this.$store.dispatch('BATTLE_EFFECT')
+        await this.message(`效果：清除阶段`)
+        await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
 
         await this.async_battleshow(0)
 
@@ -401,7 +349,7 @@ export default {
       console.log(msg)
     },
     run_battle(battle) {
-      this.run_message('start run_battle test')
+      this.run_message('run_battle start battle')
       this.$store.dispatch('GAME_START')
       let firstplayer = this.$store.state.player1
       this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
@@ -410,7 +358,9 @@ export default {
       this.$store.dispatch('BATTLE_START', battle)
 
       this.$store.dispatch('BATTLE_EFFECT')
+      // this.$store.dispatch('BATTLE_EFFECT_CLEAR')
       this.$store.dispatch('BATTLE_END')
+      this.run_message('run_battle end battle')
     },
     run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
@@ -492,7 +442,10 @@ export default {
       this.run_message(`${this.opponentPlayer.name} 派遣支援精灵`)
       this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
+      this.run_message(`效果：发动阶段`)
       this.$store.dispatch('BATTLE_EFFECT')
+      this.run_message(`效果：清除阶段`)
+      this.$store.dispatch('BATTLE_EFFECT_CLEAR')
 
       // await this.async_battleshow(0)
       this.$store.dispatch('BATTLE_END')
@@ -515,6 +468,8 @@ export default {
 
       return result
     },
+
+
 
     /// =========================== OLD GAMELOOP
     async gameloop_temp() {
@@ -607,6 +562,61 @@ export default {
       console.log(`battle defenser ${this.$store.state.battle.defenser.main.name} support ${this.$store.state.battle.defenser.support.name}`)
     },
     /// =========================== OLD GAMELOOP
+    battle() {
+      // this.$store.commit( 'BATTLE_SET', {
+      //   attacker: {
+      //     player: 'jomy',
+      //     main: 'main',
+      //   },
+      //   defenser: {
+      //     support: ['hello','hello2'],
+      //   }
+      // })
+      //
+      // console.log( 'after ', this.$store.state.battle )
+
+      this.$store.dispatch('ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          })
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+          console.log('battle 1 finish')
+          this.battle2()
+        },
+      })
+    },
+    battle2() {
+      this.$store.dispatch('ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          })
+        },
+        thenAction: (state) => {
+          console.log('battle 2 finish')
+          console.log(`battle main ${state.battle.attacker.main.name} support ${state.battle.attacker.support.name}`)
+        },
+      })
+    },
 
     // end of methods
   }

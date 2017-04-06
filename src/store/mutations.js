@@ -147,18 +147,20 @@ export default {
       player.cardPool = []
       player.deck = []
       deckfile.forEach((cardid) => {
-        let card = cardDB[cardid]
-        if (card) {
+        // move to mutil
+        // let card = cardDB[cardid]
+        let gamecard = mutil.makecard(cardid)
+        if (gamecard) {
           // clone /or make gamecard object
           // simple clone
-          const gamecard = Object.assign({}, card)
-          // new prop for game card object
-          Vue.set(gamecard, 'facedown', false)
-          Vue.set(gamecard, 'selected', false)
-          Vue.set(gamecard, 'selectable', false)
-          Vue.set(gamecard, 'play', {})
-          gamecard.power1 = mutil.convertPower(gamecard.power1)
-          gamecard.power2 = mutil.convertPower(gamecard.power2)
+          // const gamecard = Object.assign({}, card)
+          // // new prop for game card object
+          // Vue.set(gamecard, 'facedown', false)
+          // Vue.set(gamecard, 'selected', false)
+          // Vue.set(gamecard, 'selectable', false)
+          // Vue.set(gamecard, 'play', {})
+          // gamecard.power1 = mutil.convertPower(gamecard.power1)
+          // gamecard.power2 = mutil.convertPower(gamecard.power2)
           // end prop
 
           player.cardPool.push(gamecard)
@@ -454,36 +456,11 @@ export default {
   // TURN
   TURN_SET(state, payload) {
 
-    console.log('commit TURN_SET no impelement', state.turn)
+    console.warn('commit TURN_SET no impelement', state.turn)
   },
   // BATTLE
   BATTLE_INIT(state,payload) {
-    state.battle = {
-      attacker: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      defenser: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      score: {
-        finish: false,
-        winside: null,
-        draw: false,
-        win: null,
-        lose: null,
-      },
-      chain: [],
-    }
+    mutil.battleInit(state)
     if(payload) {
       // R.forEachObjIndexed((value, key) => {
       //   // console.log('each ' + key + ':' + value)

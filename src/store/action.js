@@ -285,6 +285,7 @@ export default {
   // ...BATTLE_PLAY_SUPPORTER
   // ...BATTLE_OPP_PLAY_SUPPORTER
   // ...BATTLE_EFFECT
+  // ...BATTLE_EFFECT_CLEAR
   // BATTLE_END
   // ...GAME_CHECK_GAMEOVER
   // GAME_NEXT_TURN
@@ -556,8 +557,16 @@ export default {
       console.log(`BATTLE_EFFECT begin`)
       commit('BATTLE_CALC')
       console.log(`BATTLE_EFFECT end`)
-
-      console.log(`BATTLE_EFFECT clear zone begin`)
+      resolve()
+    })
+  },
+  BATTLE_EFFECT_CLEAR({
+    commit,
+    state,
+    dispatch
+  }) {
+    return new Promise(function (resolve, reject) {
+      console.log(`BATTLE_EFFECT_CLEAR start`)
       let battle = state.battle
       let score = state.battle.score
       if (score.draw) {
@@ -587,8 +596,8 @@ export default {
         commit('PICK_CARD', lose.support)
         commit('TO_GRAVEYARD')
       }
-      console.log(`BATTLE_EFFECT clear zone end`)
 
+      console.log(`BATTLE_EFFECT_CLEAR end`)
       resolve()
     })
   },

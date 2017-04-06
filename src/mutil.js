@@ -164,8 +164,35 @@ export default {
       state[key] = value
     })(init)
   },
-
-  findcard(cardid) {
+  battleInit(state) {
+    state.battle = {
+      attacker: {
+        player: null,
+        main: null,
+        support: null,
+        hero: null,
+        power: [],
+        chain: [],
+      },
+      defenser: {
+        player: null,
+        main: null,
+        support: null,
+        hero: null,
+        power: [],
+        chain: [],
+      },
+      score: {
+        finish: false,
+        winside: null,
+        draw: false,
+        win: null,
+        lose: null,
+      },
+      chain: [],
+    }
+  },
+  makecard(cardid) {
     // console.log('find card ', card, cardDB[card]);
     const gamecard = Object.assign({}, cardDB[cardid])
     // new prop for game card object
