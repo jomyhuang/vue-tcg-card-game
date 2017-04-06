@@ -1,9 +1,16 @@
 import Vue from 'vue'
-Vue.config.productionTip = false
+Vue.config.productionTip = true
+Vue.config.silent = false
+
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-default/index.css'
+Vue.use(ElementUI)
+require('vue2-animate/dist/vue2-animate.min.css')
+
 
 // Polyfill fn.bind() for PhantomJS
 /* eslint-disable no-extend-native */
-Function.prototype.bind = require('function-bind')
+// Function.prototype.bind = require('function-bind')
 
 // require all test files (files that ends with .spec.js)
 const testsContext = require.context('./specs', true, /\.spec$/)

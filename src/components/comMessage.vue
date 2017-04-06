@@ -1,6 +1,6 @@
 <template>
-  <div class="comMessage">
-  </div>
+<div class="comMessage">
+</div>
 </template>
 
 <script>
@@ -8,21 +8,12 @@
 
 export default {
   name: 'comMessage',
-  data () {
+  data() {
     return {
       msg: 'comMessage',
     }
   },
   props: {
-    // autoClose: {
-    //   type: Number,
-    //   default: 0,
-    // },
-    // mode: {
-    //   type: String,
-    //   default: 'off',
-    // },
-    // v-model 必须要有 vaule prop
     value: {
       type: Object,
       default: () => {},
@@ -36,16 +27,12 @@ export default {
   components: {
     // comCard,
   },
-  created () {
-  },
-  mounted () {
-  },
-  beforeDestroy () {
-  },
-  computed: {
-  },
+  created() {},
+  mounted() {},
+  beforeDestroy() {},
+  computed: {},
   methods: {
-    async_message (msg, duration=1500) {
+    async_message(msg, duration = 1500) {
       return new Promise((resolve, reject) => {
         this.$message({
           message: msg,
@@ -57,7 +44,7 @@ export default {
         })
       })
     },
-    message (msg='游戏消息提示',duration=1500) {
+    message(msg = '游戏消息提示', duration = 1500) {
       this.$message({
         message: msg,
         duration: duration,

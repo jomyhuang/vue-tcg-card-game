@@ -21,24 +21,25 @@ const {
   GAME_INIT,
 } = mutations
 
-console.log('开始测试');
-// console.log(store.state)
+// console.log('开始测试');
 
 describe('Store', () => {
-  it('SET_USER first test', () => {
+  it.skip('SET_USER state test template', () => {
     const state = {
       user: ''
     }
     SET_USER(state, 'jomyhuang')
     expect(state.user).to.equal('jomyhuang')
-  }),
-  it('mutil.checkAnti', () => {
+  })
+
+  it.skip('mutil.checkAnti', () => {
     expect(mutil.checkAnti('','A')).to.equal(false)
     expect(mutil.checkAnti('A','H')).to.equal(true)
     expect(mutil.checkAnti('H','T')).to.equal(true)
     expect(mutil.checkAnti('T','A')).to.equal(true)
-  }),
-  it('mutil.opponent', () => {
+  })
+
+  it.skip('mutil.opponent', () => {
     const player1 = store.state.player1
     const player2 = store.state.player2
     const list = [player1,player2]

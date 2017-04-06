@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import cardDB from '@/components/SDWCardDB.json'
-import deck1 from '@/components/player1.js'
+import deck1 from '@/components/deckplayer1.js'
+
 
 import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
+
+import firstAgent from './agent-first'
 
 export default {
   TOGGLE_LOADING(state) {
@@ -100,37 +103,37 @@ export default {
     if (end >= state.pageKeyList.length - 1)
       console.log('commit FETCH_SCROLL_NEXT end of list')
   },
+  GAME_RESET(state, payload) {
+    mutil.resetGameState(state)
+    console.log('commit GAME_RESET')
+  },
   GAME_INIT(state, {
     decklist = null,
     shuffle = true,
   } = {}) {
-    // state.cardDB = storeDB
+
     state.storemsg = 'GAME INIT'
 
-    // make deck to card pool clone from cardDB
-    // [ state.player1 ].( (player) => {
-    // const list = [ (state.player1, deck1), (state.player2,deck1) ]
-    // let test = [ 1, 2, 3 ].map( x => x * x )
-
-    // console.log('player',state.players);
-    state.players = []
-    // state.players.push(state.player1)
-    // state.players.push(state.player2)
-
+    console.log('GAME_INIT set agent - firstAgent')
+    state.player1.agent = firstAgent
+    state.player2.agent = firstAgent
 
     let list = []
-
     if (decklist) {
-      list = decklist
-      console.log('GAME_INIT setting deck from payload', payload.decklist);
+      list = [
+        [state.player1, decklist[0]],
+        [state.player2, decklist[1]]
+      ]
+      console.log('GAME_INIT setting deck from payload', decklist)
     } else {
       list = [
         [state.player1, deck1],
         [state.player2, deck1]
       ]
-      console.log('GAME_INIT setting default deck', list);
+      console.log('GAME_INIT setting default deck');
     }
 
+    state.players = []
     list.forEach(([player, deckfile]) => {
 
       // joining game
@@ -156,13 +159,10 @@ export default {
           Vue.set(gamecard, 'play', {})
           gamecard.power1 = mutil.convertPower(gamecard.power1)
           gamecard.power2 = mutil.convertPower(gamecard.power2)
-          // console.log(gamecard.power1);
-
           // end prop
+
           player.cardPool.push(gamecard)
           player.deck.push(gamecard)
-          // if( (gamecard === card) )
-          //     console.log( 'same card' )
         } else {
           // throw init error
           console.warn(`GAME_INIT: warning ${cardid} not found`)
@@ -457,7 +457,7 @@ export default {
     console.log('commit TURN_SET no impelement', state.turn)
   },
   // BATTLE
-  BATTLE_INIT(state) {
+  BATTLE_INIT(state,payload) {
     state.battle = {
       attacker: {
         player: null,
@@ -484,10 +484,27 @@ export default {
       },
       chain: [],
     }
+    if(payload) {
+      // R.forEachObjIndexed((value, key) => {
+      //   // console.log('each ' + key + ':' + value)
+      //   state.battle[key] = value
+      // })(payload)
+
+      if(R.has('attacker')(payload))
+        state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
+
+      if(R.has('defenser')(payload))
+        state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
+
+      if(R.has('score')(payload))
+        state.battle.score = R.merge(state.battle.score)(payload.score)
+
+      console.log('commit BATTLE_INIT battle payload loaded')
+    }
 
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer
-    console.log('commit BATTLE_INIT')
+    console.log('commit BATTLE_INIT finish')
   },
   BATTLE_SET(state, payload) {
 
@@ -564,13 +581,13 @@ export default {
     battle.chain.push(battle.attacker.support)
     battle.chain.push(battle.defenser.support)
 
-    console.log(`BATTLE_CALC chain `, state.battle.chain);
+    // console.log(`BATTLE_CALC chain `, state.battle.chain);
 
     R.forEach(x => {
       x.chain = [x.main, x.support]
     })([battle.attacker, battle.defenser])
 
-    console.log(`BATTLE_CALC attacker chain`, state.battle.attacker.chain);
+    // console.log(`BATTLE_CALC attacker chain`, state.battle.attacker.chain);
 
     // calc power1
     R.forEach(x => {

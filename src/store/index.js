@@ -1,6 +1,11 @@
 import Vue from 'vue'
 // require karma/mocha unit test vuex
-import 'babel-polyfill'
+// import 'babel-polyfill'
+// move to karma.conf.js
+// files: [
+//   '../../node_modules/babel-polyfill/dist/polyfill.js',
+//   './index.js'
+// ],
 import Vuex from 'vuex'
 
 import mutations from './mutations'
@@ -12,6 +17,7 @@ import getters from './getters'
 
 import _ from 'underscore'
 import R from 'ramda'
+import mutil from '@/mutil'
 
 import firstAgent from './agent-first'
 
@@ -67,7 +73,7 @@ const state = {
       message: false,
       battelshow: false,
       battleshow_pauseonly: false,
-      maxturn: 1,
+      maxturn: 99,
     },
   },
   turn: {},
@@ -103,7 +109,7 @@ const state = {
   player1: {
     id: 'playerId1',
     hero: 'heroId1',
-    name: 'Jimmy',
+    name: 'PLAYER-1',
     cardPool: [],
     deck: [],
     zone: [],
@@ -116,13 +122,12 @@ const state = {
     minions: [],
     mana: 0,
     maxMana: 10,
-    agent: firstAgent,
-    // agent: null,
+    agent: null,
   },
   player2: {
     id: 'playerId2',
     hero: 'heroId2',
-    name: 'Jomy',
+    name: 'PLAYER-2',
     cardPool: [],
     deck: [],
     zone: [],
@@ -135,12 +140,15 @@ const state = {
     minions: [],
     mana: 0,
     maxMana: 10,
-    agent: firstAgent,
+    agent: null,
   },
 }
 
+// const defaultstate = mutil.defaultGameState()
+
 export default new Vuex.Store({
   state,
+  // defaultstate,
   getters,
   actions,
   mutations,

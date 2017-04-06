@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 // import Vuex from 'vuex'
-import 'babel-polyfill'
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'

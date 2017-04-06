@@ -15,6 +15,7 @@
         <p v-if="show">hello</p>
       </transition>
     </div> -->
+    <!-- <comCard></comCard> -->
 
     <h2>Essential Links</h2>
     <ul>
@@ -38,6 +39,8 @@
 </template>
 
 <script>
+import comCard from './comCard.vue'
+
 export default {
   name: 'hello',
   data () {
@@ -45,7 +48,10 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       show: true,
     }
-  }
+  },
+  components: {
+    comCard
+  },
 }
 </script>
 

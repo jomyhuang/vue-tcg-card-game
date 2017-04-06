@@ -1,60 +1,60 @@
 <template>
-  <div class="deckControl">
-      <i class="el-icon-plus" @click.stop.prevent="addDeck($event)"></i>
-      <span v-show="card.count > 0">
+<div class="deckControl">
+  <i class="el-icon-plus" @click.stop.prevent="addDeck($event)"></i>
+  <span v-show="card.count > 0">
        张数：{{card.count}}
        <i class="el-icon-minus"  v-show="card.count > 0" @click.stop.prevent="decreaseDeck($event)"></i>
      </span>
-  </div>
+</div>
 </template>
 
 <script type="text/ecmascript-6">
-  import Vue from 'vue'
-  export default {
-    props: {
-      card: {
-        type: Object
+import Vue from 'vue'
+export default {
+  props: {
+    card: {
+      type: Object,
+      default: () => {},
+    }
+  },
+  methods: {
+    addDeck(event) {
+      console.log('DeckControl adddeck')
+
+      // if (!event._constructed) {
+      //   // 去掉自带click事件的点击
+      //   console.log( 'DeckControl adddeck stop prevent' )
+      //   return;
+      // }
+
+      if (!this.card.count) {
+        Vue.set(this.card, 'count', 1);
+      } else {
+        this.card.count++;
       }
+      // //        event.srcElement.outerHTML
+      //         this.$emit('increment', event.target); // 子组件通过 $emit触发父组件的方法 increment   还
     },
-    methods: {
-      addDeck(event) {
-        console.log( 'DeckControl adddeck' )
+    decreaseDeck(event) {
+      console.log('DeckControl decreaseDeck')
 
-        // if (!event._constructed) {
-        //   // 去掉自带click事件的点击
-        //   console.log( 'DeckControl adddeck stop prevent' )
-        //   return;
-        // }
+      // if (!event._constructed) {
+      //   // 去掉自带click事件的点击
+      //   return;
+      // }
 
-        if (!this.card.count) {
-          Vue.set(this.card, 'count', 1);
-        } else {
-          this.card.count++;
-        }
-// //        event.srcElement.outerHTML
-//         this.$emit('increment', event.target); // 子组件通过 $emit触发父组件的方法 increment   还
-      },
-      decreaseDeck(event) {
-        console.log('DeckControl decreaseDeck')
-
-        // if (!event._constructed) {
-        //   // 去掉自带click事件的点击
-        //   return;
-        // }
-
-        if ( !this.card.count ) {
-          Vue.set(this.card, 'count', 0)
-        } else {
-          if( this.card.count > 0 )
-            this.card.count--
-        }
+      if (!this.card.count) {
+        Vue.set(this.card, 'count', 0)
+      } else {
+        if (this.card.count > 0)
+          this.card.count--
       }
     }
-  };
+  }
+};
 </script>
 <style scoped>
-
-  /*font-size: 0
+/*font-size: 0
   .cart-decrease, .cart-add {
     display: inline-block
     padding: 4px 6px 6px 6px
@@ -65,7 +65,9 @@
       opacity: 0
       transform translate3d(24px, 0, 0)
     }*/
-    /*.inner {
+
+
+/*.inner {
       display inline-block
       line-height 24px
       font-size 24px
@@ -91,7 +93,9 @@
     text-align center
     color rgb(147, 153, 159)
   }*/
-  /*.cart-add, .cart-decrease {
+
+
+/*.cart-add, .cart-decrease {
     display: inline-block;
     padding: 6px;
     line-height: 24px;
@@ -100,5 +104,4 @@
     color: rgb(0,0,200);
     font-weight: bold;
   }*/
-
 </style>

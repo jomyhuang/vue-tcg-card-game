@@ -88,14 +88,19 @@ export default {
     console.log('action FETCH_SCROLL_NEXT')
   },
   // end of paging APP ------------------------------------------------
-
-
   GAME_INIT({
     commit,
     state
+  }, payload = undefined) {
+    commit('GAME_INIT', payload)
+    console.log('action GAME_INIT', payload)
+  },
+  GAME_RESET({
+    commit,
+    state
   }) {
-    commit('GAME_INIT')
-    console.log('action GAME_INIT')
+    commit('GAME_RESET')
+    console.log('action GAME_RESET')
   },
   // SELECT_PLAYER( { commit, state }, player ) {
   //   commit( 'SELECT_PLAYER', player )
@@ -296,6 +301,16 @@ export default {
       resolve()
     })
   },
+  GAME_RESET({
+    commit,
+    state,
+    dispatch
+  }) {
+    return new Promise(function (resolve, reject) {
+      commit('GAME_RESET')
+      resolve()
+    })
+  },
   GAME_WHO_FIRST({
     commit,
     state,
@@ -373,9 +388,9 @@ export default {
     commit,
     state,
     dispatch
-  }) {
+  },payload) {
     return new Promise(function (resolve, reject) {
-      commit('BATTLE_INIT')
+      commit('BATTLE_INIT',payload)
       resolve()
     })
   },
@@ -607,7 +622,7 @@ export default {
       let gameover = state.game.over
 
       console.log(`GAME_CHECK_GAMEOVER ${gameover}`)
-      if(gameover)
+      if (gameover)
         reject(state.game.score.reason)
       else {
         resolve()
