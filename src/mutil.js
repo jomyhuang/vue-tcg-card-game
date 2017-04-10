@@ -2,8 +2,40 @@ import Vue from 'vue'
 
 import R from 'ramda'
 import cardDB from '@/components/SDWCardDB.json'
+import effectDB from '@/components/SDWCardEffect.js'
 
 export default {
+  mixinEffect() {
+    let combine = (value,key) => {
+      console.log('minxin ' + key + ':' + value)
+
+      let card = cardDB[key]
+      if(card) {
+          card.effect = value
+          let mounted = R.bind(R.prop('mounted')(card.effect),card)
+          // console.log(mounted);
+          R.apply(mounted)(card)
+
+          // let mounted = card.effect.mounted
+          // if(mounted) {
+          //   // OK1: bind way, to gen new function
+          //   // let bindfunc = mounted.bind(card)
+          //   // bindfunc({})
+          //   // OK2: apply this directly
+            // mounted.apply(card,{})
+          // }
+          // if(card.effect.isAttacker)
+          //   card.effect.isAttacker({})
+      }
+      else {
+        console.warn(`mixinEffect key not found ${key}`);
+      }
+    }
+
+    R.forEachObjIndexed(combine)(effectDB)
+
+    console.warn('mutil mixin effect DB finish')
+  },
   convertPower(strpower = '') {
     const rep = R.split(/(\d+)(亿|万)/)
 
@@ -43,7 +75,7 @@ export default {
     } else if (list[1] === who) {
       result = list[0]
     } else {
-      console.warn('mutil.opponent error no oppent')
+      console.error('mutil.opponent error no oppent')
     }
     return result
   },
@@ -61,6 +93,7 @@ export default {
       placelist: [],
       placeplayer: null,
       pickindex: -1,
+      test: {},
       // ACT_SELECT_CARD_...
       act_selection: {
         list: [],
@@ -192,14 +225,22 @@ export default {
       chain: [],
     }
   },
-  makecard(cardid) {
+  makecard(cardid,facedown=false) {
     // console.log('find card ', card, cardDB[card]);
-    const gamecard = Object.assign({}, cardDB[cardid])
+    let gamecard = Object.assign({}, cardDB[cardid])
     // new prop for game card object
-    Vue.set(gamecard, 'facedown', false)
-    Vue.set(gamecard, 'selected', false)
-    Vue.set(gamecard, 'selectable', false)
-    Vue.set(gamecard, 'play', {})
+    // Vue.set(gamecard, 'facedown', facedown)
+    // Vue.set(gamecard, 'selected', false)
+    // Vue.set(gamecard, 'selectable', false)
+    // Vue.set(gamecard, 'play', {})
+
+    gamecard = R.merge(gamecard, {
+      facedown: facedown,
+      selected: false,
+      selectable: false,
+      play: {},
+    })
+
     gamecard.power1 = this.convertPower(gamecard.power1)
     gamecard.power2 = this.convertPower(gamecard.power2)
 

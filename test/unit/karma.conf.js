@@ -15,8 +15,9 @@ module.exports = function (config) {
     // browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
     // reporters: ['spec', 'coverage'],
-    reporters: ['spec'],
-    // reporters: ['nyan'],
+    reporters: ['mocha'],
+    // reporters: ['mocha','log-reporter'],
+    // reporters: ['spec'],
     files: [
       '../../node_modules/babel-polyfill/dist/polyfill.js',
       './index.js'
@@ -28,6 +29,30 @@ module.exports = function (config) {
     webpackMiddleware: {
       noInfo: true
     },
+
+    // enable / disable colors in the output (reporters and logs)
+    colors: true,
+    singleRun: true,
+
+    // level of logging
+    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    // logLevel: config.LOG_INFO,
+    browserConsoleLogOptions: {
+      level: 'log',
+      format: '%b %T: %m',
+      // terminal: true,
+      terminal: false,
+    },
+
+    logReporter: {
+      outputPath: './test',
+      logFileName: 'logfile.log',
+    },
+
+    // mochaReporter: {
+    //       output: 'autowatch',
+    // }
+    
     // coverageReporter: {
     //   dir: './coverage',
     //   reporters: [

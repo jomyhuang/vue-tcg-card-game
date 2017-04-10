@@ -269,25 +269,29 @@ export default {
       console.log('commit SELECT_CARDLIST is 0')
     }
   },
-  ACT_SELECTION(state, {
-    list = 'hand',
-    many = 1,
-    selectedMuation = null,
-    selectedAction = null,
-    thenAction = null,
-    agent = null,
-  } = {}) {
+  // ACT_SELECTION(state, {
+  //   list = 'hand',
+  //   many = 1,
+  //   selectedMuation = null,
+  //   selectedAction = null,
+  //   thenAction = null,
+  //   agent = null,
+  // } = {}) {
+  ACT_SELECTION(state, payload) {
+
+    state.act_selection = R.merge({})(payload)
 
     // 修改成解构式
-    state.act_selection.list = list
-    state.act_selection.many = many
-    state.act_selection.selectedMuation = selectedMuation
-    state.act_selection.selectedAction = selectedAction
-    state.act_selection.thenAction = thenAction
-    state.act_selection.selectedList = []
-    state.act_selection.agent = agent
+    // state.act_selection.list = list
+    // state.act_selection.many = many
+    // state.act_selection.selectedMuation = selectedMuation
+    // state.act_selection.selectedAction = selectedAction
+    // state.act_selection.thenAction = thenAction
+    // state.act_selection.selectedList = []
+    // state.act_selection.agent = agent
 
     // placelist 处理 copy from SELECT_CARDLIST
+    const list = state.act_selection.list
     if (_.isString(list)) {
       state.placelist = eval(`state.placeplayer.${list}`)
     } else {
@@ -389,7 +393,12 @@ export default {
       console.log('commit SET_FACEUP ERROR no placeholder card')
       return
     }
-    state.placeholder.facedown = false
+    if( state.placeholder.facedown ) {
+      state.placeholder.facedown = false
+      // setting face up
+      state.placeholder.play.faceup = true
+      console.log('SET_FACEUP face up tagging');
+    }
   },
   TO_HAND(state) {
     if (!state.placeholder) {
@@ -431,6 +440,7 @@ export default {
     console.log(`commit TO_GRAVEYARD ${state.placeplayer.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
+  // GAMEAPP -------------------------------------------------
   STORE_SET(state, payload) {
 
     // meta store set
@@ -444,7 +454,6 @@ export default {
     }
     R.forEachObjIndexed(settingState, payload)
   },
-  // GAME
   GAME_SET(state, payload) {
 
     // ramda.js 可以assign sub-key
@@ -462,19 +471,17 @@ export default {
   BATTLE_INIT(state,payload) {
     mutil.battleInit(state)
     if(payload) {
-      // R.forEachObjIndexed((value, key) => {
-      //   // console.log('each ' + key + ':' + value)
-      //   state.battle[key] = value
-      // })(payload)
 
-      if(R.has('attacker')(payload))
-        state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
+      state.test = R.assoc('battle',payload)(state.test)
 
-      if(R.has('defenser')(payload))
-        state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
-
-      if(R.has('score')(payload))
-        state.battle.score = R.merge(state.battle.score)(payload.score)
+      // if(R.has('attacker')(payload))
+      //   state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
+      //
+      // if(R.has('defenser')(payload))
+      //   state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
+      //
+      // if(R.has('score')(payload))
+      //   state.battle.score = R.merge(state.battle.score)(payload.score)
 
       console.log('commit BATTLE_INIT battle payload loaded')
     }

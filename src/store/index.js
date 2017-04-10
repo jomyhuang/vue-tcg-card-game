@@ -47,6 +47,7 @@ const state = {
   placelist: [],
   placeplayer: null,
   pickindex: -1,
+  test: {},
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],

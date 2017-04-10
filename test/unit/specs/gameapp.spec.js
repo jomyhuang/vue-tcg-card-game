@@ -69,7 +69,42 @@ describe('GameAPP', () => {
     vm.run_gameloop()
     expect(state.game.over).to.equal(true)
     expect(state.game.turnCount).to.equal(5)
-    expect(state.game.score.win.id).to.equal('playerId1')
+    expect(state.game.score.win).to.equal(state.firstPlayer)
   })
-  
+
+  it('test run_battle', () => {
+    vm = createComponent(GameApp, true)
+    let state = vm.$store.state
+
+    vm.gameReset()
+    vm.gameNewdeck()
+    vm.run_battle( {
+      attacker: {
+        main: mutil.makecard('JW15-001',true),
+        support: mutil.makecard('JW15-001'),
+      },
+      defenser: {
+        main: mutil.makecard('JW15-002',true),
+        support: mutil.makecard('JW15-002'),
+      }
+    })
+
+
+    let battle = state.battle
+    expect(state.game.turnCount).to.equal(1)
+    // run_battle 没有经过 select, facedown 设定
+    expect(battle.attacker.main.play.isAttacker).to.equal(true)
+    expect(battle.attacker.main.play.faceup).to.equal(true)
+    expect(battle.attacker.support.play.isSupporter).to.equal(true)
+
+    expect(battle.defenser.main.play.isDefenser).to.equal(true)
+    expect(battle.defenser.main.play.faceup).to.equal(true)
+    expect(battle.defenser.support.play.isSupporter).to.equal(true)
+
+    expect(battle.score.win).to.equal(state.battle.attacker)
+    expect(battle.score.lose).to.equal(state.battle.defenser)
+
+  })
+
+
 })

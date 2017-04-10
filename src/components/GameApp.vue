@@ -46,6 +46,7 @@
       <el-button @click="gameloop()">GAME LOOP</el-button>
       <el-button @click="battleshow(0)">Battle Show</el-button>
       <el-button @click="run_gameloop()">RUN</el-button>
+      <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
       <el-button @click="gameReset()">RESET</el-button>
       <el-button @click="gameNewdeck()">NewDeck</el-button>
       <el-button @click="gameTestBattle()">Battle test</el-button>
@@ -88,6 +89,9 @@ export default {
   created() {},
   mounted() {
     console.log('gameapp.vue mounted');
+    console.log('gameapp.vue mixinEffect effect');
+    mutil.mixinEffect()
+    console.log('gameapp.vue GAME_INIT');
     this.$store.dispatch('GAME_INIT')
   },
   beforeDestroy() {},
@@ -115,41 +119,6 @@ export default {
     },
   },
   methods: {
-    asyncTestFunc() {
-      console.log('Hello this is asyncTestFunc run 2')
-      return new Promise(async function(resolve, reject) {
-        setTimeout(() => {
-          [1, 2, 3].map((x) => console.log(x))
-          resolve()
-        }, 2000)
-        await new Promise(function(resolve, reject) {
-          // setTimeout( () => {
-          //   [11,12,13].map((x)=>console.log(x))
-          //   resolve()
-          // }, 2000 )
-          [11, 12, 13].map((x) => console.log(x))
-          resolve()
-        });
-        console.log('after await');
-      });
-    },
-    async asyncRun() {
-      console.log('run 1')
-      await this.asyncTestFunc()
-      console.log('run 3');
-    },
-    gameTest() {
-      // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$refs.info.message('讯息测试～')
-      console.log('gameTest call')
-      this.$store.dispatch('RAMDA_TEST', {
-        name: 'test name',
-        age: 10
-      })
-      // this.asyncRun()
-    },
     gameNewdeck() {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
@@ -162,11 +131,13 @@ export default {
 
       this.run_battle( {
         attacker: {
-          main: mutil.makecard('JW15-001'),
+          // main facedown is true
+          main: mutil.makecard('JW15-001',true),
           support: mutil.makecard('JW15-001'),
         },
         defenser: {
-          main: mutil.makecard('JW15-002'),
+          // main facedown is true
+          main: mutil.makecard('JW15-002',true),
           support: mutil.makecard('JW15-002'),
         }
       })
@@ -356,6 +327,11 @@ export default {
 
       this.$store.dispatch('GAME_TURN_BEGIN')
       this.$store.dispatch('BATTLE_START', battle)
+
+      this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
+      this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
+      this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
+      this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
       this.$store.dispatch('BATTLE_EFFECT')
       // this.$store.dispatch('BATTLE_EFFECT_CLEAR')
@@ -562,6 +538,29 @@ export default {
       console.log(`battle defenser ${this.$store.state.battle.defenser.main.name} support ${this.$store.state.battle.defenser.support.name}`)
     },
     /// =========================== OLD GAMELOOP
+    asyncTestFunc() {
+      console.log('Hello this is asyncTestFunc run 2')
+      return new Promise(async function(resolve, reject) {
+        setTimeout(() => {
+          [1, 2, 3].map((x) => console.log(x))
+          resolve()
+        }, 2000)
+        await new Promise(function(resolve, reject) {
+          // setTimeout( () => {
+          //   [11,12,13].map((x)=>console.log(x))
+          //   resolve()
+          // }, 2000 )
+          [11, 12, 13].map((x) => console.log(x))
+          resolve()
+        });
+        console.log('after await');
+      });
+    },
+    async asyncRun() {
+      console.log('run 1')
+      await this.asyncTestFunc()
+      console.log('run 3');
+    },
     battle() {
       // this.$store.commit( 'BATTLE_SET', {
       //   attacker: {
@@ -618,6 +617,18 @@ export default {
       })
     },
 
+    gameTest() {
+      // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
+      // this.$store.commit('GAME_NEXT_PLAYER')
+      // this.$store.commit('GAME_NEXT_PLAYER')
+      // this.$refs.info.message('讯息测试～')
+      console.log('gameTest call')
+      this.$store.dispatch('RAMDA_TEST', {
+        name: 'test name',
+        age: 10
+      })
+      // this.asyncRun()
+    },
     // end of methods
   }
 }

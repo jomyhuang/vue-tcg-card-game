@@ -246,15 +246,26 @@ export default {
       // 注意：使用箭头函数不能是 async
       commit('ACT_SELECTION', payload)
 
-      // OK 1
-      // const agent = payload.agent ? payload.agent : state.currentPlayer.agent
-      const agent = state.act_selection.agent
+      let xLens = R.lensProp('init')
+      let xSel = R.view(xLens)(state.act_selection)
 
-      if (agent) {
-        const card = agent.SELECT_CARD(state, payload)
+      // OK 1
+      if(xSel) {
+        const card = xSel
         dispatch('ACT_SELECTED_CARD', card)
-      } else {
-        await dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
+        console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
+      }
+      else {
+        const agent = state.act_selection.agent
+
+        if (agent) {
+          const card = agent.SELECT_CARD(state, payload)
+          dispatch('ACT_SELECTED_CARD', card)
+          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
+        } else {
+          await dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+        }
       }
 
       // OK 2
@@ -366,15 +377,6 @@ export default {
       resolve()
     })
   },
-  GAME_CHECK_GAMEOVER({
-    commit,
-    state,
-    dispatch
-  }) {
-    return new Promise(function (resolve, reject) {
-      resolve()
-    })
-  },
   GAME_DRAW({
     commit,
     state,
@@ -400,14 +402,19 @@ export default {
     state,
     dispatch
   }) {
+    let xLens = R.lensPath(['battle','attacker','main'])
+    let xSel = R.view(xLens)(state.test)
+
     const selectfunc = {
       phase: 'BATTLE_DECALRE_ATTACKER',
       list: 'zone',
       many: 1,
       agent: state.currentPlayer.agent,
+      init: xSel,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
-        card.name = card.name + '**'
+        card.name = card.name + '[A]'
+        card.play = R.assoc('isAttacker', true)(card.play)
       },
       selectedAction: (state, card) => {
         commit('BATTLE_SET', {
@@ -415,18 +422,17 @@ export default {
             main: card,
           }
         })
-        // commit('SET_FACEUP')
-        dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
+        commit('SET_FACEUP')
+        // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
       },
       thenAction: (state) => {
         // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
       },
     }
-    const agent = state.currentPlayer.agent
-
-    if (agent) {
-      agent.TALK(state, 'agent talk TEST!!')
-    }
+    // const agent = state.currentPlayer.agent
+    // if (agent) {
+    //   agent.TALK(state, 'agent talk TEST!!')
+    // }
 
     return new Promise(async function (resolve, reject) {
       await dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
@@ -454,14 +460,19 @@ export default {
     dispatch
   }) {
     return new Promise(async function (resolve, reject) {
+      let xLens = R.lensPath(['battle','defenser','main'])
+      let xSel = R.view(xLens)(state.test)
+
       await dispatch('ASYNC_ACT_SELECT_CARD_START', {
         list: state.opponentPlayer.zone,
         many: 1,
         phase: 'BATTLE_OPP_DECLARE_DEFENSER',
         agent: state.currentPlayer.agent,
+        init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
-          card.name = card.name + '**'
+          card.name = card.name + '[D]'
+          card.play = R.assoc('isDefenser', true)(card.play)
         },
         selectedAction: (state, card) => {
           commit('BATTLE_SET', {
@@ -487,15 +498,20 @@ export default {
     state,
     dispatch
   }) {
+    let xLens = R.lensPath(['battle','attacker','support'])
+    let xSel = R.view(xLens)(state.test)
+
     return new Promise(async function (resolve, reject) {
       await dispatch('ASYNC_ACT_SELECT_CARD_START', {
         list: 'hand',
         many: 1,
         phase: 'BATTLE_PLAY_SUPPORTER',
         agent: state.currentPlayer.agent,
+        init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
-          card.name = card.name + '**'
+          card.name = card.name + '[S]'
+          card.play = R.assoc('isSupporter', true)(card.play)
         },
         selectedAction: (state, card) => {
           commit('BATTLE_SET', {
@@ -520,15 +536,20 @@ export default {
     state,
     dispatch
   }) {
+    let xLens = R.lensPath(['battle','defenser','support'])
+    let xSel = R.view(xLens)(state.test)
+
     return new Promise(async function (resolve, reject) {
       await dispatch('ASYNC_ACT_SELECT_CARD_START', {
         list: state.opponentPlayer.hand,
         many: 1,
         phase: 'BATTLE_OPP_PLAY_SUPPORTER',
         agent: state.opponentPlayer.agent,
+        init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
-          card.name = card.name + '**'
+          card.name = card.name + '[S]'
+          card.play = R.assoc('isSupporter', true)(card.play)
         },
         selectedAction: (state, card) => {
           commit('BATTLE_SET', {
