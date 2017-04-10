@@ -9,24 +9,30 @@ export default {
     let combine = (value,key) => {
       console.log('minxin ' + key + ':' + value)
 
-      let card = R.assoc('effect',value)(cardDB[key])
+      let card = cardDB[key]
       if(card) {
-
-          // console.log(card.effect)
+      // if(R.has('effect')(cardDB[key])) {
+          // !!! assoc create new object
+          // XXX card = R.assoc('effect',value)(card)
+          card.effect = value
 
           // let mounted = R.bind(R.prop('mounted')(card.effect),card)
           // console.log(mounted);
           // R.apply(mounted)(card)
-          let log = (x) => console.log('tap' + x )
+          let log = (x) => console.log('tap ' + x )
 
           let pipe1 = R.pipe(
             R.path(['effect','mounted']),
             R.tap(log),
-            R.bind,
-            R.apply(R.__)
+            R.bind(R.__,card),
+            R.call
+            // R.apply(R.__,card)
           )
 
-          pipe1(card)
+          // call mounted returned function
+          // let result = pipe1(card)
+          let result = pipe1(card)()
+          // console.log(result)
 
           // let mounted = card.effect.mounted
           // if(mounted) {
