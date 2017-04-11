@@ -8,51 +8,50 @@ import effectDB from '@/components/SDWCardEffect.js'
 
 export default {
   mixinEffect() {
-    const combine = (value,key) => {
+    const combine = (value, key) => {
       console.log('minxin ' + key + ':' + value)
 
       let card = cardDB[key]
-      if(card) {
-      // if(R.has('effect')(cardDB[key])) {
-          // !!! assoc create new object
-          // card = R.assoc('effect',value)(card)
-          // R.assoc 会建立新对象，无法bind到原生CardDB
-          card.effect = value
+      if (card) {
+        // if(R.has('effect')(cardDB[key])) {
+        // !!! assoc create new object
+        // card = R.assoc('effect',value)(card)
+        // R.assoc 会建立新对象，无法bind到原生CardDB
+        card.effect = value
 
-          // let mounted = R.bind(R.prop('mounted')(card.effect),card)
-          // console.log(mounted);
-          // R.apply(mounted)(card)
-          let log = (x) => console.log('tap ' + x )
+        // let mounted = R.bind(R.prop('mounted')(card.effect),card)
+        // console.log(mounted);
+        // R.apply(mounted)(card)
+        let log = (x) => console.log('tap ' + x)
 
-          let callmounted = R.pipe(
-            R.path(['effect','mounted']),
-            R.tap(log),
-            R.bind(R.__,card),
-            R.call
-            // R.apply(R.__,card)
-          )
-          // call apply 都可以
+        let callmounted = R.pipe(
+          R.path(['effect', 'mounted']),
+          R.tap(log),
+          R.bind(R.__, card),
+          R.call
+          // R.apply(R.__,card)
+        )
+        // call apply 都可以
 
-          // let result = pipe1(card)
-          // call mounted 返回是个函数
-          let result = callmounted(card)()
-          // console.log(result)
+        // let result = pipe1(card)
+        // call mounted 返回是个函数
+        let result = callmounted(card)()
+        // console.log(result)
 
-          this.callEffect('isAttacker',card)
+        this.callEffect('isAttacker', card)
 
-          // 传统bind方式
-          // let mounted = card.effect.mounted
-          // if(mounted) {
-          //   // OK1: bind way, to gen new function
-          //   // let bindfunc = mounted.bind(card)
-          //   // bindfunc({})
-          //   // OK2: apply this directly
-            // mounted.apply(card,{})
-          // }
-          // if(card.effect.isAttacker)
-          //   card.effect.isAttacker({})
-      }
-      else {
+        // 传统bind方式
+        // let mounted = card.effect.mounted
+        // if(mounted) {
+        //   // OK1: bind way, to gen new function
+        //   // let bindfunc = mounted.bind(card)
+        //   // bindfunc({})
+        //   // OK2: apply this directly
+        // mounted.apply(card,{})
+        // }
+        // if(card.effect.isAttacker)
+        //   card.effect.isAttacker({})
+      } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
     }
@@ -67,29 +66,37 @@ export default {
     //    state: xxx, commit: xxx, dispath: xxx, ...}
 
     let card = R.prop('card')(payload)
-    if(_.isUndefined(card)) {
+    if (_.isUndefined(card)) {
       card = payload
-      payload = {}
+      payload = {
+        card: card
+      }
     }
 
-    card.play = { isAttacker: true }
-    if(_.isUndefined(condition)) {
-      condition = (card,key) => R.path(['play',key])(card)
+    // console.log(card,payload);
+    // test
+    card.play = {
+      isAttacker: true
+    }
+    if (_.isUndefined(condition)) {
+      condition = (card, key) => R.path(['play', key])(card)
     }
 
     // console.log('card', card);
     // console.log('condition', condition(card,effectkey));
 
-    if(condition(card,effectkey)) {
+    if (condition(card, effectkey)) {
       console.log(`callEffect ${effectkey} activate`)
-      let effect = R.path(['effect',effectkey])(card)
+      let effect = R.path(['effect', effectkey])(card)
+      // console.log(effect);
 
-      if(effect) {
+      if (effect) {
         console.log(`callEffect ${card.name} ${effectkey} function start`)
         // prepare bind, payload
         let buffs = []
-        // buffs = effect.apply(card, payload)
-        buffs = effect(payload)
+        let func = R.bind(effect(),card)
+        func()
+        // buffs = effect(payload)
 
         console.log(`callEffect ${effectkey} function end buff ${buffs}`)
       }
@@ -284,7 +291,7 @@ export default {
       chain: [],
     }
   },
-  makecard(cardid,facedown=false) {
+  makecard(cardid, facedown = false) {
     // console.log('find card ', card, cardDB[card]);
     let gamecard = Object.assign({}, cardDB[cardid])
     // new prop for game card object

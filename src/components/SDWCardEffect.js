@@ -7,14 +7,16 @@ export default {
         this.name = this.name + 'XYZ'
       }
     },
-    isAttacker({
-      card,
-      player,
-      state,
-      dispath
-    }) {
-      console.log('JW15-001 isAttacker effect this', this)
-      console.log('JW15-001 effect', state)
+    isAttacker(
+      // card,
+      // player,
+      // state,
+      // dispath
+    ) {
+      return () => {
+        console.log('JW15-001 isAttacker effect this', this)
+        console.log('JW15-001 effect call OK!')
+      }
     },
   },
 }
