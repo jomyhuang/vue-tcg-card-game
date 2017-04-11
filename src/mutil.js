@@ -1,19 +1,22 @@
 import Vue from 'vue'
 
 import R from 'ramda'
+import _ from 'underscore'
+
 import cardDB from '@/components/SDWCardDB.json'
 import effectDB from '@/components/SDWCardEffect.js'
 
 export default {
   mixinEffect() {
-    let combine = (value,key) => {
+    const combine = (value,key) => {
       console.log('minxin ' + key + ':' + value)
 
       let card = cardDB[key]
       if(card) {
       // if(R.has('effect')(cardDB[key])) {
           // !!! assoc create new object
-          // XXX card = R.assoc('effect',value)(card)
+          // card = R.assoc('effect',value)(card)
+          // R.assoc 会建立新对象，无法bind到原生CardDB
           card.effect = value
 
           // let mounted = R.bind(R.prop('mounted')(card.effect),card)
@@ -21,19 +24,23 @@ export default {
           // R.apply(mounted)(card)
           let log = (x) => console.log('tap ' + x )
 
-          let pipe1 = R.pipe(
+          let callmounted = R.pipe(
             R.path(['effect','mounted']),
             R.tap(log),
             R.bind(R.__,card),
             R.call
             // R.apply(R.__,card)
           )
+          // call apply 都可以
 
-          // call mounted returned function
           // let result = pipe1(card)
-          let result = pipe1(card)()
+          // call mounted 返回是个函数
+          let result = callmounted(card)()
           // console.log(result)
 
+          this.callEffect('isAttacker',card)
+
+          // 传统bind方式
           // let mounted = card.effect.mounted
           // if(mounted) {
           //   // OK1: bind way, to gen new function
@@ -52,7 +59,41 @@ export default {
 
     R.forEachObjIndexed(combine)(effectDB)
 
-    console.warn('mutil mixin effect DB finish')
+    console.log('mutil mixin effect DB finish')
+  },
+  callEffect(effectkey, payload = {}, condition) {
+
+    // payload = { card: xxx, player: xxx, opponent: xxx,
+    //    state: xxx, commit: xxx, dispath: xxx, ...}
+
+    let card = R.prop('card')(payload)
+    if(_.isUndefined(card)) {
+      card = payload
+      payload = {}
+    }
+
+    card.play = { isAttacker: true }
+    if(_.isUndefined(condition)) {
+      condition = (card,key) => R.path(['play',key])(card)
+    }
+
+    // console.log('card', card);
+    // console.log('condition', condition(card,effectkey));
+
+    if(condition(card,effectkey)) {
+      console.log(`callEffect ${effectkey} activate`)
+      let effect = R.path(['effect',effectkey])(card)
+
+      if(effect) {
+        console.log(`callEffect ${card.name} ${effectkey} function start`)
+        // prepare bind, payload
+        let buffs = []
+        // buffs = effect.apply(card, payload)
+        buffs = effect(payload)
+
+        console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+      }
+    }
   },
   convertPower(strpower = '') {
     const rep = R.split(/(\d+)(亿|万)/)

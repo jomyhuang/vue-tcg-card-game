@@ -2,15 +2,19 @@ export default {
   "JW15-001": {
     mounted() {
       return () => {
-        console.log('JW15-001 mounted')
-        console.log('this',this);
-        this.name = 'XYZ'
+        console.log('JW15-001 mounted test')
+        console.log('test this bind',this)
+        this.name = this.name + 'XYZ'
       }
     },
     isAttacker({
-      state
+      card,
+      player,
+      state,
+      dispath
     }) {
-      console.log('JW15-001 hello')
+      console.log('JW15-001 isAttacker effect this', this)
+      console.log('JW15-001 effect', state)
     },
   },
 }
