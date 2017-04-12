@@ -19,31 +19,33 @@ export default {
         // R.assoc 会建立新对象，无法bind到原生CardDB
         card.effect = value
 
+        // OK1:
         // let mounted = R.bind(R.prop('mounted')(card.effect),card)
-        // console.log(mounted);
         // R.apply(mounted)(card)
-        let log = (x) => console.log('tap ' + x)
+        // let log = (x) => console.log('tap ' + x)
 
         let callmounted = R.pipe(
           R.path(['effect', 'mounted']),
-          // R.tap(log),
           // bind for mounted function
-          R.bind(R.__, card),
-          R.call,
-          // bind for "return function"
           R.bind(R.__,card),
           R.call,
+          // R.tap(console.log),
+          // bind for "return function"
+          R.bind(R.__,card),
+          // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+          // OK! R.apply(R.__,[]),
+          R.call,
         )
+        // check it out: 如何带入闭包的card值
         // call可以
-        // apply不正确 (R.call, R.apply 与JS定义不一样) 
-
-        // let result = pipe1(card)
-        let result = callmounted(card)
+        // apply work 必须要有第二参数[]
+        // OK! let result = R.apply(callmounted(card),[])
+        let resuult = callmounted(card)
         // console.log(result)
 
         this.callEffect('isAttacker', card)
 
-        // 传统bind方式
+        // OK2: 传统bind方式
         // let mounted = card.effect.mounted
         // if(mounted) {
         //   // OK1: bind way, to gen new function
@@ -52,8 +54,6 @@ export default {
         //   // OK2: apply this directly
         // mounted.apply(card,{})
         // }
-        // if(card.effect.isAttacker)
-        //   card.effect.isAttacker({})
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
