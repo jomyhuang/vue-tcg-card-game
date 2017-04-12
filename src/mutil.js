@@ -26,16 +26,19 @@ export default {
 
         let callmounted = R.pipe(
           R.path(['effect', 'mounted']),
-          R.tap(log),
+          // R.tap(log),
+          // bind for mounted function
           R.bind(R.__, card),
-          R.call
-          // R.apply(R.__,card)
+          R.call,
+          // bind for "return function"
+          R.bind(R.__,card),
+          R.call,
         )
-        // call apply 都可以
+        // call可以
+        // apply不正确 (R.call, R.apply 与JS定义不一样) 
 
         // let result = pipe1(card)
-        // call mounted 返回是个函数
-        let result = callmounted(card)()
+        let result = callmounted(card)
         // console.log(result)
 
         this.callEffect('isAttacker', card)
@@ -92,11 +95,9 @@ export default {
 
       if (effect) {
         console.log(`callEffect ${card.name} ${effectkey} function start`)
-        // prepare bind, payload
         let buffs = []
-        let func = R.bind(effect(),card)
-        func()
-        // buffs = effect(payload)
+        let func = effect.apply(card,[])
+        buffs = func.apply(card,[])
 
         console.log(`callEffect ${effectkey} function end buff ${buffs}`)
       }
