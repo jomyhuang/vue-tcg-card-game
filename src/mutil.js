@@ -27,11 +27,11 @@ export default {
         let callmounted = R.pipe(
           R.path(['effect', 'mounted']),
           // bind for mounted function
-          R.bind(R.__,card),
+          R.bind(R.__, card),
           R.call,
           // R.tap(console.log),
           // bind for "return function"
-          R.bind(R.__,card),
+          R.bind(R.__, card),
           // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
           // OK! R.apply(R.__,[]),
           R.call,
@@ -63,19 +63,28 @@ export default {
 
     console.log('mutil mixin effect DB finish')
   },
-  callEffect(effectkey, payload = {}, condition) {
+  callEffect(effectkey, initpayload = {}, condition) {
 
-    // payload = { card: xxx, player: xxx, opponent: xxx,
-    //    state: xxx, commit: xxx, dispath: xxx, ...}
+    let payload = {
+      card: undefined,
+      player: 'testplayer',
+      opponent: undefined,
+      state: undefined,
+      commit: undefined,
+      dispath: undefined
+    }
+    let buffs
 
-    let card = R.prop('card')(payload)
+
+    let card = R.prop('card')(initpayload)
     if (_.isUndefined(card)) {
-      card = payload
-      payload = {
+      card = initpayload
+      initpayload = {
         card: card
       }
     }
 
+    payload = R.merge(payload)(initpayload)
     // console.log(card,payload);
     // test
     card.play = {
@@ -85,21 +94,23 @@ export default {
       condition = (card, key) => R.path(['play', key])(card)
     }
 
-    // console.log('card', card);
     // console.log('condition', condition(card,effectkey));
 
     if (condition(card, effectkey)) {
-      console.log(`callEffect ${effectkey} activate`)
+      console.log(`callEffect ${effectkey} activate check card effect function`)
       let effect = R.path(['effect', effectkey])(card)
       // console.log(effect);
 
       if (effect) {
         console.log(`callEffect ${card.name} ${effectkey} function start`)
-        let buffs = []
-        let func = effect.apply(card,[])
-        buffs = func.apply(card,[])
-
+        // pack 给内置函数，跟返回闭包箭头函数使用
+        let func = effect.apply(card, [payload])
+        // pack 给返回标准闭包函数使用
+        buffs = func.apply(card, [payload])
         console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+
+        // return buffs rights!
+        return buffs
       }
     }
   },
