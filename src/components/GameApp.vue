@@ -44,11 +44,13 @@
       <el-button @click="gameTest()">GAME TEST</el-button>
       <el-button @click="gameloop_temp()">TEST LOOP</el-button>
       <el-button @click="gameloop()">GAME LOOP</el-button>
+      <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
       <el-button @click="battleshow(0)">Battle Show</el-button>
       <el-button @click="run_gameloop()">RUN</el-button>
       <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
       <el-button @click="gameReset()">RESET</el-button>
       <el-button @click="gameNewdeck()">NewDeck</el-button>
+      <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
       <el-button @click="gameTestBattle()">Battle test</el-button>
       <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
       <comMessage ref="info"></comMessage>
@@ -119,11 +121,14 @@ export default {
     },
   },
   methods: {
-    gameNewdeck() {
+    gameNewdeck(umi=false) {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
         shuffle: false,
       })
+      if(umi) {
+        this.$store.commit('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+      }
     },
     gameTestBattle() {
       this.gameReset()
@@ -225,7 +230,7 @@ export default {
         }
       }
     },
-    async gameloop() {
+    async gameloop(umi=false) {
       console.log('start gameloop')
 
       if (this.$store.state.game.started) {
@@ -237,6 +242,9 @@ export default {
       // await dispatch('PHASE1').then((value) => {})
       // await dispatch('PHASE2').then((value) => {})
       // if( !this.initial ) {
+      if(umi) {
+        this.$store.commit('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+      }
 
       let firstplayer = null
       await this.$store.dispatch('GAME_START').then(async() => {

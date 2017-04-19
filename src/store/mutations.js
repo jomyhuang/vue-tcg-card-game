@@ -7,7 +7,7 @@ import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
 
-import firstAgent from './agent-first'
+import firstAgent from '@/components/agent-first'
 
 export default {
   TOGGLE_LOADING(state) {
@@ -110,13 +110,23 @@ export default {
   GAME_INIT(state, {
     decklist = null,
     shuffle = true,
+    agent = null,
   } = {}) {
 
     state.storemsg = 'GAME INIT'
 
-    console.log('GAME_INIT set agent - firstAgent')
-    state.player1.agent = firstAgent
-    state.player2.agent = firstAgent
+    if(agent) {
+      console.log('GAME_INIT set agent from payload')
+
+      state.player1.agent = agent[0]
+      state.player2.agent = agent[1]
+    }
+    else {
+      console.log('GAME_INIT set agent - firstAgent')
+
+      state.player1.agent = firstAgent
+      state.player2.agent = firstAgent
+    }
 
     let list = []
     if (decklist) {
@@ -192,6 +202,22 @@ export default {
     // TODO: GAME_SET_PLAYERDECK & joining game
 
     console.log('GAME_SET_PLAYERDECK ', player, deck)
+  },
+  GAME_SET_AGENT(state, {
+    player = null,
+    agent = null,
+  } = {}) {
+    if(R.isNil(player))
+      return
+
+    player.agent = agent
+
+    if(R.isNil) {
+      console.log(`GAME_SET_AGENT ${player.name} to HUI`)
+    }
+    else {
+      console.log(`GAME_SET_AGENT ${player.name} to ${agent.name}`)
+    }
   },
   GAME_SET_FIRSTPLAYER(state, player) {
     if (_.isUndefined(player)) {

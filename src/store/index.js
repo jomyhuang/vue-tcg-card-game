@@ -16,8 +16,6 @@ import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
 
-import firstAgent from './agent-first'
-
 Vue.use(Vuex)
 
 const state = {
