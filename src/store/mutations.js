@@ -149,7 +149,7 @@ export default {
       deckfile.forEach((cardid) => {
         // move to mutil
         // let card = cardDB[cardid]
-        let gamecard = mutil.makecard(cardid)
+        let gamecard = mutil.makecard(cardid, player)
         if (gamecard) {
           // clone /or make gamecard object
           // simple clone
@@ -393,7 +393,7 @@ export default {
       console.log('commit SET_FACEUP ERROR no placeholder card')
       return
     }
-    if( state.placeholder.facedown ) {
+    if (state.placeholder.facedown) {
       state.placeholder.facedown = false
       // setting face up
       state.placeholder.play.faceup = true
@@ -468,11 +468,11 @@ export default {
     console.warn('commit TURN_SET no impelement', state.turn)
   },
   // BATTLE
-  BATTLE_INIT(state,payload) {
+  BATTLE_INIT(state, payload) {
     mutil.battleInit(state)
-    if(payload) {
+    if (payload) {
 
-      state.test = R.assoc('battle',payload)(state.test)
+      state.test = R.assoc('battle', payload)(state.test)
 
       // if(R.has('attacker')(payload))
       //   state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
@@ -573,34 +573,109 @@ export default {
 
     // console.log(`BATTLE_CALC attacker chain`, state.battle.attacker.chain);
 
-    // calc power1
+    // attacker
+    // calc power1/power2
     R.forEach(x => {
       if (x) {
-        let power = mutil.checkAnti(x.antipro, battle.defenser.main.antipro) ?
-          x.power2 : x.power1
-        battle.attacker.power.push(power)
+        let anti = mutil.checkAnti(x.antipro, battle.defenser.main.antipro)
+        let power = anti ? x.power2 : x.power1
+        // mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击')
+        x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
+        // x.power.push(mutil.makepower(x, power *2, 'BASIC', anti ? '克制 power up' : ''))
+        // battle.attacker.power.push(power)
       } else {
         console.warn('BATTLE_CALC attacker calc power object null')
       }
     })(battle.attacker.chain)
+
+    battle.attacker.power = mutil.makeflat(battle.attacker.chain)
     console.log('attacker power ', battle.attacker.power)
 
     let totalAttacker = R.reduce(R.add, 0)(battle.attacker.power)
-    console.log(`totalAttacker ${totalAttacker}`)
+    battle.attacker = R.assoc('total', totalAttacker)(battle.attacker)
 
+    console.log(`basic totalAttacker ${battle.attacker.total}`)
+
+    // defenser
+    // calc power1/power2
     R.forEach(x => {
       if (x) {
-        let power = mutil.checkAnti(x.antipro, battle.attacker.main.antipro) ?
-          x.power2 : x.power1
-        battle.defenser.power.push(power)
+        let anti = mutil.checkAnti(x.antipro, battle.attacker.main.antipro)
+        let power = anti ? x.power2 : x.power1
+        // mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击')
+        x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
+        // battle.defenser.power.push(power)
       } else {
         console.warn('BATTLE_CALC default calc power object null')
       }
     })(battle.defenser.chain)
+
+    battle.defenser.power = mutil.makeflat(battle.defenser.chain)
     console.log('defenser power ', battle.defenser.power)
 
     let totalDefenser = R.reduce(R.add, 0)(battle.defenser.power)
-    console.log(`totalDefenser ${totalDefenser}`)
+    battle.defenser = R.assoc('total', totalDefenser)(battle.defenser)
+
+    console.log(`basic totalDefenser ${battle.defenser.total}`)
+
+    // // result & score
+    // if (totalAttacker == totalDefenser) {
+    //   score.draw = true
+    //   score.winside = 'draw'
+    //   console.log(`battle is DRAW`)
+    // } else {
+    //   if (totalAttacker > totalDefenser) {
+    //     score.win = battle.attacker
+    //     score.lose = battle.defenser
+    //     score.winside = 'attacker'
+    //     // console.log(`battle result [attacker] WIN ${score.win.player.id} ${score.win.player.name}`)
+    //   } else {
+    //     score.win = battle.defenser
+    //     score.lose = battle.attacker
+    //     score.winside = 'defenser'
+    //     // console.log(`battle result [defenser] WIN ${score.win.player.id} ${score.win.player.name}`)
+    //   }
+    //   console.log(`battle result [${score.winside}] WIN ${score.win.player.id} ${score.win.player.name}`)
+    // }
+    // score.finish = true
+  },
+  BATTLE_CALC2(state, {
+    battle = state.battle,
+    score = state.battle.score,
+  } = {}) {
+    console.log('BATTLE_CLAC2 phase 2');
+
+    // ------- attacker
+
+    battle.attacker.power = mutil.makeflat(battle.attacker.chain)
+    console.log('attacker power ', battle.attacker.power)
+
+    // let totalAttacker = R.reduce(R.add, 0)(battle.attacker.power)
+    let totalAttacker = mutil.reducepower(battle.attacker.chain)
+    battle.attacker = R.assoc('total', totalAttacker)(battle.attacker)
+
+    console.log(`FINAL totalAttacker ${battle.attacker.total}`)
+
+    // ------- defenser
+
+    battle.defenser.power = mutil.makeflat(battle.defenser.chain)
+    console.log('defenser power ', battle.defenser.power)
+
+    // let totalDefenser = R.reduce(R.add, 0)(battle.defenser.power)
+    let totalDefenser = mutil.reducepower(battle.defenser.chain)
+    battle.defenser = R.assoc('total', totalDefenser)(battle.defenser)
+
+    console.log(`FINAL totalDefenser ${battle.defenser.total}`)
+
+  },
+  BATTLE_SCORE(state, {
+    battle = state.battle,
+    score = state.battle.score,
+  } = {}) {
+
+    console.log('commit BATTTLE_SCORE')
+    let totalAttacker = R.reduce(R.add, 0)(battle.attacker.power)
+    let totalDefenser = R.reduce(R.add, 0)(battle.defenser.power)
 
     // result & score
     if (totalAttacker == totalDefenser) {
@@ -622,6 +697,7 @@ export default {
       console.log(`battle result [${score.winside}] WIN ${score.win.player.id} ${score.win.player.name}`)
     }
     score.finish = true
+
   },
   GAME_CHECK_GAMEOVER(state, payload) {
     // console.log('commit GAME_CHECK_GAMEOVER check begin')

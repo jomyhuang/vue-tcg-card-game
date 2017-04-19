@@ -3,7 +3,8 @@ import Vue from 'vue'
 import R from 'ramda'
 import _ from 'underscore'
 
-import cardDB from '@/components/SDWCardDB.json'
+// import cardDB from '@/components/SDWCardDB.json'
+import cardDB from '@/components/KJCardDB.json'
 import effectDB from '@/components/SDWCardEffect.js'
 
 export default {
@@ -24,27 +25,27 @@ export default {
         // R.apply(mounted)(card)
         // let log = (x) => console.log('tap ' + x)
 
-        let callmounted = R.pipe(
-          R.path(['effect', 'mounted']),
-          // bind for mounted function
-          R.bind(R.__, card),
-          R.call,
-          // R.tap(console.log),
-          // bind for "return function"
-          R.bind(R.__, card),
-          // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-          // OK! R.apply(R.__,[]),
-          R.call,
-        )
+        let mounted = R.path(['effect', 'mounted'])
+        let callmounted =
+          R.when(
+            mounted,
+            R.pipe(
+              mounted,
+              // bind for mounted function
+              R.bind(R.__, card),
+              R.call,
+              // R.tap(console.log),
+              // bind for "return function"
+              R.bind(R.__, card),
+              // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+              // OK! R.apply(R.__,[]),
+              R.call,
+            )
+          )
         // check it out: 如何带入闭包的card值
         // call可以
         // apply work 必须要有第二参数[]
         // OK! let result = R.apply(callmounted(card),[])
-        let resuult = callmounted(card)
-        // console.log(result)
-
-        this.callEffect('isAttacker', card)
-
         // OK2: 传统bind方式
         // let mounted = card.effect.mounted
         // if(mounted) {
@@ -53,7 +54,9 @@ export default {
         //   // bindfunc({})
         //   // OK2: apply this directly
         // mounted.apply(card,{})
-        // }
+
+        let result = callmounted(card)
+
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
@@ -67,17 +70,17 @@ export default {
 
     let payload = {
       card: undefined,
-      player: 'testplayer',
+      player: undefined,
       opponent: undefined,
       state: undefined,
       commit: undefined,
-      dispath: undefined
+      dispath: undefined,
+      buff: undefined,
     }
-    let buffs
-
+    let result
 
     let card = R.prop('card')(initpayload)
-    if (_.isUndefined(card)) {
+    if (R.isNil(card)) {
       card = initpayload
       initpayload = {
         card: card
@@ -87,34 +90,67 @@ export default {
     payload = R.merge(payload)(initpayload)
     // console.log(card,payload);
     // test
-    card.play = {
-      isAttacker: true
-    }
-    if (_.isUndefined(condition)) {
+    // card.play = {
+    //   isAttacker: true
+    // }
+    if (R.isNil(condition)) {
       condition = (card, key) => R.path(['play', key])(card)
     }
 
     // console.log('condition', condition(card,effectkey));
 
     if (condition(card, effectkey)) {
-      console.log(`callEffect ${effectkey} activate check card effect function`)
-      let effect = R.path(['effect', effectkey])(card)
+      // console.log(`callEffect ${effectkey} activate check card effect function`)
+      let effect = R.path(['effect', effectkey])
+      // let effect = R.path(['effect', effectkey])(card)
       // console.log(effect);
 
-      if (effect) {
-        console.log(`callEffect ${card.name} ${effectkey} function start`)
-        // pack 给内置函数，跟返回闭包箭头函数使用
-        let func = effect.apply(card, [payload])
-        // pack 给返回标准闭包函数使用
-        buffs = func.apply(card, [payload])
-        console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+      let calleffect = R.when(
+        effect,
+        R.pipe(
+          effect,
+          R.bind(R.__, card),
+          R.apply(R.__, [payload]),
+          // bind for "return function"
+          R.bind(R.__, card),
+          // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+          R.apply(R.__, [payload]),
+        )
+      )
 
-        // return buffs rights!
-        return buffs
+      if (effect(card)) {
+        console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
+        result = calleffect(card)
+        // console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+        return result
+      } else {
+        // console.log(`callEffect ${card.name} no ${effectkey} function`)
       }
+
+      // if (effect) {
+      //   console.log(`callEffect ${card.name} ${effectkey} function start`)
+      //   // pack 给内置函数，跟返回闭包箭头函数使用
+      //   let func = effect.apply(card, [payload])
+      //   // pack 给返回标准闭包函数使用
+      //   buffs = func.apply(card, [payload])
+      //   console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+      //
+      //   // return buffs rights!
+      //   return buffs
+      // } else {
+      //   console.log(`callEffect ${card.name} no ${effectkey} function`)
+      // }
+    } else {
+      // console.log(`callEffect ${effectkey} no effect tag`);
     }
+
+    return false
   },
   convertPower(strpower = '') {
+    if (R.is(Number, strpower)) {
+      return strpower
+    }
+
     const rep = R.split(/(\d+)(亿|万)/)
 
     let list = R.splitEvery(2)(R.filter(x => x, rep(strpower)))
@@ -303,8 +339,18 @@ export default {
       chain: [],
     }
   },
-  makecard(cardid, facedown = false) {
+  makecard(cardid, player = {}, facedown = false) {
     // console.log('find card ', card, cardDB[card]);
+
+    if (R.is(Boolean, player)) {
+      facedown = player
+      player = {}
+    }
+
+    if (!R.has('id', player)) {
+      console.warn(`mutil.makecard ${cardid} no owner`)
+    }
+
     let gamecard = Object.assign({}, cardDB[cardid])
     // new prop for game card object
     // Vue.set(gamecard, 'facedown', facedown)
@@ -316,12 +362,80 @@ export default {
       facedown: facedown,
       selected: false,
       selectable: false,
+      owner: player,
       play: {},
+      power: [],
     })
 
     gamecard.power1 = this.convertPower(gamecard.power1)
     gamecard.power2 = this.convertPower(gamecard.power2)
 
     return gamecard
-  }
+  },
+  makepower(card, power = 0, effect, tag) {
+    if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
+      tag = `${effect} UP +${power}`
+    }
+    let buff = {
+      card: card,
+      power: power,
+      effect: effect,
+      tag: tag,
+    }
+    // card.power.push( buff )
+    return buff
+  },
+  addbuff(card, power = 0, effect, tag) {
+    if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
+      tag = `${effect} UP +${power}`
+    }
+    let buff = {
+      card: card,
+      power: power,
+      effect: effect,
+      tag: tag,
+    }
+    card.power.push(buff)
+    return buff
+  },
+  makeflat(chain) {
+    // let l1 = []
+    // l1 = R.append(R.map(R.prop('power'),battle.attacker.main.power),l1)
+    // l1 = R.append(R.map(R.prop('power'),battle.attacker.support.power),l1)
+    // l1 = R.unnest(l1)
+    // console.log('flat ',l1)
+
+    // let l2 = []
+    // let f1 = R.map(R.prop('power'))
+    // l2 = R.into(l2,f1)(battle.attacker.main.power)
+    // l2 = R.into(l2,f1)(battle.attacker.support.power)
+    // console.log(l2);
+
+    // each/into version
+    // let mainlist = []
+    // R.forEach( x => {
+    //   let sublist = R.prop('power')(x)
+    //   mainlist = R.into(mainlist, R.map(R.prop('power')))(sublist)
+    //
+    //   // R.forEach(y => {
+    //   //   mainlist.push(R.prop('power', y))
+    //   // })(sublist)
+    // })(chain)
+    // return mainlist
+
+    // reduce version
+    return R.reduce((a, x) => {
+      let sublist = R.prop('power')(x)
+      a = R.into(a, R.map(R.prop('power')))(sublist)
+      return a
+    }, [])(chain)
+  },
+  reducepower(chain) {
+    return R.reduce((a, x) => {
+      let sublist = R.prop('power')(x)
+      let powerlist = R.map(R.prop('power'))(sublist)
+      let sum = R.reduce(R.add, 0)(powerlist)
+      return a + sum
+    }, 0)(chain)
+  },
 }

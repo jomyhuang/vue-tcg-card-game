@@ -61,7 +61,7 @@ describe('GameAPP', () => {
     expect(state.game.turnCount).to.equal(1)
   })
 
-  it('test run_gameloop whole game', () => {
+  it('test run_gameloop whole game ', () => {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
@@ -72,34 +72,47 @@ describe('GameAPP', () => {
     expect(state.game.score.win).to.equal(state.firstPlayer)
   })
 
-  it('test run_battle', () => {
+  it('test run_battle, basic battle/effect', () => {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
-    vm.gameReset()
+    // vm.gameReset
+    // set agent
     vm.gameNewdeck()
     vm.run_battle( {
       attacker: {
-        main: mutil.makecard('JW15-001',true),
-        support: mutil.makecard('JW15-001'),
+        main: mutil.makecard('JW15-001',state.player1,true),
+        support: mutil.makecard('JW15-001',state.player1),
       },
       defenser: {
-        main: mutil.makecard('JW15-002',true),
-        support: mutil.makecard('JW15-002'),
+        main: mutil.makecard('JW15-002',state.player2,true),
+        support: mutil.makecard('JW15-002',state.player2),
       }
     })
 
 
     let battle = state.battle
     expect(state.game.turnCount).to.equal(1)
+
+    expect(battle.attacker.main.owner).to.equal(battle.attacker.player)
+
     // run_battle 没有经过 select, facedown 设定
     expect(battle.attacker.main.play.isAttacker).to.equal(true)
     expect(battle.attacker.main.play.faceup).to.equal(true)
     expect(battle.attacker.support.play.isSupporter).to.equal(true)
+    // test faceup effect
+    expect(battle.attacker.player.hand.length).to.equal(10)
+
 
     expect(battle.defenser.main.play.isDefenser).to.equal(true)
     expect(battle.defenser.main.play.faceup).to.equal(true)
     expect(battle.defenser.support.play.isSupporter).to.equal(true)
+    // test faceup effect
+    expect(battle.defenser.player.hand.length).to.equal(8)
+
+    expect(battle.attacker.total).to.equal(9000)
+    expect(battle.defenser.total).to.equal(6000)
+
 
     expect(battle.score.win).to.equal(state.battle.attacker)
     expect(battle.score.lose).to.equal(state.battle.defenser)

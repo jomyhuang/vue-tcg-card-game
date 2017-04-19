@@ -250,12 +250,11 @@ export default {
       let xSel = R.view(xLens)(state.act_selection)
 
       // OK 1
-      if(xSel) {
+      if (xSel) {
         const card = xSel
         dispatch('ACT_SELECTED_CARD', card)
         console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
-      }
-      else {
+      } else {
         const agent = state.act_selection.agent
 
         if (agent) {
@@ -280,6 +279,66 @@ export default {
       // }
       dispatch('_ACT_SELECT_CARD_END')
       resolve()
+    })
+  },
+  TIGGER_EFFECT({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    return new Promise(function (resolve, reject) {
+
+      let effect = payload
+      let card = state.placeholder
+      let player = card.owner
+      let opponent = mutil.opponent(player)
+      // console.warn(`[TIGGER_EFFECT] ${effect}`);
+
+      // 处理效果目标对象 owner, card...
+      // select card owner
+      if( card !== state.placeholder ) {
+        commit('SELECT_CARD',card)
+        commit('SELECT_PLAYER',player)
+        console.error(`TIGGER_EFFECT ${card.name} owner not equal currentPlayer`);
+      }
+
+      let effectbuff = (power=0, tag) => {
+        if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
+          tag = `${effect} UP +${power}`
+        }
+        let buff = {
+          power: power,
+          effect: effect,
+          tag: tag,
+          card: card,
+        }
+        card.power.push( buff )
+        return buff
+      }
+
+      let effectpayload = {
+        effect: effect,
+        card: card,
+        player: player,
+        opponent: opponent,
+        commit: commit,
+        state: state,
+        dispatch: dispatch,
+        // buff: R.bind(mutil.addbuff, card),
+        buff: effectbuff,
+      }
+
+      let condition
+      // without condition check effect
+      const checklist = ['main']
+
+      if (R.contains(effect)(checklist)) {
+        condition = x => true
+      }
+
+      let result = mutil.callEffect(effect, effectpayload, condition)
+
+      resolve(result)
     })
   },
   // game loop
@@ -391,9 +450,9 @@ export default {
     commit,
     state,
     dispatch
-  },payload) {
+  }, payload) {
     return new Promise(function (resolve, reject) {
-      commit('BATTLE_INIT',payload)
+      commit('BATTLE_INIT', payload)
       resolve()
     })
   },
@@ -402,7 +461,7 @@ export default {
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle','attacker','main'])
+    let xLens = R.lensPath(['battle', 'attacker', 'main'])
     let xSel = R.view(xLens)(state.test)
 
     const selectfunc = {
@@ -423,9 +482,12 @@ export default {
           }
         })
         commit('SET_FACEUP')
-        // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
       },
       thenAction: (state) => {
+        commit('SELECT_PLAYER', state.currentPlayer)
+        commit('SELECT_CARD', state.battle.attacker.main)
+        dispatch('TIGGER_EFFECT', 'faceup')
+        // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
         // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
       },
     }
@@ -449,8 +511,8 @@ export default {
     dispatch
   }) {
     return new Promise(function (resolve, reject) {
-      commit('SET_FACEUP')
-      console.log('BATTLE_EFFECT_DECALRE_ATTACKER phase')
+      // commit('SET_FACEUP')
+      console.warn('BATTLE_EFFECT_DECALRE_ATTACKER phase to do')
       resolve()
     })
   },
@@ -460,7 +522,7 @@ export default {
     dispatch
   }) {
     return new Promise(async function (resolve, reject) {
-      let xLens = R.lensPath(['battle','defenser','main'])
+      let xLens = R.lensPath(['battle', 'defenser', 'main'])
       let xSel = R.view(xLens)(state.test)
 
       await dispatch('ASYNC_ACT_SELECT_CARD_START', {
@@ -483,6 +545,10 @@ export default {
           commit('SET_FACEUP')
         },
         thenAction: (state) => {
+          commit('SELECT_PLAYER', state.opponentPlayer)
+          commit('SELECT_CARD', state.battle.defenser.main)
+          dispatch('TIGGER_EFFECT', 'faceup')
+          commit('SELECT_PLAYER', state.currentPlayer)
           // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
         },
       }).then(() => {
@@ -498,7 +564,7 @@ export default {
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle','attacker','support'])
+    let xLens = R.lensPath(['battle', 'attacker', 'support'])
     let xSel = R.view(xLens)(state.test)
 
     return new Promise(async function (resolve, reject) {
@@ -536,7 +602,7 @@ export default {
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle','defenser','support'])
+    let xLens = R.lensPath(['battle', 'defenser', 'support'])
     let xSel = R.view(xLens)(state.test)
 
     return new Promise(async function (resolve, reject) {
@@ -577,6 +643,26 @@ export default {
     return new Promise(function (resolve, reject) {
       console.log(`BATTLE_EFFECT begin`)
       commit('BATTLE_CALC')
+
+      commit('SELECT_PLAYER', state.currentPlayer)
+      commit('SELECT_CARD', state.battle.attacker.main)
+      dispatch('TIGGER_EFFECT', 'isAttacker')
+      dispatch('TIGGER_EFFECT', 'main')
+      commit('SELECT_CARD', state.battle.attacker.support)
+      dispatch('TIGGER_EFFECT', 'isSupporter')
+      dispatch('TIGGER_EFFECT', 'main')
+
+      commit('SELECT_PLAYER', state.opponentPlayer)
+      commit('SELECT_CARD', state.battle.defenser.main)
+      dispatch('TIGGER_EFFECT', 'isDefenser')
+      dispatch('TIGGER_EFFECT', 'main')
+      commit('SELECT_CARD', state.battle.defenser.support)
+      dispatch('TIGGER_EFFECT', 'isSupporter')
+      dispatch('TIGGER_EFFECT', 'main')
+
+      commit('BATTLE_CALC2')
+
+      commit('BATTLE_SCORE')
       console.log(`BATTLE_EFFECT end`)
       resolve()
     })

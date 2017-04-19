@@ -132,13 +132,13 @@ export default {
       this.run_battle( {
         attacker: {
           // main facedown is true
-          main: mutil.makecard('JW15-001',true),
-          support: mutil.makecard('JW15-001'),
+          main: mutil.makecard('JW15-001',this.$store.state.player1,true),
+          support: mutil.makecard('JW15-001',this.$store.state.player1),
         },
         defenser: {
           // main facedown is true
-          main: mutil.makecard('JW15-002',true),
-          support: mutil.makecard('JW15-002'),
+          main: mutil.makecard('JW15-002',this.$store.state.player2,true),
+          support: mutil.makecard('JW15-002',this.$store.state.player2),
         }
       })
     },
