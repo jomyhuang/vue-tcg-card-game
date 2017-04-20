@@ -292,7 +292,7 @@ export default {
         await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
         await this.message(`效果：发动阶段`)
-        this.$store.dispatch('BATTLE_EFFECT')
+        await this.$store.dispatch('BATTLE_EFFECT')
         await this.message(`效果：清除阶段`)
         await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
 

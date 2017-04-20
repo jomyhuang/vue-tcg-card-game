@@ -81,7 +81,7 @@ export default {
           thenAction: (state) => {
           },
         }
-        dispatch('EFFECT_ACT_SELECTION',selectfunc)
+        return dispatch('EFFECT_ACT_SELECTION',selectfunc)
         // console.warn('EFFECT_ACT_SELECTION finish')
       }
     },

@@ -317,7 +317,7 @@ export default {
     state,
     dispatch
   }, payload) {
-    // return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
 
       let effect = payload
       let card = state.placeholder
@@ -372,8 +372,8 @@ export default {
       // restore card
       commit('SELECT_CARD',card)
 
-    //   resolve(result)
-    // })
+      resolve(result)
+    })
   },
   EFFECT_ACT_SELECTION({
     commit,
@@ -384,7 +384,7 @@ export default {
     console.log('EFFECT_ACT_SELECTION phase')
 
     let selectfunc = payload
-    dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
   },
   // game loop
   // GAME_START
@@ -406,7 +406,6 @@ export default {
   // GAME_NEXT_TURN
   // GAME_SCOREBOARD
   // GAME_END
-
   GAME_TEMPLATE({
     commit,
     state,
@@ -689,13 +688,13 @@ export default {
     state,
     dispatch
   }) {
-    // return new Promise(function (resolve, reject) {
+    return new Promise(async function (resolve, reject) {
       console.log(`BATTLE_EFFECT begin`)
       commit('BATTLE_CALC')
 
       commit('SELECT_PLAYER', state.currentPlayer)
       commit('SELECT_CARD', state.battle.attacker.main)
-      dispatch('TIGGER_EFFECT', 'isAttacker')
+      await dispatch('TIGGER_EFFECT', 'isAttacker')
       dispatch('TIGGER_EFFECT', 'main')
       commit('SELECT_CARD', state.battle.attacker.support)
       dispatch('TIGGER_EFFECT', 'isSupporter')
@@ -713,8 +712,8 @@ export default {
 
       commit('BATTLE_SCORE')
       console.log(`BATTLE_EFFECT end`)
-      // resolve()
-    // })
+      resolve()
+    })
   },
   BATTLE_EFFECT_CLEAR({
     commit,

@@ -67,6 +67,87 @@ export default {
     console.log('mutil mixin effect DB finish')
   },
   callEffect(effectkey, initpayload = {}, condition) {
+    return new Promise(async function (resolve, reject) {
+      let payload = {
+        card: undefined,
+        player: undefined,
+        opponent: undefined,
+        state: undefined,
+        commit: undefined,
+        dispath: undefined,
+        buff: undefined,
+      }
+      let result = false
+
+      let card = R.prop('card')(initpayload)
+      if (R.isNil(card)) {
+        card = initpayload
+        initpayload = {
+          card: card
+        }
+      }
+
+      payload = R.merge(payload)(initpayload)
+      // console.log(card,payload);
+      // test
+      // card.play = {
+      //   isAttacker: true
+      // }
+      if (R.isNil(condition)) {
+        condition = (card, key) => R.path(['play', key])(card)
+      }
+
+      // console.log('condition', condition(card,effectkey));
+
+      if (condition(card, effectkey)) {
+        // console.log(`callEffect ${effectkey} activate check card effect function`)
+        let effect = R.path(['effect', effectkey])
+        // let effect = R.path(['effect', effectkey])(card)
+        // console.log(effect);
+
+        let effectfunc = R.when(
+          effect,
+          R.pipe(
+            effect,
+            R.bind(R.__, card),
+            R.apply(R.__, [payload]),
+            // bind for "return function"
+            R.bind(R.__, card),
+            // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+            R.apply(R.__, [payload]),
+          )
+        )
+
+        if (effect(card)) {
+          console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
+          result = await effectfunc(card)
+          // console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+          // return result
+        } else {
+          // console.log(`callEffect ${card.name} no ${effectkey} function`)
+        }
+
+        // if (effect) {
+        //   console.log(`callEffect ${card.name} ${effectkey} function start`)
+        //   // pack 给内置函数，跟返回闭包箭头函数使用
+        //   let func = effect.apply(card, [payload])
+        //   // pack 给返回标准闭包函数使用
+        //   buffs = func.apply(card, [payload])
+        //   console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+        //
+        //   // return buffs rights!
+        //   return buffs
+        // } else {
+        //   console.log(`callEffect ${card.name} no ${effectkey} function`)
+        // }
+      } else {
+        // console.log(`callEffect ${effectkey} no effect tag`);
+      }
+
+      resolve(result)
+    })
+  },
+  old_XXcallEffect(effectkey, initpayload = {}, condition) {
 
     let payload = {
       card: undefined,
