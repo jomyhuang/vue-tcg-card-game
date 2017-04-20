@@ -101,14 +101,14 @@ describe('GameAPP', () => {
     expect(battle.attacker.main.play.faceup).to.equal(true)
     expect(battle.attacker.support.play.isSupporter).to.equal(true)
     // test faceup effect
-    expect(battle.attacker.player.hand.length).to.equal(10)
+    expect(battle.attacker.player.hand.length).to.equal(6)
 
 
     expect(battle.defenser.main.play.isDefenser).to.equal(true)
     expect(battle.defenser.main.play.faceup).to.equal(true)
     expect(battle.defenser.support.play.isSupporter).to.equal(true)
     // test faceup effect
-    expect(battle.defenser.player.hand.length).to.equal(8)
+    expect(battle.defenser.player.hand.length).to.equal(5)
 
     expect(battle.attacker.total).to.equal(9000)
     expect(battle.defenser.total).to.equal(6000)

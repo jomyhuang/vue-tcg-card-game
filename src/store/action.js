@@ -140,28 +140,28 @@ export default {
     commit('SELECT_CARD', null)
     console.log('action SET_FACEUP')
   },
-  async ACT_SELECT_CARD_START({
-    dispatch,
-    commit,
-    state
-  }, payload) {
-
-    commit('ACT_SELECTION', payload)
-
-    let waiting = true
-    while (waiting) {
-      await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
-        // console.log('resolve')
-        waiting = false
-      }, (err) => {
-        // console.log('reject')
-      })
-    }
-    console.log('ACT_SELECT_CARD_START AWAIT SYNC finish')
-
-    // return dispatch('_ACT_SELECT_CARD_END')
-    dispatch('_ACT_SELECT_CARD_END')
-  },
+  // async ACT_SELECT_CARD_START({
+  //   dispatch,
+  //   commit,
+  //   state
+  // }, payload) {
+  //
+  //   commit('ACT_SELECTION', payload)
+  //
+  //   let waiting = true
+  //   while (waiting) {
+  //     await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
+  //       // console.log('resolve')
+  //       waiting = false
+  //     }, (err) => {
+  //       // console.log('reject')
+  //     })
+  //   }
+  //   console.log('ACT_SELECT_CARD_START AWAIT SYNC finish')
+  //
+  //   // return dispatch('_ACT_SELECT_CARD_END')
+  //   dispatch('_ACT_SELECT_CARD_END')
+  // },
   // 带入 dispatch
   ACT_SELECTED_CARD({
     dispatch,
@@ -182,56 +182,64 @@ export default {
       state.act_selection.selectedAction(state, card)
     }
   },
-  _ACT_SELECT_CARD_END({
+  // async _ACT_SYNC_SELECT_CHECK({
+  //   commit,
+  //   state,
+  //   dispatch
+  // }, checkfunc = () => true) {
+  //
+  //   // console.log( '_ACT_SYNC_SELECT_CHECK' )
+  //   return new Promise(function (resolve, reject) {
+  //     setTimeout(() => {
+  //       // console.log('hello promise check')
+  //       // console.log(checkfunc())
+  //       // if( !checkfunc(state) ) {
+  //       //     commit('ACT_SET_SELECTED',false)
+  //       //     reject()
+  //       // }
+  //       // if (state.act_selection.selectedList.length >= state.act_selection.many) {
+  //       if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+  //         resolve()
+  //       } else {
+  //         reject()
+  //       }
+  //     }, 1000)
+  //   })
+  // },
+  async _WAIT_ACT_SYNC_SELECT_UI({
     commit,
-    state
-  }) {
+    state,
+    dispatch
+  }, checkfunc = () => true) {
 
-    commit('ACT_UNSELECTION')
-    if (state.act_selection.thenAction) {
-      // console.log( `ACT_SELECT_CARD_END thenAction call` )
-      return state.act_selection.thenAction(state)
+    const waitfunc = () => {
+      return new Promise(function (resolve, reject) {
+        setTimeout(() => {
+          if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+            resolve()
+          } else {
+            reject()
+          }
+        }, 1000)
+      })
     }
-  },
-  async _ACT_SYNC_SELECT_CHECK({
-    commit,
-    state,
-    dispatch
-  }, checkfunc = () => true) {
 
-    // console.log( '_ACT_SYNC_SELECT_CHECK' )
-    return new Promise(function (resolve, reject) {
-      setTimeout(() => {
-        // console.log('hello promise check')
-        // console.log(checkfunc())
-        // if( !checkfunc(state) ) {
-        //     commit('ACT_SET_SELECTED',false)
-        //     reject()
-        // }
-        if (state.act_selection.selectedList.length >= state.act_selection.many) {
-          resolve()
-        } else {
-          reject()
-        }
-      }, 1000)
-    })
-  },
-  async _WAIT_ACT_SYNC_SELECT_CHECK({
-    commit,
-    state,
-    dispatch
-  }, checkfunc = () => true) {
-
-    // console.log('_WAIT_ACT_SYNC_SELECT_CHECK')
+    console.log('_WAIT_ACT_SYNC_SELECT_UI')
     let waiting = true
     while (waiting) {
       // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
-      await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
-        // console.log('resolve')
+      await waitfunc().then((resolve) => {
         waiting = false
       }, (err) => {
-        // console.log('reject')
+        // run again
       })
+      // await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
+      //   // console.log('resolve')
+      //   waiting = false
+      // }, (err) => {
+      //   // console.log('reject')
+      //   // run again
+      // })
     }
   },
   ASYNC_ACT_SELECT_CARD_START({
@@ -240,7 +248,17 @@ export default {
     dispatch
   }, payload) {
 
-    // console.log('ASYNC_ACT_SELECT_CARD_START')
+    console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish',state.act_selection))
+
+    // if(R.F(R.propEq('finish',true),state.act_selection)) {
+    // 防止重复选择
+    if(R.has('finish',state.act_selection)) {
+      if(!state.act_selection['finish']) {
+        console.error('ASYNC_ACT_SELECT_CARD_START not finish yet!!')
+        return false
+      }
+    }
+
     return new Promise(async function (resolve, reject) {
       // return new Promise( (resolve, reject) => {
       // 注意：使用箭头函数不能是 async
@@ -249,7 +267,7 @@ export default {
       let xLens = R.lensProp('init')
       let xSel = R.view(xLens)(state.act_selection)
 
-      // OK 1
+      // OK 1 for test
       if (xSel) {
         const card = xSel
         dispatch('ACT_SELECTED_CARD', card)
@@ -258,12 +276,13 @@ export default {
         const agent = state.act_selection.agent
 
         if (agent) {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
           const card = agent.SELECT_CARD(state, payload)
           dispatch('ACT_SELECTED_CARD', card)
-          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
         } else {
-          await dispatch('_WAIT_ACT_SYNC_SELECT_CHECK')
           console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+          await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
         }
       }
 
@@ -281,12 +300,24 @@ export default {
       resolve()
     })
   },
+  _ACT_SELECT_CARD_END({
+    commit,
+    state
+  }) {
+
+    commit('ACT_UNSELECTION')
+    if (state.act_selection.thenAction) {
+      // console.log( `ACT_SELECT_CARD_END thenAction call` )
+      state.act_selection.thenAction(state)
+    }
+    commit('ACT_FINISH')
+  },
   TIGGER_EFFECT({
     commit,
     state,
     dispatch
   }, payload) {
-    return new Promise(function (resolve, reject) {
+    // return new Promise(function (resolve, reject) {
 
       let effect = payload
       let card = state.placeholder
@@ -338,8 +369,22 @@ export default {
 
       let result = mutil.callEffect(effect, effectpayload, condition)
 
-      resolve(result)
-    })
+      // restore card
+      commit('SELECT_CARD',card)
+
+    //   resolve(result)
+    // })
+  },
+  EFFECT_ACT_SELECTION({
+    commit,
+    state,
+    dispatch
+  },payload) {
+
+    console.log('EFFECT_ACT_SELECTION phase')
+
+    let selectfunc = payload
+    dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
   },
   // game loop
   // GAME_START
@@ -466,9 +511,10 @@ export default {
 
     const selectfunc = {
       phase: 'BATTLE_DECALRE_ATTACKER',
-      list: 'zone',
+      list: state.currentPlayer.zone,
+      player: state.currentPlayer,
       many: 1,
-      agent: state.currentPlayer.agent,
+      // agent: state.currentPlayer.agent,
       init: xSel,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
@@ -496,40 +542,41 @@ export default {
     //   agent.TALK(state, 'agent talk TEST!!')
     // }
 
-    return new Promise(async function (resolve, reject) {
-      await dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
-        .then(() => {
-          // note!
-          // console.log('BATTLE_DECALRE_ATTACKER promise.then finish')
-        })
-      resolve()
-    })
+    // return new Promise(async function (resolve, reject) {
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
+    //     .then(() => {
+    //       // note!
+    //       // console.log('BATTLE_DECALRE_ATTACKER promise.then finish')
+    //     })
+    //   resolve()
+    // })
   },
-  BATTLE_EFFECT_DECALRE_ATTACKER({
-    commit,
-    state,
-    dispatch
-  }) {
-    return new Promise(function (resolve, reject) {
-      // commit('SET_FACEUP')
-      console.warn('BATTLE_EFFECT_DECALRE_ATTACKER phase to do')
-      resolve()
-    })
-  },
+  // BATTLE_EFFECT_DECALRE_ATTACKER({
+  //   commit,
+  //   state,
+  //   dispatch
+  // }) {
+  //   return new Promise(function (resolve, reject) {
+  //     // commit('SET_FACEUP')
+  //     console.warn('BATTLE_EFFECT_DECALRE_ATTACKER phase to do')
+  //     resolve()
+  //   })
+  // },
   BATTLE_OPP_DECLARE_DEFENSER({
     commit,
     state,
     dispatch
   }) {
-    return new Promise(async function (resolve, reject) {
+    // return new Promise(async function (resolve, reject) {
       let xLens = R.lensPath(['battle', 'defenser', 'main'])
       let xSel = R.view(xLens)(state.test)
 
-      await dispatch('ASYNC_ACT_SELECT_CARD_START', {
+      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
         list: state.opponentPlayer.zone,
+        player: state.currentPlayer,
         many: 1,
         phase: 'BATTLE_OPP_DECLARE_DEFENSER',
-        agent: state.currentPlayer.agent,
+        // agent: state.currentPlayer.agent,
         init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
@@ -551,13 +598,14 @@ export default {
           commit('SELECT_PLAYER', state.currentPlayer)
           // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
         },
-      }).then(() => {
-        // note!
-        // console.log('BATTLE_OPP_DECLARE_DEFENSER promise.then finish')
       })
-
-      resolve()
-    })
+    //   }).then(() => {
+    //     // note!
+    //     // console.log('BATTLE_OPP_DECLARE_DEFENSER promise.then finish')
+    //   })
+    //
+    //   resolve()
+    // })
   },
   BATTLE_PLAY_SUPPORTER({
     commit,
@@ -567,12 +615,13 @@ export default {
     let xLens = R.lensPath(['battle', 'attacker', 'support'])
     let xSel = R.view(xLens)(state.test)
 
-    return new Promise(async function (resolve, reject) {
-      await dispatch('ASYNC_ACT_SELECT_CARD_START', {
-        list: 'hand',
+    // return new Promise(async function (resolve, reject) {
+      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
+        list: state.currentPlayer.hand,
+        player: state.currentPlayer,
         many: 1,
         phase: 'BATTLE_PLAY_SUPPORTER',
-        agent: state.currentPlayer.agent,
+        // agent: state.currentPlayer.agent,
         init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
@@ -589,13 +638,13 @@ export default {
         thenAction: (state) => {
           // console.log('BATTLE_PLAY_SUPPORTER finish')
         },
-      }).then(() => {
-        // note!
-        // console.log('BATTLE_PLAY_SUPPORTER promise.then finish')
       })
-
-      resolve()
-    })
+      // }).then(() => {
+      //   // note!
+      //   // console.log('BATTLE_PLAY_SUPPORTER promise.then finish')
+      // })
+      //
+      // resolve()
   },
   BATTLE_OPP_PLAY_SUPPORTER({
     commit,
@@ -605,12 +654,13 @@ export default {
     let xLens = R.lensPath(['battle', 'defenser', 'support'])
     let xSel = R.view(xLens)(state.test)
 
-    return new Promise(async function (resolve, reject) {
-      await dispatch('ASYNC_ACT_SELECT_CARD_START', {
+    // return new Promise(async function (resolve, reject) {
+      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
         list: state.opponentPlayer.hand,
+        player: state.opponentPlayer,
         many: 1,
         phase: 'BATTLE_OPP_PLAY_SUPPORTER',
-        agent: state.opponentPlayer.agent,
+        // agent: state.opponentPlayer.agent,
         init: xSel,
         selectedMuation: (state, card) => {
           state.storemsg = `select ${card.name}`
@@ -627,20 +677,19 @@ export default {
         thenAction: (state) => {
           // console.log('BATTLE_OPP_PLAY_SUPPORTER finish')
         },
-      }).then(() => {
+      // }).then(() => {
         // note!
         // console.log(`BATTLE_OPP_PLAY_SUPPORTER dispatch promise.then finish')
       })
-
-      resolve()
-    })
+      // resolve()
+    // })
   },
   BATTLE_EFFECT({
     commit,
     state,
     dispatch
   }) {
-    return new Promise(function (resolve, reject) {
+    // return new Promise(function (resolve, reject) {
       console.log(`BATTLE_EFFECT begin`)
       commit('BATTLE_CALC')
 
@@ -664,8 +713,8 @@ export default {
 
       commit('BATTLE_SCORE')
       console.log(`BATTLE_EFFECT end`)
-      resolve()
-    })
+      // resolve()
+    // })
   },
   BATTLE_EFFECT_CLEAR({
     commit,

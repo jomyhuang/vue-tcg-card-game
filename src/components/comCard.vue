@@ -5,10 +5,17 @@
     <h5>未选择战士</h5>
   </div>
   <div v-else>
+    <div v-if="card.selectable">
+      <i class="el-icon-circle-check" @click.stop.prevent="selectcard($event)">
+            <span v-if="card.selected">UNSELECT</span>
+            <span v-else="card.selected">SELECT</span>
+          </i>
+      <br/>
+    </div>
     <div v-if="card.facedown">
       <h4>精灵战争</h4>
       <div>{{card.name}}</div>
-      <i class="el-icon-plus" @click.stop.prevent="faceup($event)">FACEUP</i>
+      <!-- <i class="el-icon-plus" @click.stop.prevent="faceup($event)">FACEUP</i> -->
     </div>
     <div v-else>
       <div>
@@ -22,17 +29,10 @@
       <div>{{card.attack2}} {{card.power2}}</div>
     </div>
     <div>
-      <i class="el-icon-minus" @click.stop.prevent="tobase($event)">B</i>
+      <!-- <i class="el-icon-minus" @click.stop.prevent="tobase($event)">B</i>
       <br/>
       <i class="el-icon-minus" @click.stop.prevent="tograveyrad($event)">G</i>
-      <br/>
-      <div v-if="card.selectable">
-        <i class="el-icon-minus" @click.stop.prevent="selectcard($event)">
-              <span v-if="card.selected">UNSELECT</span>
-              <span v-else="card.selected">SELECT</span>
-            </i>
-        <br/>
-      </div>
+      <br/> -->
     </div>
   </div>
 </div>

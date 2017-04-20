@@ -115,13 +115,12 @@ export default {
 
     state.storemsg = 'GAME INIT'
 
-    if(agent) {
+    if (agent) {
       console.log('GAME_INIT set agent from payload')
 
       state.player1.agent = agent[0]
       state.player2.agent = agent[1]
-    }
-    else {
+    } else {
       console.log('GAME_INIT set agent - firstAgent')
 
       state.player1.agent = firstAgent
@@ -207,15 +206,14 @@ export default {
     player = null,
     agent = null,
   } = {}) {
-    if(R.isNil(player))
+    if (R.isNil(player))
       return
 
     player.agent = agent
 
-    if(R.isNil) {
+    if (R.isNil) {
       console.log(`GAME_SET_AGENT ${player.name} to HUI`)
-    }
-    else {
+    } else {
       console.log(`GAME_SET_AGENT ${player.name} to ${agent.name}`)
     }
   },
@@ -306,6 +304,19 @@ export default {
   ACT_SELECTION(state, payload) {
 
     state.act_selection = R.merge({})(payload)
+    // 清除后增加
+    state.act_selection.selectedList = []
+    state.act_selection.finish = false
+
+    if (!R.has('player', state.act_selection)) {
+      state.act_selection = R.assoc('player', state.currentPlayer)(state.act_selection)
+      console.log('ACT_SELECTION default player')
+    }
+    if (!R.has('agent', state.act_selection)) {
+      state.act_selection = R.assoc('agent', state.act_selection.player.agent)(state.act_selection)
+      // console.log('ACT_SELECTION default agent')
+    }
+
 
     // 修改成解构式
     // state.act_selection.list = list
@@ -313,13 +324,13 @@ export default {
     // state.act_selection.selectedMuation = selectedMuation
     // state.act_selection.selectedAction = selectedAction
     // state.act_selection.thenAction = thenAction
-    // state.act_selection.selectedList = []
     // state.act_selection.agent = agent
 
     // placelist 处理 copy from SELECT_CARDLIST
     const list = state.act_selection.list
-    if (_.isString(list)) {
-      state.placelist = eval(`state.placeplayer.${list}`)
+    if (R.is(String, list)) {
+      // state.placelist = eval(`state.placeplayer.${list}`)
+      state.placelist = state.placeplayer[list]
     } else {
       state.placelist = list
     }
@@ -360,6 +371,10 @@ export default {
       card.selectable = false
     })
     // console.log('commit ACT_UNSELECTION')
+  },
+  ACT_FINISH(state, payload) {
+    state.act_selection.finish = true
+    console.log('commit ACT_FINISH')
   },
   PICK_CARD(state, card = null) {
     if (card) {

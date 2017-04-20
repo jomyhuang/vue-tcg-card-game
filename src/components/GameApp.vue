@@ -4,7 +4,7 @@
     <div class="col-md-12">
       <h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
       <el-button @click="gameTest()">GAME TEST</el-button>
-      <el-button @click="gameStart()">GAME START</el-button>
+      <!-- <el-button @click="gameStart()">GAME START</el-button> -->
       <el-button @click="battleshow(0)">Battle Show</el-button>
     </div>
   </div>
@@ -41,17 +41,18 @@
   <div class="row gameboard">
     <div class="col-md-12">
       <h3>{{ msg }} $ {{ $store.state.storemsg }} Turn {{ $store.state.game.turnCount }}</h3>
-      <el-button @click="gameTest()">GAME TEST</el-button>
-      <el-button @click="gameloop_temp()">TEST LOOP</el-button>
+      <!-- <el-button @click="gameloop_temp()">TEST LOOP</el-button> -->
       <el-button @click="gameloop()">GAME LOOP</el-button>
       <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
-      <el-button @click="battleshow(0)">Battle Show</el-button>
       <el-button @click="run_gameloop()">RUN</el-button>
       <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
+      <el-button @click="gameTestBattle()">Battle test</el-button>
+      <BR/>
+      <el-button @click="gameTest()">TEST</el-button>
+      <el-button @click="battleshow(0)">Battle Show</el-button>
       <el-button @click="gameReset()">RESET</el-button>
       <el-button @click="gameNewdeck()">NewDeck</el-button>
       <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
-      <el-button @click="gameTestBattle()">Battle test</el-button>
       <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
       <comMessage ref="info"></comMessage>
     </div>
@@ -154,14 +155,14 @@ export default {
       this.$store.dispatch('GAME_INIT', init)
     },
     gameStart() {
-      console.log('game Start')
-      this.$store.commit('SELECT_PLAYER', this.$store.state.player2)
-      this.$store.dispatch('DRAW', 5)
-      this.$store.dispatch('DRAW_TO_ZONE', 5)
-
-      this.$store.commit('SELECT_PLAYER', this.$store.state.player1)
-      this.$store.dispatch('DRAW', 5)
-      this.$store.dispatch('DRAW_TO_ZONE', 5)
+      // console.log('game Start')
+      // this.$store.commit('SELECT_PLAYER', this.$store.state.player2)
+      // this.$store.dispatch('DRAW', 5)
+      // this.$store.dispatch('DRAW_TO_ZONE', 5)
+      //
+      // this.$store.commit('SELECT_PLAYER', this.$store.state.player1)
+      // this.$store.dispatch('DRAW', 5)
+      // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
     battleshow(value = 1000) {
       // console.log('battle test click')
@@ -263,14 +264,16 @@ export default {
 
       let loop = true
       do {
-
-        await this.$store.dispatch('GAME_TURN_BEGIN').then(async() => {
-          await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
-        }).then(async() => {
-          await this.message('抽牌')
-          await this.$store.dispatch('GAME_DRAW')
-        })
-
+        // await this.$store.dispatch('GAME_TURN_BEGIN').then(async() => {
+        //   await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
+        // }).then(async() => {
+        //   await this.message('抽牌')
+        //   await this.$store.dispatch('GAME_DRAW')
+        // })
+        await this.$store.dispatch('GAME_TURN_BEGIN')
+        await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
+        await this.message('抽牌')
+        await this.$store.dispatch('GAME_DRAW')
         await this.message('战斗开始')
         await this.$store.dispatch('BATTLE_START')
 
@@ -289,7 +292,7 @@ export default {
         await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
         await this.message(`效果：发动阶段`)
-        await this.$store.dispatch('BATTLE_EFFECT')
+        this.$store.dispatch('BATTLE_EFFECT')
         await this.message(`效果：清除阶段`)
         await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
 
@@ -327,6 +330,7 @@ export default {
     run_message(msg) {
       console.log(msg)
     },
+    // 单回合战斗测试
     run_battle(battle) {
       this.run_message('run_battle start battle')
       this.$store.dispatch('GAME_START')
@@ -346,6 +350,7 @@ export default {
       this.$store.dispatch('BATTLE_END')
       this.run_message('run_battle end battle')
     },
+    // run gameloop + step 非同步版本／回合step步进版本
     run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
 
@@ -452,8 +457,6 @@ export default {
 
       return result
     },
-
-
 
     /// =========================== OLD GAMELOOP
     async gameloop_temp() {

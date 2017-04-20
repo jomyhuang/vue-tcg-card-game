@@ -105,7 +105,7 @@ export default {
       // let effect = R.path(['effect', effectkey])(card)
       // console.log(effect);
 
-      let calleffect = R.when(
+      let effectfunc = R.when(
         effect,
         R.pipe(
           effect,
@@ -120,7 +120,7 @@ export default {
 
       if (effect(card)) {
         console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-        result = calleffect(card)
+        result = effectfunc(card)
         // console.log(`callEffect ${effectkey} function end buff ${buffs}`)
         return result
       } else {
