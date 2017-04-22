@@ -52,7 +52,7 @@ module.exports = function (config) {
     // mochaReporter: {
     //       output: 'autowatch',
     // }
-    
+
     // coverageReporter: {
     //   dir: './coverage',
     //   reporters: [

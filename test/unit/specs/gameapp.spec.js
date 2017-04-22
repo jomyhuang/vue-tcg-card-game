@@ -48,7 +48,7 @@ describe('GameAPP', () => {
     expect(state.user).to.equal('jomyhuang')
   })
 
-  it('test run_gameloop one turn', () => {
+  it('test run_gameloop one turn', async function() {
     vm = createComponent(GameApp, true)
     // vm = createVM(GameApp, true)
     let state = vm.$store.state
@@ -57,39 +57,52 @@ describe('GameAPP', () => {
     // createVM how to call?
     // vm.gameReset({decklist:[testdeck1,testdeck2]})
     vm.gameReset()
-    vm.run_gameloop(1)
+    await vm.run_gameloop(1)
     expect(state.game.turnCount).to.equal(1)
   })
 
-  it('test run_gameloop whole game ', () => {
+  it('test run_gameloop whole game w/testdeck1,testdeck2', async function() {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
     vm.gameReset({decklist:[testdeck1,testdeck2]})
-    vm.run_gameloop()
+    await vm.run_gameloop()
     expect(state.game.over).to.equal(true)
     expect(state.game.turnCount).to.equal(5)
     expect(state.game.score.win).to.equal(state.firstPlayer)
   })
 
-  it('test run_battle, basic battle/effect', () => {
+  it('test main gameloop', async function() {
+    vm = createComponent(GameApp, true)
+    // vm = createVM(GameApp, true)
+    let state = vm.$store.state
+
+    vm.gameReset()
+    await vm.gameloop()
+    expect(state.game.over).to.equal(true)
+  })
+
+  it('test run_battle, basic battle/effect', async function() {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
     // vm.gameReset
     // set agent
     vm.gameNewdeck()
-    vm.run_battle( {
-      attacker: {
-        main: mutil.makecard('JW15-001',state.player1,true),
-        support: mutil.makecard('JW15-001',state.player1),
-      },
-      defenser: {
-        main: mutil.makecard('JW15-002',state.player2,true),
-        support: mutil.makecard('JW15-002',state.player2),
-      }
+    await vm.run_battle( {
+      // attacker: {
+      //   main: mutil.makecard('JW15-001',state.player1,true),
+      //   support: mutil.makecard('JW15-001',state.player1),
+      // },
+      // defenser: {
+      //   main: mutil.makecard('JW15-002',state.player2,true),
+      //   support: mutil.makecard('JW15-002',state.player2),
+      // }
+      BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',state.player1,true),
+      BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',state.player1),
+      BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',state.player2,true),
+      BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002',state.player2),
     })
-
 
     let battle = state.battle
     expect(state.game.turnCount).to.equal(1)
@@ -101,23 +114,21 @@ describe('GameAPP', () => {
     expect(battle.attacker.main.play.faceup).to.equal(true)
     expect(battle.attacker.support.play.isSupporter).to.equal(true)
     // test faceup effect
-    expect(battle.attacker.player.hand.length).to.equal(6)
+    // expect(battle.attacker.player.hand.length).to.equal(6)
 
 
     expect(battle.defenser.main.play.isDefenser).to.equal(true)
     expect(battle.defenser.main.play.faceup).to.equal(true)
     expect(battle.defenser.support.play.isSupporter).to.equal(true)
     // test faceup effect
-    expect(battle.defenser.player.hand.length).to.equal(5)
+    // expect(battle.defenser.player.hand.length).to.equal(5)
 
     expect(battle.attacker.total).to.equal(9000)
     expect(battle.defenser.total).to.equal(6000)
 
-
+    expect(battle.score.finish).to.equal(true)
     expect(battle.score.win).to.equal(state.battle.attacker)
     expect(battle.score.lose).to.equal(state.battle.defenser)
 
   })
-
-
 })

@@ -20,74 +20,13 @@ export default {
     console.log('RAMDA_TEST action result')
     // let card = state.player1.deck[0]
     // console.log(`test result ${card.name} ${card.play.info} ${card.play.tag}`)
-    console.log(mutil.convertPower('1亿2000万'));
+    // console.log(mutil.convertPower('1亿2000万'));
     // console.log(mutil.convertPower('2000万'));
     // console.log(mutil.convertPower('2亿'));
     // console.log(mutil.convertPower('2'));
     // console.log(mutil.convertPower('万'));
 
   },
-  INIT_DB({
-    commit,
-    state
-  }) {
-    commit('INIT_DB')
-    commit('FETCH_REFRESH')
-    console.log('action INIT_DB')
-  },
-  // paging APP ------------------------------------------------
-  FETCH_REFRESH({
-    commit,
-    state
-  }, pagePerItems = 10) {
-    commit('FETCH_REFRESH', {
-      pagePerItems: pagePerItems,
-      filter: state.pageFilter
-    })
-    commit('FETCH_PAGE', 1)
-    console.log('action FETCH_REFRESH')
-  },
-  FETCH_PAGE({
-    commit,
-    state
-  }, pageno = 1) {
-    commit('FETCH_PAGE', pageno)
-    console.log('action FETCH_PAGE finish key count:', state.pageKeyList.length, 'fetech page:', pageno)
-  },
-  PAGE_NEXT({
-    commit,
-    state
-  }, step = 1) {
-    commit('FETCH_PAGE', state.pageCurrent + step)
-    console.log('action page_next', state.pageCurrent)
-  },
-  PAGE_FILTER({
-    commit,
-    state
-  }, val = 0) {
-    let filter = val > 0 ? 'cost' : 'all'
-    // let func = eval( `(n) => n.cost == ${val}` )
-    // condition string makes condition
-    let condition = `n.star == ${val}`
-    commit('FETCH_REFRESH', {
-      pagePerItems: state.pagePerItems,
-      filter: filter,
-      // filterfunc: func } ) // OK!
-      filterfunc: (n) => eval(condition)
-    }) // OK!
-    // filterfunc: (n) => n.cost == val } )
-    commit('FETCH_PAGE', 1)
-    console.log('action PAGE_FILTER', filter)
-    // console.log( 'val2', val2 )
-  },
-  FETCH_SCROLL_NEXT({
-    commit,
-    state
-  }) {
-    commit('FETCH_SCROLL_NEXT')
-    console.log('action FETCH_SCROLL_NEXT')
-  },
-  // end of paging APP ------------------------------------------------
   GAME_INIT({
     commit,
     state
@@ -248,12 +187,12 @@ export default {
     dispatch
   }, payload) {
 
-    console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish',state.act_selection))
+    console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish', state.act_selection))
 
     // if(R.F(R.propEq('finish',true),state.act_selection)) {
     // 防止重复选择
-    if(R.has('finish',state.act_selection)) {
-      if(!state.act_selection['finish']) {
+    if (R.has('finish', state.act_selection)) {
+      if (!state.act_selection['finish']) {
         console.error('ASYNC_ACT_SELECT_CARD_START not finish yet!!')
         return false
       }
@@ -262,29 +201,30 @@ export default {
     return new Promise(async function (resolve, reject) {
       // return new Promise( (resolve, reject) => {
       // 注意：使用箭头函数不能是 async
-      commit('ACT_SELECTION', payload)
+      commit('ACT_SELECTION_INIT', payload)
 
-      let xLens = R.lensProp('init')
-      let xSel = R.view(xLens)(state.act_selection)
+      // let xLens = R.lensProp('init')
+      // let xSel = R.view(xLens)(state.act_selection)
 
       // OK 1 for test
-      if (xSel) {
-        const card = xSel
-        dispatch('ACT_SELECTED_CARD', card)
-        console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
-      } else {
-        const agent = state.act_selection.agent
+      // if (xSel) {
+      //   const card = xSel
+      //   dispatch('ACT_SELECTED_CARD', card)
+      //   console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
+      // } else {
+      const agent = state.act_selection.agent
 
-        if (agent) {
-          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-          const card = agent.SELECT_CARD(state, payload)
-          dispatch('ACT_SELECTED_CARD', card)
-        } else {
-          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
-          await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
-          console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
-        }
+      if (agent) {
+        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
+        const card = agent.SELECT_CARD(state, payload)
+        dispatch('ACT_SELECTED_CARD', card)
+        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
+      } else {
+        console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+        await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
+        console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
       }
+      // }
 
       // OK 2
       // let waiting = true
@@ -296,96 +236,107 @@ export default {
       //     // console.log('reject')
       //   } )
       // }
-      dispatch('_ACT_SELECT_CARD_END')
+      // dispatch('_ACT_SELECT_CARD_END')
+      commit('ACT_UNSELECTION')
+      if (state.act_selection.thenAction) {
+        // console.log( `ACT_SELECT_CARD_END thenAction call` )
+        state.act_selection.thenAction(state)
+      }
+      commit('ACT_FINISH')
+
       resolve()
     })
   },
-  _ACT_SELECT_CARD_END({
-    commit,
-    state
-  }) {
-
-    commit('ACT_UNSELECTION')
-    if (state.act_selection.thenAction) {
-      // console.log( `ACT_SELECT_CARD_END thenAction call` )
-      state.act_selection.thenAction(state)
-    }
-    commit('ACT_FINISH')
-  },
+  // _ACT_SELECT_CARD_END({
+  //   commit,
+  //   state
+  // }) {
+  //   // console.log('_ACT_SELECT_CARD_END');
+  //   commit('ACT_UNSELECTION')
+  //   if (state.act_selection.thenAction) {
+  //     // console.log( `ACT_SELECT_CARD_END thenAction call` )
+  //     state.act_selection.thenAction(state)
+  //   }
+  //   commit('ACT_FINISH')
+  // },
   TIGGER_EFFECT({
     commit,
     state,
     dispatch
   }, payload) {
-    return new Promise(function (resolve, reject) {
 
-      let effect = payload
-      let card = state.placeholder
-      let player = card.owner
-      let opponent = mutil.opponent(player)
-      // console.warn(`[TIGGER_EFFECT] ${effect}`);
+    let effect = payload
+    let card = state.placeholder
+    let player = card.owner
+    let opponent = mutil.opponent(player)
 
-      // 处理效果目标对象 owner, card...
-      // select card owner
-      if( card !== state.placeholder ) {
-        commit('SELECT_CARD',card)
-        commit('SELECT_PLAYER',player)
-        console.error(`TIGGER_EFFECT ${card.name} owner not equal currentPlayer`);
+    // 处理效果目标对象 owner, card...
+    // select card owner
+    if (card !== state.placeholder) {
+      commit('SELECT_CARD', card)
+      commit('SELECT_PLAYER', player)
+      console.error(`TIGGER_EFFECT ${card.name} owner not equal currentPlayer`);
+    }
+
+    let funcbuff = (power = 0, tag) => {
+      if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
+        tag = `${effect} UP +${power}`
       }
-
-      let effectbuff = (power=0, tag) => {
-        if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
-          tag = `${effect} UP +${power}`
-        }
-        let buff = {
-          power: power,
-          effect: effect,
-          tag: tag,
-          card: card,
-        }
-        card.power.push( buff )
-        return buff
-      }
-
-      let effectpayload = {
+      let buff = {
+        power: power,
         effect: effect,
+        tag: tag,
         card: card,
-        player: player,
-        opponent: opponent,
-        commit: commit,
-        state: state,
-        dispatch: dispatch,
-        // buff: R.bind(mutil.addbuff, card),
-        buff: effectbuff,
       }
+      card.power.push(buff)
+      return buff
+    }
 
-      let condition
-      // without condition check effect
-      const checklist = ['main']
+    let effectpayload = {
+      effect: effect,
+      card: card,
+      player: player,
+      opponent: opponent,
+      commit: commit,
+      state: state,
+      dispatch: dispatch,
+      // buff: R.bind(mutil.addbuff, card),
+      buff: funcbuff,
+    }
 
-      if (R.contains(effect)(checklist)) {
-        condition = x => true
-      }
+    // without condition check effect
+    let condition
+    const checklist = ['main']
 
-      let result = mutil.callEffect(effect, effectpayload, condition)
+    if (R.contains(effect)(checklist)) {
+      condition = x => true
+    }
 
-      // restore card
-      commit('SELECT_CARD',card)
+    let effectfunc = mutil.callEffect(effect, effectpayload, condition)
+    let result
+    result = effectfunc()
 
-      resolve(result)
-    })
+    // 如果是UI互动效果，这传回promise
+    if (R.is(Object, result)) {
+      // TODO: 判断返回特效／连续Chain
+      console.log('TIGGER_EFFECT result is Object')
+      result = R.assoc('effect', effect)(result)
+      return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
+    }
+    return true
   },
-  EFFECT_ACT_SELECTION({
-    commit,
-    state,
-    dispatch
-  },payload) {
-
-    console.log('EFFECT_ACT_SELECTION phase')
-
-    let selectfunc = payload
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
-  },
+  // EFFECT_ACT_SELECTION({
+  //   commit,
+  //   state,
+  //   dispatch
+  // },payload) {
+  //
+  //   console.log('EFFECT_ACT_SELECTION effect phase')
+  //
+  //   let selectfunc = payload
+  //   // TODO: 连续UI动作／连续Chain
+  //   return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
+  // },
   // game loop
   // GAME_START
   // GAME_WHO_FIRST
@@ -496,7 +447,7 @@ export default {
     dispatch
   }, payload) {
     return new Promise(function (resolve, reject) {
-      commit('BATTLE_INIT', payload)
+      commit('BATTLE_START')
       resolve()
     })
   },
@@ -505,16 +456,16 @@ export default {
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle', 'attacker', 'main'])
-    let xSel = R.view(xLens)(state.test)
+    // let xLens = R.lensPath(['battle', 'attacker', 'main'])
+    // let xSel = R.view(xLens)(state.test)
 
     const selectfunc = {
       phase: 'BATTLE_DECALRE_ATTACKER',
       list: state.currentPlayer.zone,
       player: state.currentPlayer,
-      many: 1,
+      // many: 1,
       // agent: state.currentPlayer.agent,
-      init: xSel,
+      // init: xSel,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[A]'
@@ -567,37 +518,37 @@ export default {
     dispatch
   }) {
     // return new Promise(async function (resolve, reject) {
-      let xLens = R.lensPath(['battle', 'defenser', 'main'])
-      let xSel = R.view(xLens)(state.test)
+    // let xLens = R.lensPath(['battle', 'defenser', 'main'])
+    // let xSel = R.view(xLens)(state.test)
 
-      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-        list: state.opponentPlayer.zone,
-        player: state.currentPlayer,
-        many: 1,
-        phase: 'BATTLE_OPP_DECLARE_DEFENSER',
-        // agent: state.currentPlayer.agent,
-        init: xSel,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '[D]'
-          card.play = R.assoc('isDefenser', true)(card.play)
-        },
-        selectedAction: (state, card) => {
-          commit('BATTLE_SET', {
-            defenser: {
-              main: card,
-            }
-          })
-          commit('SET_FACEUP')
-        },
-        thenAction: (state) => {
-          commit('SELECT_PLAYER', state.opponentPlayer)
-          commit('SELECT_CARD', state.battle.defenser.main)
-          dispatch('TIGGER_EFFECT', 'faceup')
-          commit('SELECT_PLAYER', state.currentPlayer)
-          // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
-        },
-      })
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
+      list: state.opponentPlayer.zone,
+      player: state.currentPlayer,
+      // many: 1,
+      phase: 'BATTLE_OPP_DECLARE_DEFENSER',
+      // agent: state.currentPlayer.agent,
+      // init: xSel,
+      selectedMuation: (state, card) => {
+        state.storemsg = `select ${card.name}`
+        card.name = card.name + '[D]'
+        card.play = R.assoc('isDefenser', true)(card.play)
+      },
+      selectedAction: (state, card) => {
+        commit('BATTLE_SET', {
+          defenser: {
+            main: card,
+          }
+        })
+        commit('SET_FACEUP')
+      },
+      thenAction: (state) => {
+        commit('SELECT_PLAYER', state.opponentPlayer)
+        commit('SELECT_CARD', state.battle.defenser.main)
+        dispatch('TIGGER_EFFECT', 'faceup')
+        commit('SELECT_PLAYER', state.currentPlayer)
+        // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
+      },
+    })
     //   }).then(() => {
     //     // note!
     //     // console.log('BATTLE_OPP_DECLARE_DEFENSER promise.then finish')
@@ -611,76 +562,76 @@ export default {
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle', 'attacker', 'support'])
-    let xSel = R.view(xLens)(state.test)
+    // let xLens = R.lensPath(['battle', 'attacker', 'support'])
+    // let xSel = R.view(xLens)(state.test)
 
     // return new Promise(async function (resolve, reject) {
-      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-        list: state.currentPlayer.hand,
-        player: state.currentPlayer,
-        many: 1,
-        phase: 'BATTLE_PLAY_SUPPORTER',
-        // agent: state.currentPlayer.agent,
-        init: xSel,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '[S]'
-          card.play = R.assoc('isSupporter', true)(card.play)
-        },
-        selectedAction: (state, card) => {
-          commit('BATTLE_SET', {
-            attacker: {
-              support: card,
-            }
-          })
-        },
-        thenAction: (state) => {
-          // console.log('BATTLE_PLAY_SUPPORTER finish')
-        },
-      })
-      // }).then(() => {
-      //   // note!
-      //   // console.log('BATTLE_PLAY_SUPPORTER promise.then finish')
-      // })
-      //
-      // resolve()
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
+      list: state.currentPlayer.hand,
+      player: state.currentPlayer,
+      // many: 1,
+      phase: 'BATTLE_PLAY_SUPPORTER',
+      // agent: state.currentPlayer.agent,
+      // init: xSel,
+      selectedMuation: (state, card) => {
+        state.storemsg = `select ${card.name}`
+        card.name = card.name + '[S]'
+        card.play = R.assoc('isSupporter', true)(card.play)
+      },
+      selectedAction: (state, card) => {
+        commit('BATTLE_SET', {
+          attacker: {
+            support: card,
+          }
+        })
+      },
+      thenAction: (state) => {
+        // console.log('BATTLE_PLAY_SUPPORTER finish')
+      },
+    })
+    // }).then(() => {
+    //   // note!
+    //   // console.log('BATTLE_PLAY_SUPPORTER promise.then finish')
+    // })
+    //
+    // resolve()
   },
   BATTLE_OPP_PLAY_SUPPORTER({
     commit,
     state,
     dispatch
   }) {
-    let xLens = R.lensPath(['battle', 'defenser', 'support'])
-    let xSel = R.view(xLens)(state.test)
+    // let xLens = R.lensPath(['battle', 'defenser', 'support'])
+    // let xSel = R.view(xLens)(state.test)
 
     // return new Promise(async function (resolve, reject) {
-      return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-        list: state.opponentPlayer.hand,
-        player: state.opponentPlayer,
-        many: 1,
-        phase: 'BATTLE_OPP_PLAY_SUPPORTER',
-        // agent: state.opponentPlayer.agent,
-        init: xSel,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '[S]'
-          card.play = R.assoc('isSupporter', true)(card.play)
-        },
-        selectedAction: (state, card) => {
-          commit('BATTLE_SET', {
-            defenser: {
-              support: card,
-            }
-          })
-        },
-        thenAction: (state) => {
-          // console.log('BATTLE_OPP_PLAY_SUPPORTER finish')
-        },
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
+      list: state.opponentPlayer.hand,
+      player: state.opponentPlayer,
+      // many: 1,
+      phase: 'BATTLE_OPP_PLAY_SUPPORTER',
+      // agent: state.opponentPlayer.agent,
+      // init: xSel,
+      selectedMuation: (state, card) => {
+        state.storemsg = `select ${card.name}`
+        card.name = card.name + '[S]'
+        card.play = R.assoc('isSupporter', true)(card.play)
+      },
+      selectedAction: (state, card) => {
+        commit('BATTLE_SET', {
+          defenser: {
+            support: card,
+          }
+        })
+      },
+      thenAction: (state) => {
+        // console.log('BATTLE_OPP_PLAY_SUPPORTER finish')
+      },
       // }).then(() => {
-        // note!
-        // console.log(`BATTLE_OPP_PLAY_SUPPORTER dispatch promise.then finish')
-      })
-      // resolve()
+      // note!
+      // console.log(`BATTLE_OPP_PLAY_SUPPORTER dispatch promise.then finish')
+    })
+    // resolve()
     // })
   },
   BATTLE_EFFECT({
@@ -689,29 +640,37 @@ export default {
     dispatch
   }) {
     return new Promise(async function (resolve, reject) {
-      console.log(`BATTLE_EFFECT begin`)
+      console.info(`BATTLE_EFFECT begin----------------------`)
       commit('BATTLE_CALC')
 
       commit('SELECT_PLAYER', state.currentPlayer)
       commit('SELECT_CARD', state.battle.attacker.main)
       await dispatch('TIGGER_EFFECT', 'isAttacker')
-      dispatch('TIGGER_EFFECT', 'main')
+      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('TIGGER_EFFECT', 'isAttacker')
+      // dispatch('TIGGER_EFFECT', 'main')
       commit('SELECT_CARD', state.battle.attacker.support)
-      dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('TIGGER_EFFECT', 'main')
+      await dispatch('TIGGER_EFFECT', 'isSupporter')
+      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('TIGGER_EFFECT', 'main')
 
       commit('SELECT_PLAYER', state.opponentPlayer)
       commit('SELECT_CARD', state.battle.defenser.main)
-      dispatch('TIGGER_EFFECT', 'isDefenser')
-      dispatch('TIGGER_EFFECT', 'main')
+      await dispatch('TIGGER_EFFECT', 'isDefenser')
+      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('TIGGER_EFFECT', 'isDefenser')
+      // dispatch('TIGGER_EFFECT', 'main')
       commit('SELECT_CARD', state.battle.defenser.support)
-      dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('TIGGER_EFFECT', 'main')
+      await dispatch('TIGGER_EFFECT', 'isSupporter')
+      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('TIGGER_EFFECT', 'main')
 
       commit('BATTLE_CALC2')
 
       commit('BATTLE_SCORE')
-      console.log(`BATTLE_EFFECT end`)
+      console.info(`BATTLE_EFFECT end------------`)
       resolve()
     })
   },

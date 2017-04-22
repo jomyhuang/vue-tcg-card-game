@@ -23,6 +23,30 @@ OK、简化effect functor buff
 支援时，选择对方的一张卡翻开，抽一张牌
 
 
+3、fix agent for TEST／默认的选择
+let xLens = R.lensPath(['battle', 'defenser', 'support'])
+let xSel = R.view(xLens)(state.test)
+
+// return new Promise(async function (resolve, reject) {
+  return dispatch('ASYNC_ACT_SELECT_CARD_START', {
+    list: state.opponentPlayer.hand,
+    player: state.opponentPlayer,
+    // many: 1,
+    phase: 'BATTLE_OPP_PLAY_SUPPORTER',
+    // agent: state.opponentPlayer.agent,
+    ==》 init: xSel,
+
+4、effect function
+
+await dispatch('TIGGER_EFFECT')
+ => return promise object
+ => return chain (array)
+
+5、优化select
+更简单的select func 直接传回 => chain 处理
+
+
+
 
 
 Effect tag:

@@ -8,8 +8,10 @@ import Vue from 'vue'
 // ],
 import Vuex from 'vuex'
 
-import mutations from './mutations'
-import actions from './action'
+import mutation1 from './mutations'
+import mutation2 from './mutation2'
+import actions1 from './action'
+import actions2 from './action2'
 import getters from './getters'
 
 import _ from 'underscore'
@@ -17,6 +19,9 @@ import R from 'ramda'
 import mutil from '@/mutil'
 
 Vue.use(Vuex)
+
+const mutations = R.mergeAll([mutation1, mutation2])
+const actions = R.mergeAll([actions1, actions2])
 
 const state = {
   storemsg: 'vuex store test',

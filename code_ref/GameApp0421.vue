@@ -40,7 +40,7 @@
   </div>
   <div class="row gameboard">
     <div class="col-md-12">
-      <h3>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h3>
+      <h3>{{ msg }} $ {{ $store.state.storemsg }} Turn {{ $store.state.game.turnCount }}</h3>
       <!-- <el-button @click="gameloop_temp()">TEST LOOP</el-button> -->
       <el-button @click="gameloop()">GAME LOOP</el-button>
       <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
@@ -136,10 +136,16 @@ export default {
       this.gameNewdeck()
 
       this.run_battle( {
-        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',this.$store.state.player1,true),
-        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',this.$store.state.player1),
-        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',this.$store.state.player2,true),
-        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002',this.$store.state.player2),
+        attacker: {
+          // main facedown is true
+          main: mutil.makecard('JW15-001',this.$store.state.player1,true),
+          support: mutil.makecard('JW15-001',this.$store.state.player1),
+        },
+        defenser: {
+          // main facedown is true
+          main: mutil.makecard('JW15-002',this.$store.state.player2,true),
+          support: mutil.makecard('JW15-002',this.$store.state.player2),
+        }
       })
     },
     gameReset(init) {
@@ -327,31 +333,27 @@ export default {
       console.log(msg)
     },
     // 单回合战斗测试
-    async run_battle(testbattle) {
-      await this.run_message('run_battle START battle')
-      await this.run_message('set test data')
-      await this.$store.commit('TEST_SET', testbattle)
-
-      await this.$store.dispatch('GAME_START')
+    run_battle(battle) {
+      this.run_message('run_battle start battle')
+      this.$store.dispatch('GAME_START')
       let firstplayer = this.$store.state.player1
-      await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+      this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
 
-      await this.$store.dispatch('GAME_TURN_BEGIN')
-      await this.$store.dispatch('BATTLE_START')
+      this.$store.dispatch('GAME_TURN_BEGIN')
+      this.$store.dispatch('BATTLE_START', battle)
 
-      await this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
-      await this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
-      await this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
-      await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
+      this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
+      this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
+      this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
+      this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
-      await this.$store.dispatch('BATTLE_EFFECT')
-      console.log('pass BATTLE_EFFECT')
-      // await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
-      await this.$store.dispatch('BATTLE_END')
-      await this.run_message('run_battle END battle')
+      this.$store.dispatch('BATTLE_EFFECT')
+      // this.$store.dispatch('BATTLE_EFFECT_CLEAR')
+      this.$store.dispatch('BATTLE_END')
+      this.run_message('run_battle end battle')
     },
     // run gameloop + step 非同步版本／回合step步进版本
-    async run_gameloop(testturn = 0) {
+    run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
 
       if (this.$store.state.game.started) {
@@ -373,12 +375,13 @@ export default {
       let loop = true
       do {
 
-        await this.run_step()
+        this.run_step()
 
-        loop = await this.run_step_nextturn()
-        if (this.gameover)
-          break
+        loop = this.run_step_nextturn()
+        if (this.gameover) break
 
+        if (this.turnCount >= this.config.maxturn)
+          loop = false
         if (this.turnCount >= maxturn)
           loop = false
 
@@ -398,7 +401,7 @@ export default {
         }
       }
     },
-    async run_step() {
+    run_step() {
 
       this.$store.dispatch('GAME_TURN_BEGIN')
       this.run_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
@@ -431,12 +434,12 @@ export default {
       this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
 
       this.run_message(`效果：发动阶段`)
-      await this.$store.dispatch('BATTLE_EFFECT')
+      this.$store.dispatch('BATTLE_EFFECT')
       this.run_message(`效果：清除阶段`)
-      await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
+      this.$store.dispatch('BATTLE_EFFECT_CLEAR')
 
       // await this.async_battleshow(0)
-      await this.$store.dispatch('BATTLE_END')
+      this.$store.dispatch('BATTLE_END')
 
       // check game over block
       // this.$store.dispatch('GAME_CHECK_GAMEOVER')
@@ -457,14 +460,183 @@ export default {
       return result
     },
 
+    /// =========================== OLD GAMELOOP
+    async gameloop_temp() {
+
+      this.gameStart()
+      this.$store.dispatch('GAME_SET_FIRSTPLAYER', this.$store.state.player1)
+      this.$store.commit('BATTLE_INIT')
+
+      await this.$store.dispatch('ASYNC_ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          })
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+          // console.log('battle 1 finish')
+        },
+      }).then(() => {
+        // note!
+        console.log('phase 1 dispatch promise.then finish')
+      })
+      this.battleshow()
+
+      await this.$store.dispatch('ASYNC_ACT_SELECT_CARD_START', {
+        list: this.$store.state.opponentPlayer.zone,
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            defenser: {
+              main: card,
+            }
+          })
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+          // console.log('battle 1 declare opponent main')
+        },
+      }).then(() => {
+        // note!
+        console.log('phase 1 declare opponent main dispatch promise.then finish')
+      })
+      this.battleshow()
+
+      await this.$store.dispatch('ASYNC_ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          })
+        },
+        thenAction: (state) => {
+          // console.log('battle 2 finish')
+        },
+      }).then(() => {
+        // note!
+        console.log('phase 2 dispatch promise.then finish')
+      })
+      // this.battleshow()
+
+      console.log('Random/first defenser from hand')
+      this.$store.commit('BATTLE_SET', {
+        defenser: {
+          // main: this.$store.state.opponentPlayer.zone[0],
+          support: this.$store.state.opponentPlayer.hand[0],
+        }
+      })
+      this.battleshow(0)
+
+      console.log(`battle main ${this.$store.state.battle.attacker.main.name} support ${this.$store.state.battle.attacker.support.name}`)
+      console.log(`battle defenser ${this.$store.state.battle.defenser.main.name} support ${this.$store.state.battle.defenser.support.name}`)
+    },
+    /// =========================== OLD GAMELOOP
+    asyncTestFunc() {
+      console.log('Hello this is asyncTestFunc run 2')
+      return new Promise(async function(resolve, reject) {
+        setTimeout(() => {
+          [1, 2, 3].map((x) => console.log(x))
+          resolve()
+        }, 2000)
+        await new Promise(function(resolve, reject) {
+          // setTimeout( () => {
+          //   [11,12,13].map((x)=>console.log(x))
+          //   resolve()
+          // }, 2000 )
+          [11, 12, 13].map((x) => console.log(x))
+          resolve()
+        });
+        console.log('after await');
+      });
+    },
+    async asyncRun() {
+      console.log('run 1')
+      await this.asyncTestFunc()
+      console.log('run 3');
+    },
+    battle() {
+      // this.$store.commit( 'BATTLE_SET', {
+      //   attacker: {
+      //     player: 'jomy',
+      //     main: 'main',
+      //   },
+      //   defenser: {
+      //     support: ['hello','hello2'],
+      //   }
+      // })
+      //
+      // console.log( 'after ', this.$store.state.battle )
+
+      this.$store.dispatch('ACT_SELECT_CARD_START', {
+        list: 'zone',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              main: card,
+            }
+          })
+          this.$store.commit('SET_FACEUP')
+        },
+        thenAction: (state) => {
+          console.log('battle 1 finish')
+          this.battle2()
+        },
+      })
+    },
+    battle2() {
+      this.$store.dispatch('ACT_SELECT_CARD_START', {
+        list: 'hand',
+        many: 1,
+        selectedMuation: (state, card) => {
+          state.storemsg = `select ${card.name}`
+          card.name = card.name + '**'
+        },
+        selectedAction: (state, card) => {
+          this.$store.commit('BATTLE_SET', {
+            attacker: {
+              support: card,
+            }
+          })
+        },
+        thenAction: (state) => {
+          console.log('battle 2 finish')
+          console.log(`battle main ${state.battle.attacker.main.name} support ${state.battle.attacker.support.name}`)
+        },
+      })
+    },
+
     gameTest() {
       // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
       // this.$store.commit('GAME_NEXT_PLAYER')
       // this.$store.commit('GAME_NEXT_PLAYER')
       // this.$refs.info.message('讯息测试～')
       console.log('gameTest call')
-
-      this.$store.dispatch('M2', {
+      this.$store.dispatch('RAMDA_TEST', {
         name: 'test name',
         age: 10
       })

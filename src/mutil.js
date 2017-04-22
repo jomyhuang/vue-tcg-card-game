@@ -36,10 +36,10 @@ export default {
               R.call,
               // R.tap(console.log),
               // bind for "return function"
-              R.bind(R.__, card),
+              // R.bind(R.__, card),
               // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
               // OK! R.apply(R.__,[]),
-              R.call,
+              // R.call,
             )
           )
         // check it out: 如何带入闭包的card值
@@ -67,7 +67,8 @@ export default {
     console.log('mutil mixin effect DB finish')
   },
   callEffect(effectkey, initpayload = {}, condition) {
-    return new Promise(async function (resolve, reject) {
+    // return new Promise(async function (resolve, reject) {
+    return () => {
       let payload = {
         card: undefined,
         player: undefined,
@@ -112,17 +113,23 @@ export default {
             R.bind(R.__, card),
             R.apply(R.__, [payload]),
             // bind for "return function"
-            R.bind(R.__, card),
+            // R.bind(R.__, card),
             // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-            R.apply(R.__, [payload]),
+            // R.apply(R.__, [payload]),
           )
         )
 
         if (effect(card)) {
           console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-          result = await effectfunc(card)
-          // console.log(`callEffect ${effectkey} function end buff ${buffs}`)
+          // result = effectfunc(card)
           // return result
+          result = effect(card).apply(card,[payload])
+          if(R.is(Object,result)) {
+            // console.log('callEffect result is object')
+          }
+          else {
+            result = true
+          }
         } else {
           // console.log(`callEffect ${card.name} no ${effectkey} function`)
         }
@@ -144,8 +151,10 @@ export default {
         // console.log(`callEffect ${effectkey} no effect tag`);
       }
 
-      resolve(result)
-    })
+      return result
+      // resolve(result)
+    // })
+  }
   },
   old_XXcallEffect(effectkey, initpayload = {}, condition) {
 
@@ -226,6 +235,10 @@ export default {
     }
 
     return false
+  },
+  Rdefaults(x,y) {
+    const defaults = R.flip(R.merge)
+    return defaults(x,y)
   },
   convertPower(strpower = '') {
     if (R.is(Number, strpower)) {

@@ -10,99 +10,6 @@ import mutil from '@/mutil'
 import firstAgent from '@/components/agent-first'
 
 export default {
-  TOGGLE_LOADING(state) {
-    state.callingAPI = !state.callingAPI
-  },
-  TOGGLE_SEARCHING(state) {
-    state.searching = (state.searching === '') ? 'loading' : ''
-  },
-  SET_USER(state, user) {
-    state.user = user
-  },
-  SET_TOKEN(state, token) {
-    state.token = token
-  },
-  TEST_STORE(state, payload) {
-    state.storemsg = payload
-  },
-  INIT_DB(state) {
-    // state.cardDB = storeDB
-
-    // deck init
-    // console.log('deck1', deck1, 'length', deck1.length)
-    // 转换成数组便利处理
-    // state.cardDB = JSON.parse(storeDB || '[]')
-    state.pageFullList = []
-    // exam = Object.keys(exam).map(function(k){return exam[k]});
-    Object.keys(cardDB).forEach((k) => state.pageFullList.push(cardDB[k]))
-    state.pageKeyList = state.pageFullList
-
-    // console.log('JSON to fulllist/keylist array', state.pageFullList)
-
-    state.storemsg = 'INIT_DB loaded'
-    console.log('commit INIT_DB')
-  },
-  // 结构双重默认值写法
-  FETCH_REFRESH(state, {
-    pagePerItems = 10,
-    filter = 'all',
-    filterfunc = {}
-  } = {}) {
-    state.pagePerItems = pagePerItems
-    state.pageFilter = filter
-
-    state.pageKeyList = []
-    if (state.pageFilter == 'all') {
-      // full list
-      state.pageKeyList = state.pageFullList
-    } else {
-      // filter
-      // state.pageKeyList = state.pageFullList.filter( (n) => n.cost == 2 )
-      // filterfunc = (n) => n.cost > 2
-      state.pageKeyList = state.pageFullList.filter(filterfunc)
-      console.log('filter', state.pageFilter)
-    }
-    state.pageTotalPage = parseInt(state.pageKeyList.length / state.pagePerItems)
-    state.pageTotalPage += state.pageKeyList.length % state.pagePerItems ? 1 : 0
-    state.pageCurrent = 1
-    state.pageList = []
-
-    state.storemsg = 'FETCH_REFRESH'
-    console.log('commit FETCH_REFRESH pageTotalPage', state.pageTotalPage)
-    console.log('FETCH_REFRESH pagePerItems', state.pagePerItems, 'filter', state.pageFilter)
-  },
-  FETCH_PAGE(state, pageno = 1) {
-    state.pageList = []
-    pageno = Math.min(pageno, state.pageTotalPage)
-    pageno = Math.max(pageno, 1)
-    state.pageCurrent = pageno
-
-    let start = (state.pageCurrent - 1) * state.pagePerItems
-    let end = Math.min(start + state.pagePerItems - 1, state.pageKeyList.length - 1)
-    for (; start <= end; start++) {
-      // 使用 array, 不是 Object
-      // state.pageList.push( state.cardDB[ state.pageKeys[ start+index ] ]  )
-      // state.pageList.push( state.cardDB[ state.pageKeys[ start ] ]  )
-      state.pageList.push(state.pageKeyList[start])
-    }
-    // state.pageNextDisabled = state.pageCurrent >= state.pageTotalPage ? true : false
-    // state.pagePrevDisabled = state.pageCurrent <= 1 ? true : false
-    console.log('commit FETCH_PAGE', state.pageList.length, 'filter', state.pageFilter)
-  },
-  FETCH_SCROLL_NEXT(state) {
-
-    let start = state.pageList.length
-    let end = Math.min(start + state.pagePerItems - 1, state.pageKeyList.length - 1)
-    for (; start <= end; start++) {
-      // 使用 array, 不是 Object
-      // state.pageList.push( state.cardDB[ state.pageKeys[ start+index ] ]  )
-      // state.pageList.push( state.cardDB[ state.pageKeys[ start ] ]  )
-      state.pageList.push(state.pageKeyList[start])
-    }
-    console.log('commit FETCH_SCROLL_NEXT', state.pageList.length)
-    if (end >= state.pageKeyList.length - 1)
-      console.log('commit FETCH_SCROLL_NEXT end of list')
-  },
   GAME_RESET(state, payload) {
     mutil.resetGameState(state)
     console.log('commit GAME_RESET')
@@ -293,7 +200,7 @@ export default {
       console.log('commit SELECT_CARDLIST is 0')
     }
   },
-  // ACT_SELECTION(state, {
+  // ACT_SELECTION_INIT(state, {
   //   list = 'hand',
   //   many = 1,
   //   selectedMuation = null,
@@ -301,22 +208,30 @@ export default {
   //   thenAction = null,
   //   agent = null,
   // } = {}) {
-  ACT_SELECTION(state, payload) {
+  ACT_SELECTION_INIT(state, payload) {
 
     state.act_selection = R.merge({})(payload)
     // 清除后增加
-    state.act_selection.selectedList = []
-    state.act_selection.finish = false
+    // state.act_selection.selectedList = []
+    // state.act_selection.finish = false
 
-    if (!R.has('player', state.act_selection)) {
-      state.act_selection = R.assoc('player', state.currentPlayer)(state.act_selection)
-      console.log('ACT_SELECTION default player')
-    }
+    // const defaults = R.flip(R.merge)
+    state.act_selection = mutil.Rdefaults(state.act_selection, {
+      many: 1,
+      selectedList: [],
+      finish: false,
+      player: state.currentPlayer,
+      type: 'ACT_SELECTION',
+    })
+
+    // if (!R.has('player', state.act_selection)) {
+    //   state.act_selection = R.assoc('player', state.currentPlayer)(state.act_selection)
+    //   console.log('ACT_SELECTION default player')
+    // }
     if (!R.has('agent', state.act_selection)) {
       state.act_selection = R.assoc('agent', state.act_selection.player.agent)(state.act_selection)
       // console.log('ACT_SELECTION default agent')
     }
-
 
     // 修改成解构式
     // state.act_selection.list = list
@@ -503,33 +418,21 @@ export default {
 
     console.log('GAME_SET payload', payload)
   },
+  TEST_SET(state, payload) {
+    state.test = R.merge(state.test)(payload)
+    console.log('TEST_SET payload', payload)
+  },
   // TURN
   TURN_SET(state, payload) {
-
     console.warn('commit TURN_SET no impelement', state.turn)
   },
   // BATTLE
-  BATTLE_INIT(state, payload) {
+  BATTLE_START(state, payload) {
     mutil.battleInit(state)
-    if (payload) {
-
-      state.test = R.assoc('battle', payload)(state.test)
-
-      // if(R.has('attacker')(payload))
-      //   state.battle.attacker = R.merge(state.battle.attacker)(payload.attacker)
-      //
-      // if(R.has('defenser')(payload))
-      //   state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
-      //
-      // if(R.has('score')(payload))
-      //   state.battle.score = R.merge(state.battle.score)(payload.score)
-
-      console.log('commit BATTLE_INIT battle payload loaded')
-    }
-
+    // test data move use TEST_SET
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer
-    console.log('commit BATTLE_INIT finish')
+    console.log('commit BATTLE_START finish')
   },
   BATTLE_SET(state, payload) {
 
@@ -684,7 +587,7 @@ export default {
     battle = state.battle,
     score = state.battle.score,
   } = {}) {
-    console.log('BATTLE_CLAC2 phase 2');
+    console.log('BATTLE_CALC2 phase 2');
 
     // ------- attacker
 
