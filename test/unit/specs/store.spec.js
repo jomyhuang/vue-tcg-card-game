@@ -9,28 +9,26 @@ import {
 // 错误：
 // import { SET_USER } from '@/store/mutations'
 // 正确：
-import mutations from '@/store/mutations'
 import store from '@/store'
 import mutil from '@/mutil'
 
 
 // 解构出函数
-const {
-  SET_USER,
-  INIT_DB,
-  GAME_INIT,
-} = mutations
+// const {
+//   SET_USER,
+//   GAME_INIT,
+// } = mutations
 
 // console.log('开始测试');
 
 describe('Store', () => {
-  it.skip('SET_USER state test template', () => {
-    const state = {
-      user: ''
-    }
-    SET_USER(state, 'jomyhuang')
-    expect(state.user).to.equal('jomyhuang')
-  })
+  // it.skip('SET_USER state test template', () => {
+  //   const state = {
+  //     user: ''
+  //   }
+  //   SET_USER(state, 'jomyhuang')
+  //   expect(state.user).to.equal('jomyhuang')
+  // })
 
   it.skip('mutil.checkAnti', () => {
     expect(mutil.checkAnti('','A')).to.equal(false)

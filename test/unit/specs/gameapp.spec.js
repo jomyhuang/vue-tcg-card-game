@@ -20,17 +20,16 @@ import testdeck2 from '@/components/decktest2.js'
 // 错误：
 // import { SET_USER } from '@/store/mutations'
 // 正确：
-import mutations from '@/store/mutations'
 import store from '@/store'
 import mutil from '@/mutil'
 
 
 // 解构出函数
-const {
-  SET_USER,
-  INIT_DB,
-  GAME_INIT,
-} = mutations
+// const {
+//   SET_USER,
+//   INIT_DB,
+//   GAME_INIT,
+// } = mutations
 
 describe('GameAPP', () => {
   let vm

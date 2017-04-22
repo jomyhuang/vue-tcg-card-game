@@ -8,10 +8,13 @@ import Vue from 'vue'
 // ],
 import Vuex from 'vuex'
 
-import mutation1 from './mutations'
-import mutation2 from './mutation2'
-import actions1 from './action'
-import actions2 from './action2'
+import mutation1 from './mutation-pages'
+import mutation2 from './mutation-game'
+import mutation3 from './mutation-battle'
+import actions1 from './action-pages'
+import actions2 from './action-gameloop'
+import actions3 from './action-game'
+import actions4 from './action-effect'
 import getters from './getters'
 
 import _ from 'underscore'
@@ -20,8 +23,8 @@ import mutil from '@/mutil'
 
 Vue.use(Vuex)
 
-const mutations = R.mergeAll([mutation1, mutation2])
-const actions = R.mergeAll([actions1, actions2])
+const mutations = R.mergeAll([mutation1, mutation2, mutation3])
+const actions = R.mergeAll([actions1, actions2, actions3, actions4])
 
 const state = {
   storemsg: 'vuex store test',
