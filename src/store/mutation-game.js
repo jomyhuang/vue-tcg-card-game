@@ -27,7 +27,7 @@ export default {
     state.test = R.merge(state.test)(payload)
     console.log('TEST_SET payload', payload)
   },
-  // ---------------------------------------------------- GAME_XXX 
+  // ---------------------------------------------------- GAME_XXX
   GAME_RESET(state, payload) {
     mutil.resetGameState(state)
     console.log('commit GAME_RESET')
@@ -96,7 +96,6 @@ export default {
           // gamecard.power1 = mutil.convertPower(gamecard.power1)
           // gamecard.power2 = mutil.convertPower(gamecard.power2)
           // end prop
-
           player.cardPool.push(gamecard)
           player.deck.push(gamecard)
         } else {
@@ -206,17 +205,42 @@ export default {
     console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
   },
   SELECT_CARD(state, card = null) {
+    let save = state.placeholder
     state.placeholder = card
     state.pickindex = -1
     if (state.placeholder) {
-      // console.log( `commit SELECT_CARD ${state.placeholder.name}` )
+      console.log(`commit SELECT_CARD ${state.placeholder.name}`)
     } else {
       console.warn('commit SELECT_CARD null')
     }
   },
-  SELECT_CARDLIST(state, list = 'hand') {
-    if (typeof (list) == "string") {
-      state.placelist = eval(`state.placeplayer.${list}`)
+  SELECT_CARD_SAVE(state, savecard = state.placeholder) {
+    state.placeholdersave = savecard
+    if (state.placeholdersave) {
+      console.log(`commit SELECT_CARD_SAVE ${state.placeholdersave.name}`)
+    } else {
+      console.warn('commit SELECT_CARD_SAVE null')
+    }
+  },
+  SELECT_CARD_RESTORE(state) {
+    let card = state.placeholdersave
+    state.placeholdersave = undefined
+    state.placeholder = card
+    state.pickindex = -1
+    if (state.placeholder) {
+      console.log(`commit SELECT_CARD_RESTORE ${state.placeholder.name}`)
+    } else {
+      console.warn('commit SELECT_CARD_RESTORE null')
+    }
+  },
+  SELECT_CARDLIST(state, list) {
+    if(R.isNil(list)) {
+      console.log('SELECT_CARDLIST is undefined')
+      state.placelist = undefined
+      return
+    }
+    if (R.is(String,list)) {
+      state.placelist = state.placeplayer[list]
     } else {
       state.placelist = list
     }
@@ -228,14 +252,6 @@ export default {
     }
   },
   // ---------------------------------------------------- ACT_SELECTION
-  // ACT_SELECTION_INIT(state, {
-  //   list = 'hand',
-  //   many = 1,
-  //   selectedMuation = null,
-  //   selectedAction = null,
-  //   thenAction = null,
-  //   agent = null,
-  // } = {}) {
   ACT_SELECTION_INIT(state, payload) {
 
     state.act_selection = R.merge({})(payload)
@@ -245,55 +261,53 @@ export default {
 
     // const defaults = R.flip(R.merge)
     state.act_selection = mutil.Rdefaults(state.act_selection, {
+      list: [],
       many: 1,
       selectedList: [],
       finish: false,
-      player: state.currentPlayer,
+      // 取消默认值
+      // player: state.currentPlayer,
+      // player: state.placeplayer,
       type: 'ACT_SELECTION',
+      card: undefined,
     })
 
-    // if (!R.has('player', state.act_selection)) {
-    //   state.act_selection = R.assoc('player', state.currentPlayer)(state.act_selection)
-    //   console.log('ACT_SELECTION default player')
-    // }
+    if (!R.has('player', state.act_selection)) {
+      console.error('ACT_SELECTION must assign player')
+      throw 'ACT_SELECTION must assign player'
+      return false
+    }
     if (!R.has('agent', state.act_selection)) {
       state.act_selection = R.assoc('agent', state.act_selection.player.agent)(state.act_selection)
       // console.log('ACT_SELECTION default agent')
     }
 
-    // 修改成解构式
-    // state.act_selection.list = list
-    // state.act_selection.many = many
-    // state.act_selection.selectedMuation = selectedMuation
-    // state.act_selection.selectedAction = selectedAction
-    // state.act_selection.thenAction = thenAction
-    // state.act_selection.agent = agent
-
     // placelist 处理 copy from SELECT_CARDLIST
-    const list = state.act_selection.list
+    let list = state.act_selection.list
     if (R.is(String, list)) {
-      // state.placelist = eval(`state.placeplayer.${list}`)
-      state.placelist = state.placeplayer[list]
-    } else {
-      state.placelist = list
+      state.act_selection.list = state.placeplayer[list]
+      list = state.act_selection.list
+      // console.log('ACT_SELECTION_INIT list is string',state.act_selection.list)
     }
-    state.placelist.forEach((card) => {
+    state.placelist = list
+
+    list.forEach((card) => {
       card.selected = false
       card.selectable = true
     })
     // placelist end
   },
-  ACT_SET_SELECTED(state, value) {
+  ACT_SET_SELECTED(state, card = state.placeholder) {
     if (!state.placeholder) {
       console.error('commit ACT_SET_SELECTED ERROR no placeholder card')
       return
     }
-    let flag = false
-    if (value == undefined)
-      flag = !state.placeholder.selected
-    else {
-      flag = value
+    if (state.placeholder !== card) {
+      console.error('commit ACT_SET_SELECTED ERROR card != placeholder card')
+      return
     }
+
+    let flag = !state.placeholder.selected
     state.placeholder.selected = flag
 
     if (state.act_selection.selectedMuation) {
@@ -306,21 +320,28 @@ export default {
     state.act_selection.selectedList = state.placelist.filter((card) => {
       return card.selected
     })
-    // console.log( `commit ACT_SET_SELECTED ${state.placeholder.name} is ${state.placeholder.selected}` )
+
+    state.act_selection.card = flag ? state.placeholder : undefined
   },
-  ACT_UNSELECTION(state) {
+  // ACT_UNSELECTION_ALL(state) {
+  //   state.placelist.forEach((card) => {
+  //     card.selectable = false
+  //   })
+  //   // console.log('commit ACT_UNSELECTION')
+  // },
+  ACT_FINISH(state, payload) {
     state.placelist.forEach((card) => {
-      // card.selected = false
       card.selectable = false
     })
-    // console.log('commit ACT_UNSELECTION')
-  },
-  ACT_FINISH(state, payload) {
     state.act_selection.finish = true
     console.log('commit ACT_FINISH')
   },
   // ---------------------------------------------------- CARD
-  PICK_CARD(state, card = null) {
+  PICK_CARD(state, card) {
+    if (R.isNil(card)) {
+      console.log(`PICK_CARD is undefined, select placeholder`)
+      card = state.placeholder
+    }
     if (card) {
       const pilelist = [
         ['hand', state.placeplayer.hand],
@@ -349,7 +370,7 @@ export default {
 
       if (!found) {
         state.placeholder = null
-        console.log(`commit PICK_CARD ERROR ${card.name} not found in all pile`)
+        console.error(`commit PICK_CARD ERROR ${card.name} not found in all pile`)
         throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
       }
     } else {

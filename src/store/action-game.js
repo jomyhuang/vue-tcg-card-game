@@ -111,7 +111,7 @@ export default {
     console.log(`action ACT_SELECTED_CARD ${card.name}`)
 
     commit('SELECT_CARD', card)
-    commit('ACT_SET_SELECTED')
+    commit('ACT_SET_SELECTED', card)
 
     // dispatch selected action
     if (state.act_selection.selectedAction) {
@@ -145,49 +145,49 @@ export default {
   //     }, 1000)
   //   })
   // },
-  async _WAIT_ACT_SYNC_SELECT_UI({
-    commit,
-    state,
-    dispatch
-  }, checkfunc = () => true) {
-
-    const waitfunc = () => {
-      return new Promise(function (resolve, reject) {
-        setTimeout(() => {
-          if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-            resolve()
-          } else {
-            reject()
-          }
-        }, 1000)
-      })
-    }
-
-    console.log('_WAIT_ACT_SYNC_SELECT_UI')
-    let waiting = true
-    while (waiting) {
-      // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
-      await waitfunc().then((resolve) => {
-        waiting = false
-      }, (err) => {
-        // run again
-      })
-      // await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
-      //   // console.log('resolve')
-      //   waiting = false
-      // }, (err) => {
-      //   // console.log('reject')
-      //   // run again
-      // })
-    }
-  },
+  // async _WAIT_ACT_SYNC_SELECT_UI({
+  //   commit,
+  //   state,
+  //   dispatch
+  // }, checkfunc = () => true) {
+  //
+  //   const waitfunc = () => {
+  //     return new Promise(function (resolve, reject) {
+  //       setTimeout(() => {
+  //         if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+  //           resolve()
+  //         } else {
+  //           reject()
+  //         }
+  //       }, 1000)
+  //     })
+  //   }
+  //
+  //   console.log('_WAIT_ACT_SYNC_SELECT_UI')
+  //   let waiting = true
+  //   while (waiting) {
+  //     // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
+  //     await waitfunc().then((resolve) => {
+  //       waiting = false
+  //     }, (err) => {
+  //       // run again
+  //     })
+  //     // await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
+  //     //   // console.log('resolve')
+  //     //   waiting = false
+  //     // }, (err) => {
+  //     //   // console.log('reject')
+  //     //   // run again
+  //     // })
+  //   }
+  // },
   ASYNC_ACT_SELECT_CARD_START({
     commit,
     state,
     dispatch
   }, payload) {
 
-    console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish', state.act_selection))
+    // console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish', state.act_selection))
 
     // if(R.F(R.propEq('finish',true),state.act_selection)) {
     // 防止重复选择
@@ -199,9 +199,18 @@ export default {
     }
 
     return new Promise(async function (resolve, reject) {
-      // return new Promise( (resolve, reject) => {
       // 注意：使用箭头函数不能是 async
       commit('ACT_SELECTION_INIT', payload)
+
+      if (state.act_selection.message)
+        console.log(state.act_selection.message)
+
+      let doselect = true
+      if (R.length(state.act_selection.list) <= 0) {
+        console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
+        // reject()
+        doselect = false
+      }
 
       // let xLens = R.lensProp('init')
       // let xSel = R.view(xLens)(state.act_selection)
@@ -212,39 +221,58 @@ export default {
       //   dispatch('ACT_SELECTED_CARD', card)
       //   console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
       // } else {
-      const agent = state.act_selection.agent
+      if (doselect) {
+        const agent = state.act_selection.agent
 
-      if (agent) {
-        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-        const card = agent.SELECT_CARD(state, payload)
-        dispatch('ACT_SELECTED_CARD', card)
-        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
-      } else {
-        console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
-        await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
-        console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
+        if (agent) {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
+          const card = agent.SELECT_CARD(state, payload)
+          dispatch('ACT_SELECTED_CARD', card)
+          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
+        } else {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+          // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
+          // move from _WAIT_ACT_SYNC_SELECT_UI
+          const waitfunc = () => {
+            return new Promise(function (resolve, reject) {
+              setTimeout(() => {
+                if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+                  resolve()
+                } else {
+                  reject()
+                }
+              }, 1000)
+            })
+          }
+
+          console.log('_WAIT_ACT_SYNC_SELECT_UI START BLOCKING')
+          let waiting = true
+          while (waiting) {
+            // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
+            await waitfunc().then((resolve) => {
+              waiting = false
+            }, (err) => {
+              // run again
+            })
+          }
+          console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
+        }
+
+        if (state.act_selection.thenAction) {
+          // console.log( `ACT_SELECT_CARD_END thenAction call` )
+          state.act_selection.thenAction(state)
+        }
+        // commit('ACT_UNSELECTION_ALL')
+        commit('ACT_FINISH')
       }
-      // }
 
-      // OK 2
-      // let waiting = true
-      // while( waiting ) {
-      //   await dispatch('_ACT_SYNC_SELECT_CHECK').then( (resolve) => {
-      //     // console.log('resolve')
-      //     waiting = false
-      //   }, (err) => {
-      //     // console.log('reject')
-      //   } )
-      // }
-      // dispatch('_ACT_SELECT_CARD_END')
-      commit('ACT_UNSELECTION')
-      if (state.act_selection.thenAction) {
-        // console.log( `ACT_SELECT_CARD_END thenAction call` )
-        state.act_selection.thenAction(state)
-      }
-      commit('ACT_FINISH')
+      commit('SELECT_PLAYER', state.act_selection.player)
+      commit('SELECT_CARDLIST', state.act_selection.selectedList)
+      let card = R.head(state.act_selection.selectedList)
+      commit('SELECT_CARD', card)
 
-      resolve()
+      resolve(card)
     })
   },
   // _ACT_SELECT_CARD_END({

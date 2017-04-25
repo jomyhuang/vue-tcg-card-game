@@ -70,14 +70,70 @@ export default {
     result = effectfunc()
 
     // 如果是UI互动效果，这传回promise
-    if (R.is(Object, result)) {
+    if (R.is(Array, result)) {
+      console.log('TIGGER_EFFECT result is effect Array')
+      return new Promise(async function (resolve, reject) {
+
+        // R.forEach(async function (x) {
+        for (let x of result) {
+          if (R.is(Object, x)) {
+            console.log(`effect pipe`, x)
+            if (_.isFunction(x)) {
+              await x.apply(card)
+              console.log('await pipe next')
+            }
+          } else {
+            console.log(`effect pipe`, x)
+          }
+        }
+        console.log('effect pipe finish');
+        // })(result)
+        resolve()
+      })
+    } else if (R.is(Object, result)) {
       // TODO: 判断返回特效／连续Chain
-      console.log('TIGGER_EFFECT result is Object')
-      result = R.assoc('effect', effect)(result)
-      return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
+      console.warn('TIGGER_EFFECT result is Object ToDO',result)
+      // result = R.assoc('effect', effect)(result)
+      // return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
+      // test ramda pipe, but no support await
+      // result()
     }
     return true
   },
+  EFFECT_CHOICE({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+
+    if (R.is(String, payload)) {
+      // console.log('EFFECT_CHOICE is string')
+      payload = { list: payload }
+    } else if (R.is(Array, payload)) {
+      // console.log('EFFECT_CHOICE is array')
+      payload = { list: payload }
+    } else {
+      if (!R.has('list', payload)) {
+        console.error('EFFECT_CHOICE no list for choice')
+        throw 'EFFECT_CHOICE no list for choice'
+        return false
+      }
+    }
+
+    payload = R.merge({
+      phase: 'EFFECT_CHOICE',
+      message: 'EFFECT_CHOICE',
+      player: state.placeplayer,
+      selectedMuation: (state, card) => {
+        state.storemsg = `select ${card.name}`
+        card.name = card.name + '[EF]'
+        console.log('EFFECT_CHOICE selectedMuation')
+      },
+    })(payload)
+
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
+  },
+
   // EFFECT_ACT_SELECTION({
   //   commit,
   //   state,

@@ -1,4 +1,6 @@
 import mutil from '@/mutil'
+import R from 'ramda'
+
 
 export default {
   "JW15-001": {
@@ -33,17 +35,19 @@ export default {
     },
     main({
       commit,
+      state,
       dispatch,
     }) {
       console.warn('JW15-001 MAIN effect this=', this)
       const effectfunc = {
         phase: 'JW15-001 main selection',
+        message: `${this.name}效果选择手牌进入黑洞`,
         list: 'hand',
         // many: 1,
-        selectedMuation: (state, card) => {
-          state.storemsg = `select ${card.name}`
-          card.name = card.name + '[ES]'
-        },
+        // selectedMuation: (state, card) => {
+        //   state.storemsg = `select ${card.name}`
+        //   card.name = card.name + '[ES]'
+        // },
         selectedAction: (state, card) => {
           console.log('JW15-001 处理选择后进入黑洞 ', card)
           commit('PICK_CARD', card)
@@ -51,10 +55,19 @@ export default {
           commit('TO_GRAVEYARD')
           console.log('JW15-001 selectedAction OK ', card)
         },
-        thenAction: (state) => {},
+        // thenAction: (state) => {},
       }
       // return dispatch('EFFECT_ACT_SELECTION', selectfunc)
       // return effectfunc
+      return [
+      // return [
+        () => dispatch('EFFECT_CHOICE', 'hand').then( ()=> console.log('effect choice then')),
+        //  箭头函数加上 {} 必须加上 return
+        // () => { return dispatch('EFFECT_CHOICE', state.currentPlayer.hand ) }
+        () => commit('PICK_CARD'),
+        () => commit('TO_GRAVEYARD'),
+        // 'list4',
+      ]
     },
   },
   "JW15-002": {
@@ -64,6 +77,10 @@ export default {
     },
     main() {
       console.log(`${this.cardno} MAIN effect`)
+      // const effectfunc = {
+      //
+      // }
+      // return effectfunc
     }
   },
 }

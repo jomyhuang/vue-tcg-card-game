@@ -20,10 +20,11 @@ import testdeck2 from '@/components/decktest2.js'
 // 错误：
 // import { SET_USER } from '@/store/mutations'
 // 正确：
+
 import store from '@/store'
 import mutil from '@/mutil'
 
-
+// import mutations from '@/store/mutation-game'
 // 解构出函数
 // const {
 //   SET_USER,

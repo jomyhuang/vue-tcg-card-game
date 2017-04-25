@@ -23,6 +23,7 @@ import mutil from '@/mutil'
 
 Vue.use(Vuex)
 
+// 合并actions，mutations
 const mutations = R.mergeAll([mutation1, mutation2, mutation3])
 const actions = R.mergeAll([actions1, actions2, actions3, actions4])
 
