@@ -3,7 +3,7 @@ import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/deckplayer1.js'
 
 
-import _ from 'underscore'
+import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
@@ -65,25 +65,6 @@ export default {
 
     // console.log(payload)
     // console.log( 'commit BATTLE_SET', state.battle )
-
-    // underscore.js
-    // if( _.has(payload, 'attacker') ) {
-    // underscore.js assignment
-    // if( _.has( payload.attacker, 'player' ) )
-    //   state.battle.attacker.player = payload.attacker.player
-    // if( _.has( payload.attacker, 'main' ) )
-    //   state.battle.attacker.main = payload.attacker.main
-    // if( _.has( payload.attacker, 'support' ) )
-    //   state.battle.attacker.support = payload.attacker.support
-    // _.each(payload.attacker,(value,key,list) => {
-    //   // console.log(value,key,list)
-    //   if(_.has(state.battle.attacker,key))
-    //     state.battle.attacker[key] = value
-    //   else {
-    //     console.warn(`BATTLE_SET attacker no key ${key}`)
-    //   }
-    // })
-    // }
 
   },
   BATTLE_CALC(state, {

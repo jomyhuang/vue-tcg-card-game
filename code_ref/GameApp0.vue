@@ -63,7 +63,6 @@ import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 
 // import 'babel-polyfill'
-// import _ from 'underscore'
 
 
 export default {

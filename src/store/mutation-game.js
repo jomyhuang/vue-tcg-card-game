@@ -3,7 +3,7 @@ import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/deckplayer1.js'
 
 
-import _ from 'underscore'
+import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
@@ -104,7 +104,7 @@ export default {
         }
       })
 
-      // underscore.js
+      // underscore.js move to lodash.js
       if (shuffle) {
         player.deck = _.shuffle(player.deck)
         console.log('GAME_INIT deck shuffle');
@@ -233,26 +233,35 @@ export default {
       console.warn('commit SELECT_CARD_RESTORE null')
     }
   },
-  SELECT_CARDLIST(state, list) {
-    if(R.isNil(list)) {
+  SELECT_LIST(state, list) {
+    if (R.isNil(list)) {
       console.log('SELECT_CARDLIST is undefined')
       state.placelist = undefined
       return
     }
-    if (R.is(String,list)) {
+    if (R.is(String, list)) {
       state.placelist = state.placeplayer[list]
+      // TODO：处理选择对手的牌库
     } else {
       state.placelist = list
     }
 
     if (state.placelist.length > 0)
-      console.log(`commit SELECT_CARDLIST len ${state.placelist.length}`)
+      console.log(`commit SELECT_LIST len ${state.placelist.length}`)
     else {
-      console.log('commit SELECT_CARDLIST is 0')
+      console.log('commit SELECT_LIST is 0')
     }
   },
+  SELECT_FILTER(state, func) {
+    state.placelist = R.filter(func, state.placelist)
+    console.log(`commit SELECT_FILTER len ${state.placelist.length}`, func)
+  },
+  SELECT_MAP(state, func) {
+    state.placelist = R.map(func, state.placelist)
+    console.log(`commit SELECT_MAP ${state.placelist.length}`, func)
+  },
   // ---------------------------------------------------- ACT_SELECTION
-  ACT_SELECTION_INIT(state, payload) {
+  _ACT_SELECTION_INIT(state, payload) {
 
     state.act_selection = R.merge({})(payload)
     // 清除后增加
@@ -261,7 +270,7 @@ export default {
 
     // const defaults = R.flip(R.merge)
     state.act_selection = mutil.Rdefaults(state.act_selection, {
-      list: [],
+      list: 'placelist',
       many: 1,
       selectedList: [],
       finish: false,
@@ -285,7 +294,11 @@ export default {
     // placelist 处理 copy from SELECT_CARDLIST
     let list = state.act_selection.list
     if (R.is(String, list)) {
-      state.act_selection.list = state.placeplayer[list]
+      if (R.equals(list, 'placelist')) {
+        state.act_selection.list = state.placelist
+      } else {
+        state.act_selection.list = state.placeplayer[list]
+      }
       list = state.act_selection.list
       // console.log('ACT_SELECTION_INIT list is string',state.act_selection.list)
     }
@@ -329,7 +342,7 @@ export default {
   //   })
   //   // console.log('commit ACT_UNSELECTION')
   // },
-  ACT_FINISH(state, payload) {
+  _ACT_FINISH(state, payload) {
     state.placelist.forEach((card) => {
       card.selectable = false
     })

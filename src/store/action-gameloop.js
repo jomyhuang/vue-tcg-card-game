@@ -7,7 +7,7 @@
 // 	SAVE_ADDRESS
 // } from './mutation-types.js'
 
-import _ from 'underscore'
+import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
@@ -347,7 +347,6 @@ export default {
       // dispatch('TIGGER_EFFECT', 'main')
 
       commit('BATTLE_CALC2')
-
       commit('BATTLE_SCORE')
       console.info(`BATTLE_EFFECT end------------`)
       resolve()

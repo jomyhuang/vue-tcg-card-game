@@ -7,7 +7,7 @@
 // 	SAVE_ADDRESS
 // } from './mutation-types.js'
 
-import _ from 'underscore'
+import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
@@ -31,6 +31,15 @@ export default {
       console.error(`TIGGER_EFFECT ${card.name} owner not equal currentPlayer`);
     }
 
+    let funcdispatch = (type, payload) => {
+      return () => dispatch(type, payload)
+    }
+
+    let funccommit = (type, payload) => {
+      return () => commit(type, payload)
+    }
+
+
     let funcbuff = (power = 0, tag) => {
       if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
         tag = `${effect} UP +${power}`
@@ -53,8 +62,9 @@ export default {
       commit: commit,
       state: state,
       dispatch: dispatch,
-      // buff: R.bind(mutil.addbuff, card),
       buff: funcbuff,
+      rxdispatch: funcdispatch,
+      rxcommit: funccommit,
     }
 
     // without condition check effect
@@ -66,39 +76,37 @@ export default {
     }
 
     let effectfunc = mutil.callEffect(effect, effectpayload, condition)
-    let result
-    result = effectfunc()
+    let result = effectfunc()
 
-    // 如果是UI互动效果，这传回promise
-    if (R.is(Array, result)) {
-      console.log('TIGGER_EFFECT result is effect Array')
-      return new Promise(async function (resolve, reject) {
+    // convert any vaule to pipe array
+    let effectpipe = R.is(Array,result) ? result : [result]
 
-        // R.forEach(async function (x) {
-        for (let x of result) {
-          if (R.is(Object, x)) {
-            console.log(`effect pipe`, x)
-            if (_.isFunction(x)) {
-              await x.apply(card)
-              console.log('await pipe next')
-            }
-          } else {
-            console.log(`effect pipe`, x)
-          }
+    return new Promise(async function (resolve, reject) {
+
+      // 如果是UI互动效果，这传回promise
+      // await version foreach
+      console.log('TIGGER_EFFECT result is effect pipe begin')
+      for (let x of effectpipe) {
+        if (_.isFunction(x)) {
+          console.log(`effect pipe start`, x)
+          await x.apply(card)
+          console.log('await pipe finish next')
+        } else {
+          console.log(`effect pipe [not object/fucntion]`, x)
         }
-        console.log('effect pipe finish');
-        // })(result)
-        resolve()
-      })
-    } else if (R.is(Object, result)) {
-      // TODO: 判断返回特效／连续Chain
-      console.warn('TIGGER_EFFECT result is Object ToDO',result)
-      // result = R.assoc('effect', effect)(result)
-      // return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
-      // test ramda pipe, but no support await
-      // result()
-    }
-    return true
+      }
+      console.log('TIGGER_EFFECT result is effect pipe finish');
+      resolve()
+    })
+    // } else if (R.is(Object, result)) {
+    //   // TODO: 判断返回特效／连续Chain
+    //   console.error('TIGGER_EFFECT result is Object not apply', result)
+    //   // result = R.assoc('effect', effect)(result)
+    //   // return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
+    //   // test ramda pipe, but no support await
+    //   // result()
+    // }
+    // return true
   },
   EFFECT_CHOICE({
     commit,
@@ -108,16 +116,22 @@ export default {
 
     if (R.is(String, payload)) {
       // console.log('EFFECT_CHOICE is string')
-      payload = { list: payload }
+      payload = {
+        list: payload
+      }
     } else if (R.is(Array, payload)) {
       // console.log('EFFECT_CHOICE is array')
-      payload = { list: payload }
-    } else {
-      if (!R.has('list', payload)) {
-        console.error('EFFECT_CHOICE no list for choice')
-        throw 'EFFECT_CHOICE no list for choice'
-        return false
+      payload = {
+        list: payload
       }
+    }
+
+    // R.has 如果没有，会 throw error
+    if (!_.has('list', payload)) {
+      console.log('EFFECT_CHOICE payload no list key, select by placelist')
+      // console.error('EFFECT_CHOICE payload no list key')
+      // throw 'EFFECT_CHOICE no list for choice'
+      // return false
     }
 
     payload = R.merge({

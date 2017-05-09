@@ -7,7 +7,6 @@
 // 	SAVE_ADDRESS
 // } from './mutation-types.js'
 
-import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
 
@@ -200,7 +199,7 @@ export default {
 
     return new Promise(async function (resolve, reject) {
       // 注意：使用箭头函数不能是 async
-      commit('ACT_SELECTION_INIT', payload)
+      commit('_ACT_SELECTION_INIT', payload)
 
       if (state.act_selection.message)
         console.log(state.act_selection.message)
@@ -264,11 +263,11 @@ export default {
           state.act_selection.thenAction(state)
         }
         // commit('ACT_UNSELECTION_ALL')
-        commit('ACT_FINISH')
+        commit('_ACT_FINISH')
       }
 
       commit('SELECT_PLAYER', state.act_selection.player)
-      commit('SELECT_CARDLIST', state.act_selection.selectedList)
+      // commit('SELECT_CARDLIST', state.act_selection.selectedList)
       let card = R.head(state.act_selection.selectedList)
       commit('SELECT_CARD', card)
 

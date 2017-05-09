@@ -67,7 +67,6 @@ import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 import comMessage from './comMessage.vue'
 
-// import _ from 'underscore'
 import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 

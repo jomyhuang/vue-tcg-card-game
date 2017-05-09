@@ -1,7 +1,6 @@
 import Vue from 'vue'
 
 import R from 'ramda'
-import _ from 'underscore'
 
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
@@ -77,6 +76,8 @@ export default {
         commit: undefined,
         dispath: undefined,
         buff: undefined,
+        rxdispatch: undefined,
+        rxcommit: undefined,
       }
       let result = false
 

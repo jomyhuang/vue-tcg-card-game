@@ -37,6 +37,8 @@ export default {
       commit,
       state,
       dispatch,
+      rxdispatch,
+      rxcommit,
     }) {
       console.warn('JW15-001 MAIN effect this=', this)
       const effectfunc = {
@@ -60,14 +62,23 @@ export default {
       // return dispatch('EFFECT_ACT_SELECTION', selectfunc)
       // return effectfunc
       return [
-      // return [
-        () => dispatch('EFFECT_CHOICE', 'hand').then( ()=> console.log('effect choice then')),
-        //  箭头函数加上 {} 必须加上 return
-        // () => { return dispatch('EFFECT_CHOICE', state.currentPlayer.hand ) }
-        () => commit('PICK_CARD'),
-        () => commit('TO_GRAVEYARD'),
-        // 'list4',
+        rxcommit('SELECT_LIST','hand'),
+        rxcommit('SELECT_FILTER', x => x.star >=3 ),
+        // rxcommit('SELECT_MAP', x => { x.name = x.name + '***'; return x } ),
+        // rxdispatch('EFFECT_CHOICE', 'hand'),
+        rxdispatch('EFFECT_CHOICE'),
+        rxcommit('PICK_CARD'),
+        rxcommit('TO_GRAVEYARD'),
       ]
+      // return [
+      // // return [
+      //   () => dispatch('EFFECT_CHOICE', 'hand').then( ()=> console.log('effect choice then')),
+      //   //  箭头函数加上 {} 必须加上 return
+      //   // () => { return dispatch('EFFECT_CHOICE', state.currentPlayer.hand ) }
+      //   () => commit('PICK_CARD'),
+      //   () => commit('TO_GRAVEYARD'),
+      //   // 'list4',
+      // ]
     },
   },
   "JW15-002": {

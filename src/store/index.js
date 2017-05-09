@@ -17,7 +17,6 @@ import actions3 from './action-game'
 import actions4 from './action-effect'
 import getters from './getters'
 
-import _ from 'underscore'
 import R from 'ramda'
 import mutil from '@/mutil'
 
