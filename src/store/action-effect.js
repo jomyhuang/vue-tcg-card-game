@@ -18,7 +18,7 @@ export default {
     dispatch
   }, payload) {
 
-    let effect = payload
+    let type = payload
     let card = state.placeholder
     let player = card.owner
     let opponent = mutil.opponent(player)
@@ -28,34 +28,56 @@ export default {
     if (card !== state.placeholder) {
       commit('SELECT_CARD', card)
       commit('SELECT_PLAYER', player)
-      console.error(`TIGGER_EFFECT ${card.name} owner not equal currentPlayer`);
+      console.error(`TIGGER_EFFECT ${card.name} 发动效果不等于 placeholder`)
+      throw '发动效果卡不等于 placeholder'
     }
 
-    let funcdispatch = (type, payload) => {
+    // console.log('TIGGER_EFFECT this',this);
+
+    const funcdispatch = (type, payload) => {
       return () => dispatch(type, payload)
     }
 
-    let funccommit = (type, payload) => {
+    const funccommit = (type, payload) => {
       return () => commit(type, payload)
     }
 
+    const tap = () => {
+      return () => console.log('tap this',this)
+    }
 
-    let funcbuff = (power = 0, tag) => {
-      if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
-        tag = `${effect} UP +${power}`
+    const funcrx = (type, payload) => {
+      const store = mutil.store
+      return store._actions[type] ? funcdispatch(type, payload) : funccommit(type, payload)
+    }
+
+    const funcbuff = (power = 0, tag) => {
+      if (!R.isNil(type) && R.isNil(tag) && power > 0) {
+        tag = `${type} UP +${power}`
       }
       let buff = {
         power: power,
-        effect: effect,
+        type: type,
         tag: tag,
-        card: card,
+        // card: card,
+        source: card,
       }
-      card.power.push(buff)
+      // card.power.push(buff)
+      commit('CARD_ADD_BUFF', buff)
       return buff
     }
 
-    let effectpayload = {
-      effect: effect,
+    const funcpipe = (...items) => {
+      // let pipearr = []
+      // items.forEach( (effect) => {
+      //   pipearr.push(effect)
+      // })
+      return items
+    }
+
+    let effectpack = {
+      store: mutil.store,
+      type: type,
       card: card,
       player: player,
       opponent: opponent,
@@ -65,21 +87,41 @@ export default {
       buff: funcbuff,
       rxdispatch: funcdispatch,
       rxcommit: funccommit,
+      rx: funcrx,
+      pipe: funcpipe,
+      tap: tap,
     }
 
     // without condition check effect
     let condition
     const checklist = ['main']
 
-    if (R.contains(effect)(checklist)) {
-      condition = x => true
+    if (R.contains(type)(checklist)) {
+      condition = (card, type) => true
+    } else {
+      condition = (card, type) => R.path(['play', type])(card)
     }
 
-    let effectfunc = mutil.callEffect(effect, effectpayload, condition)
-    let result = effectfunc()
+    if (!condition(card, type)) {
+      console.log(`card without ${type} status key`);
+      return false
+    }
+
+    let effectfunc = R.path(['effect', type])(card)
+    if (!effectfunc) {
+      console.log(`card without effect func ${type}`);
+      return false
+    }
+    // console.log('effectfunc', effectfunc)
+
+    let result = effectfunc.call(card, effectpack)
+
+    // callEffect replace
+    // let effectfunc = mutil.callEffect(effect, effectpayload, condition)
+    // let result = effectfunc()
 
     // convert any vaule to pipe array
-    let effectpipe = R.is(Array,result) ? result : [result]
+    let effectpipe = R.is(Array, result) ? result : [result]
 
     return new Promise(async function (resolve, reject) {
 
@@ -88,25 +130,17 @@ export default {
       console.log('TIGGER_EFFECT result is effect pipe begin')
       for (let x of effectpipe) {
         if (_.isFunction(x)) {
-          console.log(`effect pipe start`, x)
-          await x.apply(card)
-          console.log('await pipe finish next')
+          console.log(`effect pipe call start`, x)
+          await x.call(card)
+          console.log('await pipe call finish next')
         } else {
-          console.log(`effect pipe [not object/fucntion]`, x)
+          console.log(`effect pipe [object]`, x)
         }
       }
-      console.log('TIGGER_EFFECT result is effect pipe finish');
+      console.log('TIGGER_EFFECT result is effect pipe finish')
+
       resolve()
     })
-    // } else if (R.is(Object, result)) {
-    //   // TODO: 判断返回特效／连续Chain
-    //   console.error('TIGGER_EFFECT result is Object not apply', result)
-    //   // result = R.assoc('effect', effect)(result)
-    //   // return dispatch('ASYNC_ACT_SELECT_CARD_START', result)
-    //   // test ramda pipe, but no support await
-    //   // result()
-    // }
-    // return true
   },
   EFFECT_CHOICE({
     commit,

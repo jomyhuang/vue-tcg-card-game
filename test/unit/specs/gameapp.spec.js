@@ -68,7 +68,7 @@ describe('GameAPP', () => {
     vm.gameReset({decklist:[testdeck1,testdeck2]})
     await vm.run_gameloop()
     expect(state.game.over).to.equal(true)
-    expect(state.game.turnCount).to.equal(5)
+    expect(state.game.turnCount).to.equal(3)
     expect(state.game.score.win).to.equal(state.firstPlayer)
   })
 

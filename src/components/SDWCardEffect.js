@@ -1,6 +1,8 @@
+// import {
+//   rx
+// } from '@/mutil'
 import mutil from '@/mutil'
 import R from 'ramda'
-
 
 export default {
   "JW15-001": {
@@ -39,6 +41,9 @@ export default {
       dispatch,
       rxdispatch,
       rxcommit,
+      rx,
+      pipe,
+      tap,
     }) {
       console.warn('JW15-001 MAIN effect this=', this)
       const effectfunc = {
@@ -61,15 +66,27 @@ export default {
       }
       // return dispatch('EFFECT_ACT_SELECTION', selectfunc)
       // return effectfunc
-      return [
-        rxcommit('SELECT_LIST','hand'),
-        rxcommit('SELECT_FILTER', x => x.star >=3 ),
+      // return R.pipe(
+      //   rxcommit('SELECT_LIST','hand'),
+      //   rxdispatch('EFFECT_CHOICE'),
+      //   rxcommit('PICK_CARD'),
+      //   rxcommit('TO_GRAVEYARD'),
+      // )
+
+      // const rx = mutil.rx.bind(mutil)
+
+      return pipe(
+        // rxcommit('SELECT_LIST','hand'),
+        () => mutil.tap('test'),
+        tap('this'),
+        rx('SELECT_LIST', 'opp_zone'),
+        rx('SELECT_FILTER', x => x.star >= 3),
         // rxcommit('SELECT_MAP', x => { x.name = x.name + '***'; return x } ),
         // rxdispatch('EFFECT_CHOICE', 'hand'),
-        rxdispatch('EFFECT_CHOICE'),
-        rxcommit('PICK_CARD'),
-        rxcommit('TO_GRAVEYARD'),
-      ]
+        rx('EFFECT_CHOICE'),
+        rx('PICK_CARD'),
+        rx('TO_GRAVEYARD'),
+      )
       // return [
       // // return [
       //   () => dispatch('EFFECT_CHOICE', 'hand').then( ()=> console.log('effect choice then')),

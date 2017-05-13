@@ -6,8 +6,36 @@ import R from 'ramda'
 import cardDB from '@/components/KJCardDB.json'
 import effectDB from '@/components/SDWCardEffect.js'
 
+
+// export function rx(type, payload) {
+//   console.log('mutil.rx', this)
+//
+//   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
+// }
+
+// export var store = {}
+
 export default {
-  mixinEffect() {
+  store: {},
+  mixin: false,
+  // rx(type, payload) {
+  //   console.log('mutil.rx', this)
+  //
+  //   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
+  // },
+  tap(fn) {
+    console.log('mutil tap func',this)
+  },
+  mixinEffect(payload) {
+    if (this.mixin) {
+      return
+    }
+
+    if (payload) this.store = payload
+    if (!this.store._actions) {
+      console.error('设置store在mixeffect前')
+    }
+
     const combine = (value, key) => {
       console.log('minxin ' + key + ':' + value)
 
@@ -17,30 +45,35 @@ export default {
         // !!! assoc create new object
         // card = R.assoc('effect',value)(card)
         // R.assoc 会建立新对象，无法bind到原生CardDB
+
         card.effect = value
+        const fn = card.effect['mounted'] || (() => {})
+        const result = fn.call(card)
 
         // OK1:
         // let mounted = R.bind(R.prop('mounted')(card.effect),card)
         // R.apply(mounted)(card)
         // let log = (x) => console.log('tap ' + x)
 
-        let mounted = R.path(['effect', 'mounted'])
-        let callmounted =
-          R.when(
-            mounted,
-            R.pipe(
-              mounted,
-              // bind for mounted function
-              R.bind(R.__, card),
-              R.call,
-              // R.tap(console.log),
-              // bind for "return function"
-              // R.bind(R.__, card),
-              // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-              // OK! R.apply(R.__,[]),
-              // R.call,
-            )
-          )
+        // OK2: Ramda func way
+        // let mounted = R.path(['effect', 'mounted'])
+        // let callmounted =
+        //   R.when(
+        //     mounted,
+        //     R.pipe(
+        //       mounted,
+        //       // bind for mounted function
+        //       R.bind(R.__, card),
+        //       R.call,
+        //       // R.tap(console.log),
+        //       // bind for "return function"
+        //       // R.bind(R.__, card),
+        //       // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+        //       // OK! R.apply(R.__,[]),
+        //       // R.call,
+        //     )
+        //   )
+
         // check it out: 如何带入闭包的card值
         // call可以
         // apply work 必须要有第二参数[]
@@ -53,19 +86,21 @@ export default {
         //   // bindfunc({})
         //   // OK2: apply this directly
         // mounted.apply(card,{})
-
-        let result = callmounted(card)
+        //
+        // let result = callmounted(card)
 
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
     }
+    console.log('mutil mixin effect DB start')
 
     R.forEachObjIndexed(combine)(effectDB)
 
+    this.mixin = true
     console.log('mutil mixin effect DB finish')
   },
-  callEffect(effectkey, initpayload = {}, condition) {
+  ___callEffect(effectkey, initpayload = {}, condition) {
     // return new Promise(async function (resolve, reject) {
     return () => {
       let payload = {
@@ -124,11 +159,10 @@ export default {
           console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
           // result = effectfunc(card)
           // return result
-          result = effect(card).apply(card,[payload])
-          if(R.is(Object,result)) {
+          result = effect(card).apply(card, [payload])
+          if (R.is(Object, result)) {
             // console.log('callEffect result is object')
-          }
-          else {
+          } else {
             result = true
           }
         } else {
@@ -154,8 +188,8 @@ export default {
 
       return result
       // resolve(result)
-    // })
-  }
+      // })
+    }
   },
   old_XXcallEffect(effectkey, initpayload = {}, condition) {
 
@@ -237,9 +271,9 @@ export default {
 
     return false
   },
-  Rdefaults(x,y) {
+  Rdefaults(x, y) {
     const defaults = R.flip(R.merge)
-    return defaults(x,y)
+    return defaults(x, y)
   },
   convertPower(strpower = '') {
     if (R.is(Number, strpower)) {

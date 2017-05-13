@@ -148,12 +148,10 @@ const state = {
   },
 }
 
-// const defaultstate = mutil.defaultGameState()
-
 export default new Vuex.Store({
   state,
-  // defaultstate,
   getters,
   actions,
   mutations,
+  strict: true,
 })

@@ -26,12 +26,34 @@ export default {
     // console.log(mutil.convertPower('万'));
 
   },
-  GAME_INIT({
-    commit,
-    state
-  }, payload = undefined) {
+  GAME_INIT(store, payload) {
+
+    // 从store中分离
+    const {
+      state,
+      commit
+    } = store
+
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
+  },
+  GAME_INIT_STORE({
+    commit,
+    state,
+    dispatch
+  },payload) {
+
+    // 将store实例传入mutil, _vm.this.$store
+    // mutil.store = payload
+    // console.log('action GAME_INIT_STORE keep store instance',mutil.store)
+
+    // 将store实例传入mutil, _vm.this.$store
+    // mixin
+    mutil.dispatch = dispatch
+    mutil.commit = commit
+    mutil.mixinEffect(payload)
+    console.log('action GAME_INIT_STORE keep store instance',mutil.store)
+
   },
   GAME_RESET({
     commit,
@@ -101,25 +123,6 @@ export default {
   //   dispatch('_ACT_SELECT_CARD_END')
   // },
   // 带入 dispatch
-  ACT_SELECTED_CARD({
-    dispatch,
-    commit,
-    state
-  }, card) {
-
-    console.log(`action ACT_SELECTED_CARD ${card.name}`)
-
-    commit('SELECT_CARD', card)
-    commit('ACT_SET_SELECTED', card)
-
-    // dispatch selected action
-    if (state.act_selection.selectedAction) {
-      // console.log( `ACT_SELECTED_CARD dispatch ${state.act_selection.action}` )
-      // dispatch(state.act_selection.action,card)
-      // console.log( `ACT_SELECTED_CARD selectedAction call` )
-      state.act_selection.selectedAction(state, card)
-    }
-  },
   // async _ACT_SYNC_SELECT_CHECK({
   //   commit,
   //   state,
@@ -180,6 +183,25 @@ export default {
   //     // })
   //   }
   // },
+  ACT_SELECTED_CARD({
+    dispatch,
+    commit,
+    state
+  }, card) {
+
+    console.log(`action ACT_SELECTED_CARD select ${card.name}`)
+
+    commit('SELECT_CARD', card)
+    commit('ACT_SET_SELECTED', card)
+
+    // dispatch selected action
+    if (state.act_selection.selectedAction) {
+      // console.log( `ACT_SELECTED_CARD dispatch ${state.act_selection.action}` )
+      // dispatch(state.act_selection.action,card)
+      // console.log( `ACT_SELECTED_CARD selectedAction call` )
+      state.act_selection.selectedAction(state, card)
+    }
+  },
   ASYNC_ACT_SELECT_CARD_START({
     commit,
     state,

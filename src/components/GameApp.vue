@@ -91,9 +91,10 @@ export default {
   created() {},
   mounted() {
     console.log('gameapp.vue mounted');
-    console.log('gameapp.vue mixinEffect effect');
-    mutil.mixinEffect()
-    console.log('gameapp.vue GAME_INIT');
+    // console.log('gameapp.vue mixinEffect effect');
+    // mutil.mixinEffect()
+    console.log('gameapp.vue GAME initial')
+    this.$store.dispatch('GAME_INIT_STORE', this.$store)
     this.$store.dispatch('GAME_INIT')
   },
   beforeDestroy() {},

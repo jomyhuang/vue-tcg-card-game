@@ -64,7 +64,7 @@ export default {
         [state.player1, deck1],
         [state.player2, deck1]
       ]
-      console.log('GAME_INIT setting default deck');
+      console.log('GAME_INIT setting default/init deck');
     }
 
     state.players = []
@@ -233,18 +233,36 @@ export default {
       console.warn('commit SELECT_CARD_RESTORE null')
     }
   },
-  SELECT_LIST(state, list) {
+  SELECT_LIST(state, payload) {
+    let list = payload
     if (R.isNil(list)) {
       console.log('SELECT_CARDLIST is undefined')
       state.placelist = undefined
       return
     }
     if (R.is(String, list)) {
-      state.placelist = state.placeplayer[list]
-      // TODO：处理选择对手的牌库
-    } else {
-      state.placelist = list
+      const opt = R.split('_',list)
+      if(opt.length>1) {
+        // 处理选择对手的牌库
+        let oppplayer = state.opponentPlayer
+        if(opt[0]==='opp') {
+          if(state.placeholder.owner != state.currentPlayer) {
+            console.warn('在对方回合发动玩家owner选择效果')
+            // throw '在对方回合发动选择效果'
+            oppplayer = state.currentPlayer
+          }
+          list = oppplayer[opt[1]]
+          console.log('commit SELECT_LIST opponent select',list)
+        }
+        else {
+          list = state.placeplayer[list]
+        }
+      } else {
+        list = state.placeplayer[list]
+      }
     }
+
+    state.placelist = list
 
     if (state.placelist.length > 0)
       console.log(`commit SELECT_LIST len ${state.placelist.length}`)
@@ -356,12 +374,20 @@ export default {
       card = state.placeholder
     }
     if (card) {
+      const owner = card.owner
+      // console.log('card owner',owner.id)
       const pilelist = [
-        ['hand', state.placeplayer.hand],
-        ['zone', state.placeplayer.zone],
-        ['base', state.placeplayer.base],
-        ['graveyard', state.placeplayer.graveyard],
+        ['hand', owner.hand],
+        ['zone', owner.zone],
+        ['base', owner.base],
+        ['graveyard', owner.graveyard],
       ]
+      // const pilelist = [
+      //   ['hand', state.placeplayer.hand],
+      //   ['zone', state.placeplayer.zone],
+      //   ['base', state.placeplayer.base],
+      //   ['graveyard', state.placeplayer.graveyard],
+      // ]
 
       let found = false
       state.placeholder = null
@@ -388,7 +414,7 @@ export default {
       }
     } else {
       state.placeholder = null
-      console.warn('commit PICK_CARD null must assign')
+      console.error('commit PICK_CARD placeholder/card null')
     }
   },
   DRAW(state) {
@@ -424,7 +450,9 @@ export default {
       console.log('commit TO_HAND ERROR no placeholder card')
       return
     }
-    state.placeplayer.hand.push(state.placeholder)
+    const owner = state.placeholder.owner
+    owner.hand.push(state.placeholder)
+    // state.placeplayer.hand.push(state.placeholder)
     state.placeholder = null
   },
   TO_ZONE(state, index) {
@@ -432,12 +460,15 @@ export default {
       console.log('commit TO_ZONE ERROR no placeholder card')
       return
     }
+    const owner = state.placeholder.owner
     if (!_.isUndefined(index)) {
-      state.placeplayer.zone.splice(index, 0, state.placeholder)
-      console.log(`commit TO_ZONE replace index ${index} ${state.placeplayer.id} ${state.placeholder.name}`)
+      owner.zone.splice(index, 0, state.placeholder)
+      // state.placeplayer.zone.splice(index, 0, state.placeholder)
+      console.log(`commit TO_ZONE replace index ${index} ${owner.id} ${state.placeholder.name}`)
     } else {
-      state.placeplayer.zone.push(state.placeholder)
-      console.log(`commit TO_ZONE ${state.placeplayer.id} ${state.placeholder.name}`)
+      owner.zone.push(state.placeholder)
+      // state.placeplayer.zone.push(state.placeholder)
+      console.log(`commit TO_ZONE ${owner.id} ${state.placeholder.name}`)
     }
     state.placeholder = null
   },
@@ -446,8 +477,10 @@ export default {
       console.log('commit TO_BASE ERROR no placeholder card')
       return
     }
-    state.placeplayer.base.push(state.placeholder)
-    console.log(`commit TO_BASE ${state.placeplayer.id} ${state.placeholder.name}`)
+    const owner = state.placeholder.owner
+    owner.base.push(state.placeholder)
+    // state.placeplayer.base.push(state.placeholder)
+    console.log(`commit TO_BASE ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
   TO_GRAVEYARD(state) {
@@ -455,8 +488,20 @@ export default {
       console.log('commit TO_GRAVEYARD ERROR no placeholder card')
       return
     }
-    state.placeplayer.graveyard.push(state.placeholder)
-    console.log(`commit TO_GRAVEYARD ${state.placeplayer.id} ${state.placeholder.name}`)
+    const owner = state.placeholder.owner
+    owner.graveyard.push(state.placeholder)
+    // state.placeplayer.graveyard.push(state.placeholder)
+    console.log(`commit TO_GRAVEYARD ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
+  },
+  CARD_ADD_BUFF(state,payload) {
+    if (!state.placeholder) {
+      console.log('commit CARD_ADD_BUFF ERROR no placeholder card')
+      return
+    }
+    const card = state.placeholder
+    const buff = payload
+    card.power.push(buff)
+    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`,buff)
   },
 }

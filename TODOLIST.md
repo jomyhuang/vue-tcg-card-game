@@ -59,25 +59,38 @@ action select
 -------------------------------------------------------
 TODO:
 
-1、play effect phase
+1、effect system
+
 支援时，...
 2、effect UI action
 翻开时，对方弃一张手牌
 支援时，选择对方的一张卡翻开，抽一张牌
 
+3、更精炼的效果表示方式：
+
+engage(is.attacker).message('effect start').addbuf(1000,'message').draw(1)
+engage(is.supporter).choice('opp_zone', not(card.faceup)).draw(1)
+engage(is.supporter).opp_choice('zone', not(card.faceup)).draw(1)
+engage(is.faceup).discard('opp_hand',1)
+phase(is.win).draw(1)
+
+
+4、更精炼的效果动作表示方式：
+
+
+
 
 6、杂项
 卡牌选择战斗支援后，已经移出要手牌
-
-
-
-
-
-
-
-
+==、HMI是否分离到 HMI agent
+==、处理select没有可选择状况的处理
+==、支援增加的buff是在主战、还是支援精灵本身
+==、check 对手回合发动卡牌的效果的处理、检查
+==、效果自带的message展示系统
+==、effect修改buff state (strict: true)
 
 7、英雄系统
+
 
 
 
