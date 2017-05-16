@@ -86,6 +86,9 @@ describe('GameAPP', () => {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
+    // set timeout
+    // this.timeout(5000)
+
     // vm.gameReset
     // set agent
     vm.gameNewdeck()

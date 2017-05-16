@@ -176,17 +176,6 @@ export default {
     //   resolve()
     // })
   },
-  // BATTLE_EFFECT_DECALRE_ATTACKER({
-  //   commit,
-  //   state,
-  //   dispatch
-  // }) {
-  //   return new Promise(function (resolve, reject) {
-  //     // commit('SET_FACEUP')
-  //     console.warn('BATTLE_EFFECT_DECALRE_ATTACKER phase to do')
-  //     resolve()
-  //   })
-  // },
   BATTLE_OPP_DECLARE_DEFENSER({
     commit,
     state,
@@ -260,8 +249,9 @@ export default {
           }
         })
       },
-      thenAction: (state) => {
-        // console.log('BATTLE_PLAY_SUPPORTER finish')
+      thenAction: (state,card) => {
+        commit('PICK_CARD', state.battle.attacker.support)
+        commit('TO_SUPPORTER')
       },
     })
     // }).then(() => {
@@ -299,8 +289,9 @@ export default {
           }
         })
       },
-      thenAction: (state) => {
-        // console.log('BATTLE_OPP_PLAY_SUPPORTER finish')
+      thenAction: (state,card) => {
+        commit('PICK_CARD', state.battle.defenser.support)
+        commit('TO_SUPPORTER')
       },
       // }).then(() => {
       // note!
@@ -316,6 +307,7 @@ export default {
   }) {
     return new Promise(async function (resolve, reject) {
       console.info(`BATTLE_EFFECT begin----------------------`)
+
       commit('BATTLE_CALC')
 
       commit('SELECT_PLAYER', state.currentPlayer)
@@ -348,6 +340,7 @@ export default {
 
       commit('BATTLE_CALC2')
       commit('BATTLE_SCORE')
+
       console.info(`BATTLE_EFFECT end------------`)
       resolve()
     })

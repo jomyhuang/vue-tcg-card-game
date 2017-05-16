@@ -1,5 +1,4 @@
 import Vue from 'vue'
-
 import R from 'ramda'
 
 // import cardDB from '@/components/SDWCardDB.json'
@@ -13,27 +12,69 @@ import effectDB from '@/components/SDWCardEffect.js'
 //   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
 // }
 
-// export var store = {}
+export var $store = {}
+
+export function testfn() {
+  console.log('test func $store', $store)
+  console.log('test func this', this)
+}
+
+// export function thiscard() {
+//   return $store.state.placeholder
+// }
+//
+// export function rxrun(type, payload) {
+//   // return store._actions[type] ? () => store.dispatch(type, payload) : () => store.commit(type, payload)
+//   return function () {
+//     const fn = $store._actions[type] ? $store.dispatch : $store.commit
+//     const card = thiscard()
+//     return fn.call(card, type, payload)
+//     // const cardfn = fn.bind(card)
+//     // return cardfn(type,payload)
+//   }
+// }
+//
+// export function pipec(...items) {
+//   // let pipearr = []
+//   // items.forEach((effect) => {
+//   //   const fn = effect.bind($store.placeholder)
+//   //   pipearr.push(fn)
+//   // })
+//   // return pipearr
+//   return items
+// }
+
+
 
 export default {
-  store: {},
+  // store,
   mixin: false,
-  // rx(type, payload) {
-  //   console.log('mutil.rx', this)
-  //
-  //   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
-  // },
   tap(fn) {
-    console.log('mutil tap func',this)
+    console.log('mutil tap this func', this)
+  },
+  assert(...args) {
+    return console.assert(...args)
   },
   mixinEffect(payload) {
-    if (this.mixin) {
-      return
+
+    let source = effectDB
+
+    if (payload) {
+      if(payload._actions) {
+        $store = payload
+        console.log('mutil install $store', $store)
+      }
+      else {
+        source = payload
+        console.log('mixeffect other source')
+      }
+    }
+    if (!$store._actions) {
+      console.error('设置store在mixeffect前')
     }
 
-    if (payload) this.store = payload
-    if (!this.store._actions) {
-      console.error('设置store在mixeffect前')
+    if (this.mixin && source === effectDB) {
+      return
     }
 
     const combine = (value, key) => {
@@ -95,12 +136,13 @@ export default {
     }
     console.log('mutil mixin effect DB start')
 
-    R.forEachObjIndexed(combine)(effectDB)
+    R.forEachObjIndexed(combine)(source)
 
     this.mixin = true
     console.log('mutil mixin effect DB finish')
   },
   ___callEffect(effectkey, initpayload = {}, condition) {
+    // move to TIGGER_EFFECT
     // return new Promise(async function (resolve, reject) {
     return () => {
       let payload = {
@@ -190,86 +232,6 @@ export default {
       // resolve(result)
       // })
     }
-  },
-  old_XXcallEffect(effectkey, initpayload = {}, condition) {
-
-    let payload = {
-      card: undefined,
-      player: undefined,
-      opponent: undefined,
-      state: undefined,
-      commit: undefined,
-      dispath: undefined,
-      buff: undefined,
-    }
-    let result
-
-    let card = R.prop('card')(initpayload)
-    if (R.isNil(card)) {
-      card = initpayload
-      initpayload = {
-        card: card
-      }
-    }
-
-    payload = R.merge(payload)(initpayload)
-    // console.log(card,payload);
-    // test
-    // card.play = {
-    //   isAttacker: true
-    // }
-    if (R.isNil(condition)) {
-      condition = (card, key) => R.path(['play', key])(card)
-    }
-
-    // console.log('condition', condition(card,effectkey));
-
-    if (condition(card, effectkey)) {
-      // console.log(`callEffect ${effectkey} activate check card effect function`)
-      let effect = R.path(['effect', effectkey])
-      // let effect = R.path(['effect', effectkey])(card)
-      // console.log(effect);
-
-      let effectfunc = R.when(
-        effect,
-        R.pipe(
-          effect,
-          R.bind(R.__, card),
-          R.apply(R.__, [payload]),
-          // bind for "return function"
-          R.bind(R.__, card),
-          // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-          R.apply(R.__, [payload]),
-        )
-      )
-
-      if (effect(card)) {
-        console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-        result = effectfunc(card)
-        // console.log(`callEffect ${effectkey} function end buff ${buffs}`)
-        return result
-      } else {
-        // console.log(`callEffect ${card.name} no ${effectkey} function`)
-      }
-
-      // if (effect) {
-      //   console.log(`callEffect ${card.name} ${effectkey} function start`)
-      //   // pack 给内置函数，跟返回闭包箭头函数使用
-      //   let func = effect.apply(card, [payload])
-      //   // pack 给返回标准闭包函数使用
-      //   buffs = func.apply(card, [payload])
-      //   console.log(`callEffect ${effectkey} function end buff ${buffs}`)
-      //
-      //   // return buffs rights!
-      //   return buffs
-      // } else {
-      //   console.log(`callEffect ${card.name} no ${effectkey} function`)
-      // }
-    } else {
-      // console.log(`callEffect ${effectkey} no effect tag`);
-    }
-
-    return false
   },
   Rdefaults(x, y) {
     const defaults = R.flip(R.merge)
@@ -406,6 +368,8 @@ export default {
         hand: [],
         graveyard: [],
         base: [],
+        supporter: [],
+
         secrets: [],
         effects: [],
         auras: [],
@@ -425,6 +389,8 @@ export default {
         hand: [],
         graveyard: [],
         base: [],
+        supporter: [],
+
         secrets: [],
         effects: [],
         auras: [],

@@ -46,7 +46,7 @@
       <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
       <el-button @click="run_gameloop()">RUN</el-button>
       <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
-      <el-button @click="gameTestBattle()">Battle test</el-button>
+      <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
       <BR/>
       <el-button @click="gameTest()">TEST</el-button>
       <el-button @click="battleshow(0)">Battle Show</el-button>

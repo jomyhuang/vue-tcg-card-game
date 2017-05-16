@@ -10,6 +10,8 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
+import $cx from '@/cardxflow'
+
 
 export default {
   TIGGER_EFFECT({
@@ -18,18 +20,21 @@ export default {
     dispatch
   }, payload) {
 
-    let type = payload
-    let card = state.placeholder
-    let player = card.owner
-    let opponent = mutil.opponent(player)
+    const type = payload
+    const phase = payload
+    const card = state.placeholder
+    const player = card.owner
+    const opponent = mutil.opponent(player)
 
     // 处理效果目标对象 owner, card...
     // select card owner
-    if (card !== state.placeholder) {
-      commit('SELECT_CARD', card)
-      commit('SELECT_PLAYER', player)
-      console.error(`TIGGER_EFFECT ${card.name} 发动效果不等于 placeholder`)
-      throw '发动效果卡不等于 placeholder'
+    commit('SELECT_PLAYER', player)
+
+    if (player !== state.currentPlayer) {
+      // commit('SELECT_CARD', card)
+      // commit('SELECT_PLAYER', player)
+      console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
+      // throw '发动效果卡不等于 placeholder'
     }
 
     // console.log('TIGGER_EFFECT this',this);
@@ -43,7 +48,7 @@ export default {
     }
 
     const tap = () => {
-      return () => console.log('tap this',this)
+      return () => console.log('tap this', this)
     }
 
     const funcrx = (type, payload) => {
@@ -78,6 +83,7 @@ export default {
     let effectpack = {
       store: mutil.store,
       type: type,
+      phase: phase,
       card: card,
       player: player,
       opponent: opponent,
@@ -112,32 +118,61 @@ export default {
       console.log(`card without effect func ${type}`);
       return false
     }
-    // console.log('effectfunc', effectfunc)
 
-    let result = effectfunc.call(card, effectpack)
-
-    // callEffect replace
-    // let effectfunc = mutil.callEffect(effect, effectpayload, condition)
-    // let result = effectfunc()
-
-    // convert any vaule to pipe array
-    let effectpipe = R.is(Array, result) ? result : [result]
+    // let engage = R.path(['effect', 'engage'])(card)
+    //
+    // if(engage) {
+    //   console.log('enage test',engage)
+    //   engage(type)
+    // }
 
     return new Promise(async function (resolve, reject) {
 
-      // 如果是UI互动效果，这传回promise
-      // await version foreach
-      console.log('TIGGER_EFFECT result is effect pipe begin')
-      for (let x of effectpipe) {
-        if (_.isFunction(x)) {
-          console.log(`effect pipe call start`, x)
-          await x.call(card)
-          console.log('await pipe call finish next')
-        } else {
-          console.log(`effect pipe [object]`, x)
+      // const res1 = effectfunc.call(card, effectpack)
+      // let effectarray = R.is(Array, res1) ? res1 : [res1]
+      // effectarray = R.flatten(effectarray)
+      //
+      // for( let result of effectarray ) {
+
+        let result = effectfunc.call(card, effectpack)
+
+        console.log(`${card.cardno} ${type} result is`, R.type(result))
+        if (R.isNil(result)) {
+          console.log('TIGGER_EFFECT result is nil skip effect')
+          // resolve()
+          // return false
+        } else if (_.isFunction(result)) {
+          result = result.call(card, effectpack)
         }
-      }
-      console.log('TIGGER_EFFECT result is effect pipe finish')
+
+        // convert & flatten any vaule to pipe array
+        let effectpipe = R.is(Array, result) ? result : [result]
+        effectpipe = R.flatten(effectpipe)
+
+        // await version foreach
+        console.log('TIGGER_EFFECT result is effect pipe start')
+        // 改成map不行，不在目前主线程 blocking
+        // await effectpipe.map( async function (x) {
+        //   if (_.isFunction(x)) {
+        //     console.log(`effect pipe call start`, x)
+        //     await x.call(card)
+        //     console.log('await pipe call finish next')
+        //   } else {
+        //     console.log(`effect pipe [object]`, x)
+        //   }
+        // })
+        let count = 0
+        for (let act of effectpipe) {
+          if (_.isFunction(act)) {
+            console.log(`${card.cardno} ${type} ${++count}/${effectpipe.length} -> effect pipe call`)
+            await act.call(card, effectpack)
+            console.log('await pipe call finish next')
+          } else {
+            console.log(`${card.cardno} ${type} ${++count}/${effectpipe.length} -> effect pipe [object]`, act)
+          }
+        }
+        console.log('TIGGER_EFFECT result is effect pipe finish')
+      // }
 
       resolve()
     })
@@ -181,17 +216,4 @@ export default {
 
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
-
-  // EFFECT_ACT_SELECTION({
-  //   commit,
-  //   state,
-  //   dispatch
-  // },payload) {
-  //
-  //   console.log('EFFECT_ACT_SELECTION effect phase')
-  //
-  //   let selectfunc = payload
-  //   // TODO: 连续UI动作／连续Chain
-  //   return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
-  // },
 }

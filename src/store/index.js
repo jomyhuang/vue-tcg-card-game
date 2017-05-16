@@ -120,6 +120,8 @@ const state = {
     hand: [],
     graveyard: [],
     base: [],
+    supporter: [],
+
     secrets: [],
     effects: [],
     auras: [],
@@ -138,6 +140,8 @@ const state = {
     hand: [],
     graveyard: [],
     base: [],
+    supporter: [],
+
     secrets: [],
     effects: [],
     auras: [],

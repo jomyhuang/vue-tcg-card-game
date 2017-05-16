@@ -9,6 +9,11 @@
 
 import R from 'ramda'
 import mutil from '@/mutil'
+import {
+  testfn
+} from '@/mutil'
+import $cx from '@/cardxflow'
+
 
 export default {
   RAMDA_TEST({
@@ -41,7 +46,7 @@ export default {
     commit,
     state,
     dispatch
-  },payload) {
+  }, payload) {
 
     // 将store实例传入mutil, _vm.this.$store
     // mutil.store = payload
@@ -49,11 +54,10 @@ export default {
 
     // 将store实例传入mutil, _vm.this.$store
     // mixin
-    mutil.dispatch = dispatch
-    mutil.commit = commit
-    mutil.mixinEffect(payload)
-    console.log('action GAME_INIT_STORE keep store instance',mutil.store)
-
+    // mutil.mixinEffect(payload)
+    // console.log('action GAME_INIT_STORE keep store instance',mutil.$store)
+    // testfn()
+    $cx.install(payload)
   },
   GAME_RESET({
     commit,
@@ -244,12 +248,14 @@ export default {
       // } else {
       if (doselect) {
         const agent = state.act_selection.agent
+        let selectcard
 
         if (agent) {
           console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-          const card = agent.SELECT_CARD(state, payload)
-          dispatch('ACT_SELECTED_CARD', card)
+          selectcard = agent.SELECT_CARD(state, payload)
+          dispatch('ACT_SELECTED_CARD', selectcard)
           console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
+          // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
         } else {
           console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
           // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
@@ -269,43 +275,33 @@ export default {
           console.log('_WAIT_ACT_SYNC_SELECT_UI START BLOCKING')
           let waiting = true
           while (waiting) {
-            // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
             await waitfunc().then((resolve) => {
               waiting = false
             }, (err) => {
               // run again
             })
           }
-          console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
+          // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
           console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
+
+          selectcard = R.head(state.act_selection.selectedList)
         }
 
-        if (state.act_selection.thenAction) {
-          // console.log( `ACT_SELECT_CARD_END thenAction call` )
-          state.act_selection.thenAction(state)
-        }
-        // commit('ACT_UNSELECTION_ALL')
         commit('_ACT_FINISH')
+
+        commit('SELECT_PLAYER', state.act_selection.player)
+        // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
+        mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
+
+        commit('SELECT_CARD', selectcard)
+
+        // call thenAction
+        if (state.act_selection.thenAction) {
+          state.act_selection.thenAction(state,selectcard)
+        }
       }
 
-      commit('SELECT_PLAYER', state.act_selection.player)
-      // commit('SELECT_CARDLIST', state.act_selection.selectedList)
-      let card = R.head(state.act_selection.selectedList)
-      commit('SELECT_CARD', card)
-
-      resolve(card)
+      resolve()
     })
   },
-  // _ACT_SELECT_CARD_END({
-  //   commit,
-  //   state
-  // }) {
-  //   // console.log('_ACT_SELECT_CARD_END');
-  //   commit('ACT_UNSELECTION')
-  //   if (state.act_selection.thenAction) {
-  //     // console.log( `ACT_SELECT_CARD_END thenAction call` )
-  //     state.act_selection.thenAction(state)
-  //   }
-  //   commit('ACT_FINISH')
-  // },
 }

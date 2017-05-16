@@ -15,8 +15,8 @@ module.exports = function (config) {
     // browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
     // reporters: ['spec', 'coverage'],
-    reporters: ['mocha'],
-    // reporters: ['mocha','log-reporter'],
+    // reporters: ['mocha'],
+    reporters: ['mocha','log-reporter'],
     // reporters: ['spec'],
     files: [
       '../../node_modules/babel-polyfill/dist/polyfill.js',
@@ -29,6 +29,11 @@ module.exports = function (config) {
     webpackMiddleware: {
       noInfo: true
     },
+
+    // captureTimeout: 60000,
+    // browserDisconnectTimeout : 10000,
+    // browserDisconnectTolerance : 1,
+    // browserNoActivityTimeout : 100000,
 
     // enable / disable colors in the output (reporters and logs)
     colors: true,

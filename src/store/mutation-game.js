@@ -26,6 +26,14 @@ export default {
   TEST_SET(state, payload) {
     state.test = R.merge(state.test)(payload)
     console.log('TEST_SET payload', payload)
+
+    console.log('TEST_SET add test card to deck', payload)
+    const fpadd2deck = (value,key) => {
+      const card = value
+      const owner = card.owner
+      owner.deck.push(card)
+    }
+    R.forEachObjIndexed( fpadd2deck, state.test )
   },
   // ---------------------------------------------------- GAME_XXX
   GAME_RESET(state, payload) {
@@ -240,6 +248,7 @@ export default {
       state.placelist = undefined
       return
     }
+    // console.log('SELECT_LIST this=',this);
     if (R.is(String, list)) {
       const opt = R.split('_',list)
       if(opt.length>1) {
@@ -328,15 +337,15 @@ export default {
     })
     // placelist end
   },
-  ACT_SET_SELECTED(state, card = state.placeholder) {
+  ACT_SET_SELECTED(state) {
     if (!state.placeholder) {
       console.error('commit ACT_SET_SELECTED ERROR no placeholder card')
       return
     }
-    if (state.placeholder !== card) {
-      console.error('commit ACT_SET_SELECTED ERROR card != placeholder card')
-      return
-    }
+    // if (state.placeholder !== card) {
+    //   console.error('commit ACT_SET_SELECTED ERROR card != placeholder card')
+    //   return
+    // }
 
     let flag = !state.placeholder.selected
     state.placeholder.selected = flag
@@ -348,9 +357,7 @@ export default {
     }
 
     // 处理更新selected list
-    state.act_selection.selectedList = state.placelist.filter((card) => {
-      return card.selected
-    })
+    state.act_selection.selectedList = state.act_selection.list.filter((card) => card.selected)
 
     state.act_selection.card = flag ? state.placeholder : undefined
   },
@@ -381,6 +388,7 @@ export default {
         ['zone', owner.zone],
         ['base', owner.base],
         ['graveyard', owner.graveyard],
+        ['supporter', owner.supporter],
       ]
       // const pilelist = [
       //   ['hand', state.placeplayer.hand],
@@ -408,8 +416,8 @@ export default {
       }
 
       if (!found) {
-        state.placeholder = null
         console.error(`commit PICK_CARD ERROR ${card.name} not found in all pile`)
+        console.error(`commit PICK_CARD ERROR owner id ${card.owner.id} ${state.battle.attacker.support.name}`)
         throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
       }
     } else {
@@ -492,6 +500,17 @@ export default {
     owner.graveyard.push(state.placeholder)
     // state.placeplayer.graveyard.push(state.placeholder)
     console.log(`commit TO_GRAVEYARD ${owner.id} ${state.placeholder.name}`)
+    state.placeholder = null
+  },
+  TO_SUPPORTER(state) {
+    if (!state.placeholder) {
+      console.log('commit TO_SUPPORTER ERROR no placeholder card')
+      return
+    }
+    const owner = state.placeholder.owner
+    owner.supporter.push(state.placeholder)
+    // state.placeplayer.graveyard.push(state.placeholder)
+    console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
   CARD_ADD_BUFF(state,payload) {
