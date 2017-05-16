@@ -128,14 +128,13 @@ export default {
 
     return new Promise(async function (resolve, reject) {
 
-      // const res1 = effectfunc.call(card, effectpack)
-      // let effectarray = R.is(Array, res1) ? res1 : [res1]
-      // effectarray = R.flatten(effectarray)
-      //
-      // for( let result of effectarray ) {
+      const res1 = effectfunc.call(card, effectpack)
+      let effectarray = R.is(Array, res1) ? res1 : [res1]
+      effectarray = R.flatten(effectarray)
 
-        let result = effectfunc.call(card, effectpack)
+      for( let result of effectarray ) {
 
+        // let result = effectfunc.call(card, effectpack)
         console.log(`${card.cardno} ${type} result is`, R.type(result))
         if (R.isNil(result)) {
           console.log('TIGGER_EFFECT result is nil skip effect')
@@ -172,7 +171,7 @@ export default {
           }
         }
         console.log('TIGGER_EFFECT result is effect pipe finish')
-      // }
+      }
 
       resolve()
     })
