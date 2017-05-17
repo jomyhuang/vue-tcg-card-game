@@ -219,6 +219,7 @@ export default {
     if (R.has('finish', state.act_selection)) {
       if (!state.act_selection['finish']) {
         console.error('ASYNC_ACT_SELECT_CARD_START not finish yet!!')
+        throw 'error throw ASYNC_ACT_SELECT_CARD_START not finish yet!!'
         return false
       }
     }

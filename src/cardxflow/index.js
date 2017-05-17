@@ -37,8 +37,8 @@ export function cxpipe(...items) {
     phase
   }) {
     const card = thiscard()
-    console.log('cxpipe call', phase)
-    return items
+    // console.log('cxpipe call', phase)
+    return [ cxtap('cxpipe call'), ...items ]
   }
 }
 
@@ -47,8 +47,8 @@ export function cxengage(...items) {
     phase
   }) {
     const card = thiscard()
-    console.log('cxengage call', phase)
-    return items
+    // console.log('cxengage call', phase)
+    return [ cxtap('cxengage call'), ...items ]
     // console.log('cxengage',phase)
     // // console.log('cxengage when',when)
     // if(when()(phase)) {
@@ -79,6 +79,12 @@ export function cxbuff(power = 0, tag) {
     }
     commit('CARD_ADD_BUFF', buff)
     return buff
+  }
+}
+
+export function cxtap(message) {
+  return function() {
+    return console.log(`cxtap %c${message}`,'color:blue')
   }
 }
 
@@ -127,5 +133,8 @@ export default {
   },
   engage(...items) {
     return cxengage(...items)
+  },
+  tap(message) {
+    return cxtap(message)
   }
 }

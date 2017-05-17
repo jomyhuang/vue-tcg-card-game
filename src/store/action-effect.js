@@ -109,13 +109,13 @@ export default {
     }
 
     if (!condition(card, type)) {
-      console.log(`card without ${type} status key`);
+      console.log(`card without ${type} status key skip`);
       return false
     }
 
     let effectfunc = R.path(['effect', type])(card)
     if (!effectfunc) {
-      console.log(`card without effect func ${type}`);
+      console.log(`card without effect func ${type} skip`)
       return false
     }
 
@@ -128,50 +128,78 @@ export default {
 
     return new Promise(async function (resolve, reject) {
 
-      const res1 = effectfunc.call(card, effectpack)
-      let effectarray = R.is(Array, res1) ? res1 : [res1]
-      effectarray = R.flatten(effectarray)
+      let result = effectfunc
+      if( _.isFunction(result) ) {
+        result = effectfunc.call(card,effectpack)
+      }
+      if (R.isNil(result)) {
+        console.log('TIGGER_EFFECT result is nil skip do effect pipe')
+        resolve()
+        return true
+      }
 
-      for( let result of effectarray ) {
+      console.group()
+      console.log(`=> ${card.cardno} ${type} effect action`)
+
+      let pipelist = R.is(Array, result) ? result : [ result ]
+      pipelist = R.flatten(pipelist)
+
+      let pipecount = 0
+      for( let pipe of pipelist ) {
+        pipecount++
+        console.group()
+        console.log(`=> ${card.cardno} ${type} pipelist ${pipecount}/${pipelist.length}`)
 
         // let result = effectfunc.call(card, effectpack)
-        console.log(`${card.cardno} ${type} result is`, R.type(result))
-        if (R.isNil(result)) {
-          console.log('TIGGER_EFFECT result is nil skip effect')
-          // resolve()
-          // return false
-        } else if (_.isFunction(result)) {
-          result = result.call(card, effectpack)
+        // console.log(`${card.cardno} ${type} result is`, R.type(item))
+        // if (R.isNil(item)) {
+        //   console.log('TIGGER_EFFECT result is nil skip effect')
+        //   resolve()
+        //   return false
+        // } else if (_.isFunction(item)) {
+        if (_.isFunction(pipe)) {
+          pipe = pipe.call(card, effectpack)
         }
 
         // convert & flatten any vaule to pipe array
-        let effectpipe = R.is(Array, result) ? result : [result]
+        let effectpipe = R.is(Array, pipe) ? pipe : [ pipe ]
         effectpipe = R.flatten(effectpipe)
 
         // await version foreach
+        console.group()
         console.log('TIGGER_EFFECT result is effect pipe start')
         // 改成map不行，不在目前主线程 blocking
-        // await effectpipe.map( async function (x) {
+        // effectpipe.map(async function (x) {
         //   if (_.isFunction(x)) {
         //     console.log(`effect pipe call start`, x)
-        //     await x.call(card)
+        //     await new Promise(async function(resolve, reject) {
+        //       await x.call(card,effectpack)
+        //       resolve()
+        //     })
         //     console.log('await pipe call finish next')
         //   } else {
         //     console.log(`effect pipe [object]`, x)
         //   }
         // })
+
         let count = 0
         for (let act of effectpipe) {
+          count++
+
           if (_.isFunction(act)) {
-            console.log(`${card.cardno} ${type} ${++count}/${effectpipe.length} -> effect pipe call`)
+            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
             await act.call(card, effectpack)
             console.log('await pipe call finish next')
           } else {
-            console.log(`${card.cardno} ${type} ${++count}/${effectpipe.length} -> effect pipe [object]`, act)
+            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object]`, act)
           }
         }
         console.log('TIGGER_EFFECT result is effect pipe finish')
+        console.groupEnd()
+        console.groupEnd()
       }
+
+      console.groupEnd()
 
       resolve()
     })
