@@ -28,12 +28,12 @@ export default {
     console.log('TEST_SET payload', payload)
 
     console.log('TEST_SET add test card to deck', payload)
-    const fpadd2deck = (value,key) => {
+    const fpadd2deck = (value, key) => {
       const card = value
       const owner = card.owner
       owner.deck.push(card)
     }
-    R.forEachObjIndexed( fpadd2deck, state.test )
+    R.forEachObjIndexed(fpadd2deck, state.test)
   },
   // ---------------------------------------------------- GAME_XXX
   GAME_RESET(state, payload) {
@@ -244,34 +244,59 @@ export default {
   SELECT_LIST(state, payload) {
     let list = payload
     if (R.isNil(list)) {
-      console.log('SELECT_CARDLIST is undefined')
+      console.warn('SELECT_CARDLIST is undefined')
       state.placelist = undefined
       return
     }
-    // console.log('SELECT_LIST this=',this);
-    if (R.is(String, list)) {
-      const opt = R.split('_',list)
-      if(opt.length>1) {
-        // 处理选择对手的牌库
-        let oppplayer = state.opponentPlayer
-        if(opt[0]==='opp') {
-          if(state.placeholder.owner != state.currentPlayer) {
-            console.warn('在对方回合发动玩家owner选择效果')
-            // throw '在对方回合发动选择效果'
-            oppplayer = state.currentPlayer
-          }
-          list = oppplayer[opt[1]]
-          console.log('commit SELECT_LIST opponent select',list)
-        }
-        else {
-          list = state.placeplayer[list]
-        }
-      } else {
-        list = state.placeplayer[list]
+
+    mutil.assert(state.placeplayer.id === state.currentPlayer.id, 'commit SELECT_LIST placeplayer not equal currentPlayer')
+
+    if (state.placeholder) {
+      if (state.placeholder.owner != state.currentPlayer) {
+        console.warn('在发动玩家owner select list 效果')
       }
     }
 
-    state.placelist = list
+    // console.log('SELECT_LIST this=',this);
+    // if (R.is(String, list)) {
+    //   const opt = R.split('_',list)
+    //   if(opt.length>1 && opt[0]==='opp') {
+    //     // 处理选择对手的牌库
+    //     let oppplayer = mutil.opponent(state.placeplayer)
+    //
+    //     if(state.placeholder) {
+    //       if(state.placeholder.owner != state.currentPlayer) {
+    //         console.warn('在发动玩家owner select list 效果')
+    //         // // throw '在对方回合发动选择效果'
+    //         // oppplayer = state.currentPlayer
+    //       }
+    //     }
+    //     // TODO FIX: 调整玩家“相对对象”的改变，不能直接使用 currentPlayer, opponentPlayer
+    //     // let oppplayer = mstate.opponentPlayer
+    //     // if(state.placeholder) {
+    //     //   if(state.placeholder.owner != state.currentPlayer) {
+    //     //     console.warn('在对方回合发动玩家owner选择效果')
+    //     //     // throw '在对方回合发动选择效果'
+    //     //     oppplayer = state.currentPlayer
+    //     //   }
+    //     // }
+    //
+    //     list = oppplayer[opt[1]]
+    //     console.log('commit SELECT_LIST opponent select',list)
+    //   }
+    //   else if (_.isFunction(list)){
+    //     console.log(`commit SELECT_LIST function select call`)
+    //     list = list.call(state)
+    //     console.log(`commit SELECT_LIST function select`,list)
+    //   }
+    //   else {
+    //     list = state.placeplayer[list]
+    //     console.log(`commit SELECT_LIST placeplayer ${state.placeplayer.id} select`,list)
+    //   }
+    // }
+    // state.placelist = list
+
+    state.placelist = mutil.selectcards(list)
 
     if (state.placelist.length > 0)
       console.log(`commit SELECT_LIST len ${state.placelist.length}`)
@@ -288,54 +313,70 @@ export default {
     console.log(`commit SELECT_MAP ${state.placelist.length}`, func)
   },
   // ---------------------------------------------------- ACT_SELECTION
-  _ACT_SELECTION_INIT(state, payload) {
+  _ACT_SELECTION_INIT(state, payload = {}) {
 
-    state.act_selection = R.merge({})(payload)
-    // 清除后增加
-    // state.act_selection.selectedList = []
-    // state.act_selection.finish = false
-
-    // const defaults = R.flip(R.merge)
-    state.act_selection = mutil.Rdefaults(state.act_selection, {
-      list: 'placelist',
+    state.act_selection = R.merge({
+      list: () => state.placelist,
       many: 1,
       selectedList: [],
       finish: false,
-      // 取消默认值
-      // player: state.currentPlayer,
-      // player: state.placeplayer,
       type: 'ACT_SELECTION',
       card: undefined,
-    })
+      agent: undefined,
+      selector: undefined,
+    })(payload)
 
     if (!R.has('player', state.act_selection)) {
       console.error('ACT_SELECTION must assign player')
       throw 'ACT_SELECTION must assign player'
       return false
     }
-    if (!R.has('agent', state.act_selection)) {
-      state.act_selection = R.assoc('agent', state.act_selection.player.agent)(state.act_selection)
-      // console.log('ACT_SELECTION default agent')
+
+    // if (_.startsWith(state.act_selection.list, 'opp_')) {
+    //   throw 'ASYNC_ACT_SELECT_CARD_START do not support opp_xxx string list'
+    //   return false
+    // }
+
+    const player = state.act_selection.player
+
+    if (!state.act_selection.agent) {
+      state.act_selection = R.assoc('agent', player.agent)(state.act_selection)
     }
 
-    // placelist 处理 copy from SELECT_CARDLIST
-    let list = state.act_selection.list
-    if (R.is(String, list)) {
-      if (R.equals(list, 'placelist')) {
-        state.act_selection.list = state.placelist
-      } else {
-        state.act_selection.list = state.placeplayer[list]
-      }
-      list = state.act_selection.list
-      // console.log('ACT_SELECTION_INIT list is string',state.act_selection.list)
+    // 处理变更placeplayer
+    state.placeplayer = player
+
+    // 处理变更placelist
+    // let list = state.act_selection.list
+    // if (R.is(String, list)) {
+    //   if (R.equals(list, 'placelist')) {
+    //     console.log(`_ACT_SELECTION_INIT list string use placelist`)
+    //     list = state.placelist
+    //   } else {
+    //     console.log(`_ACT_SELECTION_INIT list string use ${list}`)
+    //     list = state.placeplayer[list]
+    //   }
+    //   console.log(`_ACT_SELECTION_INIT list string select`, list)
+    // } else if (_.isFunction(list)) {
+    //   console.log(`_ACT_SELECTION_INIT list function select call`)
+    //   list = list.call(state)
+    //   console.log(`_ACT_SELECTION_INIT list function select`, list)
+    // }
+
+    // 保留 selector
+    if (R.is(String, state.act_selection.list)) {
+      state.act_selection.selector = state.act_selection.list
     }
+    // 处理变更placelist
+    let list = mutil.selectcards(state.act_selection.list)
     state.placelist = list
+    state.act_selection.list = list
+    // placelist end
 
-    list.forEach((card) => {
+    state.placelist.forEach((card) => {
       card.selected = false
       card.selectable = true
     })
-    // placelist end
   },
   ACT_SET_SELECTED(state) {
     if (!state.placeholder) {
@@ -513,7 +554,7 @@ export default {
     console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
-  CARD_ADD_BUFF(state,payload) {
+  CARD_ADD_BUFF(state, payload) {
     if (!state.placeholder) {
       console.log('commit CARD_ADD_BUFF ERROR no placeholder card')
       return
@@ -521,6 +562,6 @@ export default {
     const card = state.placeholder
     const buff = payload
     card.power.push(buff)
-    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`,buff)
+    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`, buff)
   },
 }
