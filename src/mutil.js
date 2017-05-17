@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import R from 'ramda'
+import _ from 'lodash'
 
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
@@ -60,11 +61,10 @@ export default {
     let source = effectDB
 
     if (payload) {
-      if(payload._actions) {
+      if (payload._actions) {
         $store = payload
         console.log('mutil install $store', $store)
-      }
-      else {
+      } else {
         source = payload
         console.log('mixeffect other source')
       }
@@ -274,6 +274,11 @@ export default {
     return result
   },
   opponent(list, who) {
+    if (arguments.length == 1) {
+      who = list
+      list = $store.state.players
+    }
+
     let result = null
     if (list[0] === who) {
       result = list[1]
@@ -494,43 +499,73 @@ export default {
     return buff
   },
   makeflat(chain) {
-    // let l1 = []
-    // l1 = R.append(R.map(R.prop('power'),battle.attacker.main.power),l1)
-    // l1 = R.append(R.map(R.prop('power'),battle.attacker.support.power),l1)
-    // l1 = R.unnest(l1)
-    // console.log('flat ',l1)
-
-    // let l2 = []
-    // let f1 = R.map(R.prop('power'))
-    // l2 = R.into(l2,f1)(battle.attacker.main.power)
-    // l2 = R.into(l2,f1)(battle.attacker.support.power)
-    // console.log(l2);
-
-    // each/into version
-    // let mainlist = []
-    // R.forEach( x => {
-    //   let sublist = R.prop('power')(x)
-    //   mainlist = R.into(mainlist, R.map(R.prop('power')))(sublist)
-    //
-    //   // R.forEach(y => {
-    //   //   mainlist.push(R.prop('power', y))
-    //   // })(sublist)
-    // })(chain)
-    // return mainlist
-
     // reduce version
     return R.reduce((a, x) => {
-      let sublist = R.prop('power')(x)
-      a = R.into(a, R.map(R.prop('power')))(sublist)
+      if (x) {
+        let sublist = R.prop('power')(x)
+        a = R.into(a, R.map(R.prop('power')))(sublist)
+      }
       return a
     }, [])(chain)
   },
   reducepower(chain) {
     return R.reduce((a, x) => {
-      let sublist = R.prop('power')(x)
-      let powerlist = R.map(R.prop('power'))(sublist)
-      let sum = R.reduce(R.add, 0)(powerlist)
+      let sum = 0
+      if (x) {
+        let sublist = R.prop('power')(x)
+        let powerlist = R.map(R.prop('power'))(sublist)
+        sum = R.reduce(R.add, 0)(powerlist)
+      }
       return a + sum
     }, 0)(chain)
+  },
+  selectcards(selector) {
+
+    const placeplayer = $store.state.placeplayer
+    const placelist = $store.state.placelist
+    const state = $store.state
+    let list
+
+    console.log('mutil.selectcards selector', selector)
+
+    if (R.is(String, selector)) { // string
+      switch (selector) {
+        case 'placelist':
+          list = placelist
+          console.log(`mutil.selectcards (type keyword ${selector}) select`, list)
+          break
+        default:
+          const opt = R.split('_', selector)
+
+          if (opt.length > 1 && opt[0] === 'opp') {
+            // 处理选择对手的牌库
+            let oppplayer = this.opponent(placeplayer)
+
+            list = oppplayer[opt[1]]
+            console.log('mutil.selectcards (type string) opponent select', list)
+          } else {
+            list = placeplayer[selector]
+            console.log(`mutil.selectcards (type string) placeplayer ${placeplayer.id} select`, list)
+          }
+      }
+    }
+    else if (_.isFunction(selector)) { // function
+      console.log(`mutil.selectcards (type function) select call`)
+      list = selector.call(state)
+      console.log(`mutil.selectcards (type function) select`, list)
+    }
+    else if (R.is(Array, selector)) { // array
+      list = selector
+      console.log(`mutil.selectcards (type array) select`, list)
+    }
+    else if (_is.isNil(selector)) { // undefined/Nil
+      list = placelist
+      console.log(`mutil.selectcards (type Nil) select placelist`, list)
+    }
+    else {
+      throw `mutil.selectcards (type unknown) select`
+    }
+
+    return list
   },
 }

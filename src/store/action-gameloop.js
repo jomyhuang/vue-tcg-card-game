@@ -131,16 +131,12 @@ export default {
     state,
     dispatch
   }) {
-    // let xLens = R.lensPath(['battle', 'attacker', 'main'])
-    // let xSel = R.view(xLens)(state.test)
 
-    const selectfunc = {
+    return dispatch('PLAY_CARD', {
       phase: 'BATTLE_DECALRE_ATTACKER',
-      list: state.currentPlayer.zone,
-      player: state.currentPlayer,
+      list: 'zone',
+      // player: state.currentPlayer,
       // many: 1,
-      // agent: state.currentPlayer.agent,
-      // init: xSel,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[A]'
@@ -161,37 +157,18 @@ export default {
         // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
         // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
       },
-    }
-    // const agent = state.currentPlayer.agent
-    // if (agent) {
-    //   agent.TALK(state, 'agent talk TEST!!')
-    // }
-
-    // return new Promise(async function (resolve, reject) {
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', selectfunc)
-    //     .then(() => {
-    //       // note!
-    //       // console.log('BATTLE_DECALRE_ATTACKER promise.then finish')
-    //     })
-    //   resolve()
-    // })
+    })
   },
   BATTLE_OPP_DECLARE_DEFENSER({
     commit,
     state,
     dispatch
   }) {
-    // return new Promise(async function (resolve, reject) {
-    // let xLens = R.lensPath(['battle', 'defenser', 'main'])
-    // let xSel = R.view(xLens)(state.test)
 
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-      list: state.opponentPlayer.zone,
-      player: state.currentPlayer,
-      // many: 1,
+    return dispatch('PLAY_CARD', {
       phase: 'BATTLE_OPP_DECLARE_DEFENSER',
-      // agent: state.currentPlayer.agent,
-      // init: xSel,
+      list: 'opp_zone',
+      // player: state.currentPlayer,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[D]'
@@ -213,30 +190,17 @@ export default {
         // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
       },
     })
-    //   }).then(() => {
-    //     // note!
-    //     // console.log('BATTLE_OPP_DECLARE_DEFENSER promise.then finish')
-    //   })
-    //
-    //   resolve()
-    // })
   },
   BATTLE_PLAY_SUPPORTER({
     commit,
     state,
     dispatch
   }) {
-    // let xLens = R.lensPath(['battle', 'attacker', 'support'])
-    // let xSel = R.view(xLens)(state.test)
 
-    // return new Promise(async function (resolve, reject) {
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-      list: state.currentPlayer.hand,
-      player: state.currentPlayer,
-      // many: 1,
+    return dispatch('PLAY_CARD', {
       phase: 'BATTLE_PLAY_SUPPORTER',
-      // agent: state.currentPlayer.agent,
-      // init: xSel,
+      list: 'hand',
+      // player: state.currentPlayer,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
@@ -249,34 +213,21 @@ export default {
           }
         })
       },
-      thenAction: (state,card) => {
+      thenAction: (state, card) => {
         commit('PICK_CARD', state.battle.attacker.support)
         commit('TO_SUPPORTER')
       },
     })
-    // }).then(() => {
-    //   // note!
-    //   // console.log('BATTLE_PLAY_SUPPORTER promise.then finish')
-    // })
-    //
-    // resolve()
   },
   BATTLE_OPP_PLAY_SUPPORTER({
     commit,
     state,
     dispatch
   }) {
-    // let xLens = R.lensPath(['battle', 'defenser', 'support'])
-    // let xSel = R.view(xLens)(state.test)
 
-    // return new Promise(async function (resolve, reject) {
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', {
-      list: state.opponentPlayer.hand,
-      player: state.opponentPlayer,
-      // many: 1,
+    return dispatch('OPP_PLAY_CARD', {
       phase: 'BATTLE_OPP_PLAY_SUPPORTER',
-      // agent: state.opponentPlayer.agent,
-      // init: xSel,
+      list: 'hand',
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
@@ -289,16 +240,11 @@ export default {
           }
         })
       },
-      thenAction: (state,card) => {
+      thenAction: (state, card) => {
         commit('PICK_CARD', state.battle.defenser.support)
         commit('TO_SUPPORTER')
       },
-      // }).then(() => {
-      // note!
-      // console.log(`BATTLE_OPP_PLAY_SUPPORTER dispatch promise.then finish')
     })
-    // resolve()
-    // })
   },
   BATTLE_EFFECT({
     commit,

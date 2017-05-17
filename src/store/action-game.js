@@ -104,89 +104,6 @@ export default {
     commit('SELECT_CARD', null)
     console.log('action SET_FACEUP')
   },
-  // async ACT_SELECT_CARD_START({
-  //   dispatch,
-  //   commit,
-  //   state
-  // }, payload) {
-  //
-  //   commit('ACT_SELECTION', payload)
-  //
-  //   let waiting = true
-  //   while (waiting) {
-  //     await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
-  //       // console.log('resolve')
-  //       waiting = false
-  //     }, (err) => {
-  //       // console.log('reject')
-  //     })
-  //   }
-  //   console.log('ACT_SELECT_CARD_START AWAIT SYNC finish')
-  //
-  //   // return dispatch('_ACT_SELECT_CARD_END')
-  //   dispatch('_ACT_SELECT_CARD_END')
-  // },
-  // 带入 dispatch
-  // async _ACT_SYNC_SELECT_CHECK({
-  //   commit,
-  //   state,
-  //   dispatch
-  // }, checkfunc = () => true) {
-  //
-  //   // console.log( '_ACT_SYNC_SELECT_CHECK' )
-  //   return new Promise(function (resolve, reject) {
-  //     setTimeout(() => {
-  //       // console.log('hello promise check')
-  //       // console.log(checkfunc())
-  //       // if( !checkfunc(state) ) {
-  //       //     commit('ACT_SET_SELECTED',false)
-  //       //     reject()
-  //       // }
-  //       // if (state.act_selection.selectedList.length >= state.act_selection.many) {
-  //       if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-  //         resolve()
-  //       } else {
-  //         reject()
-  //       }
-  //     }, 1000)
-  //   })
-  // },
-  // async _WAIT_ACT_SYNC_SELECT_UI({
-  //   commit,
-  //   state,
-  //   dispatch
-  // }, checkfunc = () => true) {
-  //
-  //   const waitfunc = () => {
-  //     return new Promise(function (resolve, reject) {
-  //       setTimeout(() => {
-  //         if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-  //           resolve()
-  //         } else {
-  //           reject()
-  //         }
-  //       }, 1000)
-  //     })
-  //   }
-  //
-  //   console.log('_WAIT_ACT_SYNC_SELECT_UI')
-  //   let waiting = true
-  //   while (waiting) {
-  //     // let checkfunc = () => state.placeholder ? state.placeholder.star >= 4 : true
-  //     await waitfunc().then((resolve) => {
-  //       waiting = false
-  //     }, (err) => {
-  //       // run again
-  //     })
-  //     // await dispatch('_ACT_SYNC_SELECT_CHECK').then((resolve) => {
-  //     //   // console.log('resolve')
-  //     //   waiting = false
-  //     // }, (err) => {
-  //     //   // console.log('reject')
-  //     //   // run again
-  //     // })
-  //   }
-  // },
   ACT_SELECTED_CARD({
     dispatch,
     commit,
@@ -200,9 +117,6 @@ export default {
 
     // dispatch selected action
     if (state.act_selection.selectedAction) {
-      // console.log( `ACT_SELECTED_CARD dispatch ${state.act_selection.action}` )
-      // dispatch(state.act_selection.action,card)
-      // console.log( `ACT_SELECTED_CARD selectedAction call` )
       state.act_selection.selectedAction(state, card)
     }
   },
@@ -212,9 +126,6 @@ export default {
     dispatch
   }, payload) {
 
-    // console.log('ASYNC_ACT_SELECT_CARD_START', R.prop('finish', state.act_selection))
-
-    // if(R.F(R.propEq('finish',true),state.act_selection)) {
     // 防止重复选择
     if (R.has('finish', state.act_selection)) {
       if (!state.act_selection['finish']) {
@@ -228,14 +139,23 @@ export default {
       // 注意：使用箭头函数不能是 async
       commit('_ACT_SELECTION_INIT', payload)
 
+      if (!R.is(Array, state.act_selection.list)) {
+        throw 'ASYNC_ACT_SELECT_CARD_START list error (type is not array)'
+        reject()
+        return false
+      }
+
       if (state.act_selection.message)
         console.log(state.act_selection.message)
 
       let doselect = true
       if (R.length(state.act_selection.list) <= 0) {
         console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
-        // reject()
+        // 没列表直接结束离开
+        commit('_ACT_FINISH')
+        resolve()
         doselect = false
+        return
       }
 
       // let xLens = R.lensProp('init')
@@ -247,62 +167,92 @@ export default {
       //   dispatch('ACT_SELECTED_CARD', card)
       //   console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
       // } else {
-      if (doselect) {
-        const agent = state.act_selection.agent
-        let selectcard
+      // if (doselect) {
+      const agent = state.act_selection.agent
+      let selectcard
 
-        if (agent) {
-          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-          selectcard = agent.SELECT_CARD(state, payload)
-          dispatch('ACT_SELECTED_CARD', selectcard)
-          console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
-          // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
-        } else {
-          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
-          // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
-          // move from _WAIT_ACT_SYNC_SELECT_UI
-          const waitfunc = () => {
-            return new Promise(function (resolve, reject) {
-              setTimeout(() => {
-                if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-                  resolve()
-                } else {
-                  reject()
-                }
-              }, 1000)
-            })
-          }
-
-          console.log('_WAIT_ACT_SYNC_SELECT_UI START BLOCKING')
-          let waiting = true
-          while (waiting) {
-            await waitfunc().then((resolve) => {
-              waiting = false
-            }, (err) => {
-              // run again
-            })
-          }
-          // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
-          console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
-
-          selectcard = R.head(state.act_selection.selectedList)
-        }
-
-        commit('_ACT_FINISH')
-
-        commit('SELECT_PLAYER', state.act_selection.player)
+      if (agent) {
+        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
+        selectcard = agent.SELECT_CARD(state, payload)
+        dispatch('ACT_SELECTED_CARD', selectcard)
+        console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
         // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
-        mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
-
-        commit('SELECT_CARD', selectcard)
-
-        // call thenAction
-        if (state.act_selection.thenAction) {
-          state.act_selection.thenAction(state,selectcard)
+      } else {
+        console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+        // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
+        // move from _WAIT_ACT_SYNC_SELECT_UI
+        const waitfunc = () => {
+          return new Promise(function (resolve, reject) {
+            setTimeout(() => {
+              if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+                resolve()
+              } else {
+                reject()
+              }
+            }, 1000)
+          })
         }
+
+        console.log('_WAIT_ACT_SYNC_SELECT_UI START BLOCKING')
+        let waiting = true
+        while (waiting) {
+          await waitfunc().then((resolve) => {
+            waiting = false
+          }, (err) => {
+            // run again
+          })
+        }
+        // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
+        console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
+
+        selectcard = R.head(state.act_selection.selectedList)
+      }
+
+      commit('_ACT_FINISH')
+
+      // commit('SELECT_PLAYER', state.act_selection.player)
+      // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
+      mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
+      // commit('SELECT_CARD', selectcard)
+
+      // call thenAction
+      if (state.act_selection.thenAction) {
+        state.act_selection.thenAction(state, selectcard)
       }
 
       resolve()
     })
+  },
+  PLAY_CARD({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    payload = R.assoc('player', state.currentPlayer)(payload)
+    // 使用SELECT_LIST模式
+    const list = payload.list
+    commit('SELECT_PLAYER', state.currentPlayer)
+    commit('SELECT_LIST', list)
+    payload = R.dissoc('list')(payload)
+
+    // if(payload.list == 'opp_zone') {
+    //   payload = R.assoc('list', state.opponentPlayer.zone)(payload)
+    // }
+
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
+  },
+  OPP_PLAY_CARD({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    payload = R.assoc('player', state.opponentPlayer)(payload)
+    // 使用SELECT_LIST模式
+    const list = payload.list
+    commit('SELECT_PLAYER', state.opponentPlayer)
+    commit('SELECT_LIST', payload.list)
+    payload = R.dissoc('list')(payload)
+
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
 }

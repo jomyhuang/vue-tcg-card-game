@@ -20,25 +20,27 @@ export default {
     dispatch
   }, payload) {
 
+    if(R.isNil(state.placeholder)) {
+      console.warn(`TIGGER_EFFECT placeholder is null skip`)
+      return false
+    }
+
     const type = payload
     const phase = payload
     const card = state.placeholder
     const player = card.owner
     const opponent = mutil.opponent(player)
 
-    // 处理效果目标对象 owner, card...
-    // select card owner
-    commit('SELECT_PLAYER', player)
+    // move to effect loop
+    // // 处理效果目标对象 owner, card...
+    // // select card owner
+    // commit('SELECT_PLAYER', player)
 
-    if (player !== state.currentPlayer) {
-      // commit('SELECT_CARD', card)
-      // commit('SELECT_PLAYER', player)
-      console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
-      // throw '发动效果卡不等于 placeholder'
-    }
-
-    // console.log('TIGGER_EFFECT this',this);
-
+    // if (player !== state.currentPlayer) {
+    //   console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
+    //   // throw '发动效果卡不等于 placeholder'
+    // }
+    //
     const funcdispatch = (type, payload) => {
       return () => dispatch(type, payload)
     }
@@ -119,20 +121,13 @@ export default {
       return false
     }
 
-    // let engage = R.path(['effect', 'engage'])(card)
-    //
-    // if(engage) {
-    //   console.log('enage test',engage)
-    //   engage(type)
-    // }
-
     return new Promise(async function (resolve, reject) {
 
-      let result = effectfunc
-      if( _.isFunction(result) ) {
-        result = effectfunc.call(card,effectpack)
+      let res = effectfunc
+      if (_.isFunction(res)) {
+        res = effectfunc.call(card, effectpack)
       }
-      if (R.isNil(result)) {
+      if (R.isNil(res)) {
         console.log('TIGGER_EFFECT result is nil skip do effect pipe')
         resolve()
         return true
@@ -141,11 +136,11 @@ export default {
       console.group()
       console.log(`=> ${card.cardno} ${type} effect action`)
 
-      let pipelist = R.is(Array, result) ? result : [ result ]
+      let pipelist = R.is(Array, res) ? res : [res]
       pipelist = R.flatten(pipelist)
 
       let pipecount = 0
-      for( let pipe of pipelist ) {
+      for (let pipe of pipelist) {
         pipecount++
         console.group()
         console.log(`=> ${card.cardno} ${type} pipelist ${pipecount}/${pipelist.length}`)
@@ -162,24 +157,37 @@ export default {
         }
 
         // convert & flatten any vaule to pipe array
-        let effectpipe = R.is(Array, pipe) ? pipe : [ pipe ]
+        let effectpipe = R.is(Array, pipe) ? pipe : [pipe]
         effectpipe = R.flatten(effectpipe)
 
         // await version foreach
         console.group()
         console.log('TIGGER_EFFECT result is effect pipe start')
+
+        // 处理效果目标对象 owner, card...
+        // select card owner
+        commit('SELECT_PLAYER', player)
+        commit('SELECT_CARD', card)
+        if (player !== state.currentPlayer) {
+          console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
+          // throw '发动效果卡不等于 placeholder'
+        }
+
         // 改成map不行，不在目前主线程 blocking
-        // effectpipe.map(async function (x) {
-        //   if (_.isFunction(x)) {
-        //     console.log(`effect pipe call start`, x)
-        //     await new Promise(async function(resolve, reject) {
+        // promise hell!
+        // await new Promise(function(resolve, reject) {
+        //
+        //   effectpipe.map(async function (x) {
+        //     if (_.isFunction(x)) {
+        //       console.log(`effect pipe call start`, x)
         //       await x.call(card,effectpack)
-        //       resolve()
-        //     })
-        //     console.log('await pipe call finish next')
-        //   } else {
-        //     console.log(`effect pipe [object]`, x)
-        //   }
+        //       console.log('await pipe call finish next')
+        //     } else {
+        //       console.log(`effect pipe [object]`, x)
+        //     }
+        //   })
+        //   console.log('TIGGER_EFFECT map ok');
+        //   resolve()
         // })
 
         let count = 0
@@ -210,37 +218,69 @@ export default {
     dispatch
   }, payload) {
 
-    if (R.is(String, payload)) {
-      // console.log('EFFECT_CHOICE is string')
-      payload = {
-        list: payload
-      }
-    } else if (R.is(Array, payload)) {
-      // console.log('EFFECT_CHOICE is array')
+    if (!R.isNil(payload)) {
       payload = {
         list: payload
       }
     }
+    // if (R.is(String, payload) || R.is(Array, payload) ) {
+    //   // console.log('EFFECT_CHOICE is string')
+    //   payload = {
+    //     list: payload
+    //   }
+    // }
 
     // R.has 如果没有，会 throw error
-    if (!_.has('list', payload)) {
-      console.log('EFFECT_CHOICE payload no list key, select by placelist')
-      // console.error('EFFECT_CHOICE payload no list key')
-      // throw 'EFFECT_CHOICE no list for choice'
-      // return false
-    }
+    // if (!_.has('list', payload)) {
+    //   console.log('EFFECT_CHOICE payload no list key, select by placelist')
+    //   // console.error('EFFECT_CHOICE payload no list key')
+    //   // throw 'EFFECT_CHOICE no list for choice'
+    //   // return false
+    // }
 
     payload = R.merge({
       phase: 'EFFECT_CHOICE',
       message: 'EFFECT_CHOICE',
+      // player: state.currentPlayer,
       player: state.placeplayer,
       selectedMuation: (state, card) => {
-        state.storemsg = `select ${card.name}`
+        state.storemsg = `EFFECT_CHOICE ${state.placeplayer.id} select ${card.name}`
         card.name = card.name + '[EF]'
-        console.log('EFFECT_CHOICE selectedMuation')
       },
     })(payload)
 
+    console.log('EFFECT_CHOICE do ', payload)
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
+  },
+  EFFECT_OPP_CHOICE({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+
+    if (!R.isNil(payload)) {
+      payload = {
+        list: payload
+      }
+    }
+
+    const oppplayer = mutil.opponent(state.placeplayer)
+
+    payload = R.merge({
+      phase: 'EFFECT_OPP_CHOICE',
+      message: 'EFFECT_OPP_CHOICE',
+      player: oppplayer,
+      selectedMuation: (state, card) => {
+        state.storemsg = `EFFECT_OPP_CHOICE ${oppplayer} select ${card.name}`
+        card.name = card.name + '[OEF]'
+      },
+    })(payload)
+
+    // return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( ()=> {
+    //   console.log('EFFECT_OPP_CHOICE finish return select currentPlayer')
+    //   commit('SELECT_PLAYER',state.currentPlayer)
+    // })
+    console.log('EFFECT_OPP_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
 }
