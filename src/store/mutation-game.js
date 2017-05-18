@@ -222,25 +222,25 @@ export default {
       console.warn('commit SELECT_CARD null')
     }
   },
-  SELECT_CARD_SAVE(state, savecard = state.placeholder) {
-    state.placeholdersave = savecard
-    if (state.placeholdersave) {
-      console.log(`commit SELECT_CARD_SAVE ${state.placeholdersave.name}`)
-    } else {
-      console.warn('commit SELECT_CARD_SAVE null')
-    }
-  },
-  SELECT_CARD_RESTORE(state) {
-    let card = state.placeholdersave
-    state.placeholdersave = undefined
-    state.placeholder = card
-    state.pickindex = -1
-    if (state.placeholder) {
-      console.log(`commit SELECT_CARD_RESTORE ${state.placeholder.name}`)
-    } else {
-      console.warn('commit SELECT_CARD_RESTORE null')
-    }
-  },
+  // SELECT_CARD_SAVE(state, savecard = state.placeholder) {
+  //   state.placeholdersave = savecard
+  //   if (state.placeholdersave) {
+  //     console.log(`commit SELECT_CARD_SAVE ${state.placeholdersave.name}`)
+  //   } else {
+  //     console.warn('commit SELECT_CARD_SAVE null')
+  //   }
+  // },
+  // SELECT_CARD_RESTORE(state) {
+  //   let card = state.placeholdersave
+  //   state.placeholdersave = undefined
+  //   state.placeholder = card
+  //   state.pickindex = -1
+  //   if (state.placeholder) {
+  //     console.log(`commit SELECT_CARD_RESTORE ${state.placeholder.name}`)
+  //   } else {
+  //     console.warn('commit SELECT_CARD_RESTORE null')
+  //   }
+  // },
   SELECT_LIST(state, payload) {
     let list = payload
     if (R.isNil(list)) {
@@ -391,11 +391,12 @@ export default {
     let flag = !state.placeholder.selected
     state.placeholder.selected = flag
 
-    if (state.act_selection.selectedMuation) {
-      // 处理muation callback
-      // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
-      state.act_selection.selectedMuation(state, state.placeholder)
-    }
+    mutil.call(R.prop('selectedMuation',state.act_selection), this, state, state.placeholder)
+    // if (state.act_selection.selectedMuation) {
+    //   // 处理muation callback
+    //   // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
+    //   state.act_selection.selectedMuation(state, state.placeholder)
+    // }
 
     // 处理更新selected list
     state.act_selection.selectedList = state.act_selection.list.filter((card) => card.selected)

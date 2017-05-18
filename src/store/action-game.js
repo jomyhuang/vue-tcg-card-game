@@ -41,6 +41,10 @@ export default {
 
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
+
+    // console.log('test code')
+    // let foo = () => console.log('test')
+    // R.call(foo)
   },
   GAME_INIT_STORE({
     commit,
@@ -115,10 +119,11 @@ export default {
     commit('SELECT_CARD', card)
     commit('ACT_SET_SELECTED', card)
 
-    // dispatch selected action
-    if (state.act_selection.selectedAction) {
-      state.act_selection.selectedAction(state, card)
-    }
+    mutil.call(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
+    // // dispatch selected action
+    // if (state.act_selection.selectedAction) {
+    //   state.act_selection.selectedAction(state, card)
+    // }
   },
   ASYNC_ACT_SELECT_CARD_START({
     commit,
@@ -193,7 +198,9 @@ export default {
           })
         }
 
-        console.log('_WAIT_ACT_SYNC_SELECT_UI START BLOCKING')
+        let message = R.prop('message',state.act_selection)
+        let type = R.prop('type',state.act_selection)
+        console.log(`_WAIT [UI] START BLOCKING ${message}`)
         let waiting = true
         while (waiting) {
           await waitfunc().then((resolve) => {
@@ -203,7 +210,7 @@ export default {
           })
         }
         // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
-        console.log('ASYNC_ACT_SELECT_CARD_START from [UI] OK')
+        console.log(`_WAIT [UI] OK ${message}`)
 
         selectcard = R.head(state.act_selection.selectedList)
       }
@@ -216,9 +223,10 @@ export default {
       // commit('SELECT_CARD', selectcard)
 
       // call thenAction
-      if (state.act_selection.thenAction) {
-        state.act_selection.thenAction(state, selectcard)
-      }
+      mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      // if (state.act_selection.thenAction) {
+      //   state.act_selection.thenAction(state, selectcard)
+      // }
 
       resolve()
     })

@@ -566,6 +566,37 @@ export default {
       throw `mutil.selectcards (type unknown) select`
     }
 
+    this.assert(R.is(Array, list), `selectcards list is not array`)
+
     return list
   },
+  isPromise (val) {
+    return val && typeof val.then === 'function'
+  },
+  call(fn, thisobj, ...args) {
+    let res
+    if( _.isFunction(fn) ) {
+      res = fn.apply(thisobj, args)
+    }
+    // if(!this.isPromise(res)) {
+    //   res = Promise.resolve(res)
+    // }
+
+    return res
+  },
+  packcall(fn, thisobj, ...args) {
+    let res = []
+    if( _.isArray(fn)) {
+      res = fn
+    }
+    else if( _.isFunction(fn)) {
+      res = fn.apply(thisobj, args)
+      res = R.is(Array,res) ? res : [res]
+      res = R.flatten(res)
+    }
+    return res
+  },
+  packisNil(pack) {
+    return R.isNil(pack) || R.isNil(R.head(pack))
+  }
 }

@@ -14,13 +14,24 @@ import $cx from '@/cardxflow'
 
 
 export default {
+  EFFECT_SOURCE({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    const card = payload
+    const owner = card.owner
+    commit('SELECT_PLAYER', owner)
+    commit('SELECT_CARD', card)
+    console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`);
+  },
   TIGGER_EFFECT({
     commit,
     state,
     dispatch
   }, payload) {
 
-    if(R.isNil(state.placeholder)) {
+    if (R.isNil(state.placeholder)) {
       console.warn(`TIGGER_EFFECT placeholder is null skip`)
       return false
     }
@@ -100,7 +111,7 @@ export default {
       tap: tap,
     }
 
-    // without condition check effect
+    // without condition check effect 不需要 tag check
     let condition
     const checklist = ['main']
 
@@ -123,11 +134,14 @@ export default {
 
     return new Promise(async function (resolve, reject) {
 
-      let res = effectfunc
-      if (_.isFunction(res)) {
-        res = effectfunc.call(card, effectpack)
-      }
-      if (R.isNil(res)) {
+      // let pipelist = mutil.packcall(effectfunc, card, effectpack)
+      let effectpipe = mutil.packcall(effectfunc, card, effectpack)
+      // let res = effectfunc
+      // if (_.isFunction(res)) {
+      //   res = effectfunc.call(card, effectpack)
+      // }
+      // if (R.isNil(res)) {
+      if (mutil.packisNil(effectpipe)) {
         console.log('TIGGER_EFFECT result is nil skip do effect pipe')
         resolve()
         return true
@@ -136,14 +150,14 @@ export default {
       console.group()
       console.log(`=> ${card.cardno} ${type} effect action`)
 
-      let pipelist = R.is(Array, res) ? res : [res]
-      pipelist = R.flatten(pipelist)
+      // let pipelist = R.is(Array, res) ? res : [res]
+      // pipelist = R.flatten(pipelist)
 
-      let pipecount = 0
-      for (let pipe of pipelist) {
-        pipecount++
-        console.group()
-        console.log(`=> ${card.cardno} ${type} pipelist ${pipecount}/${pipelist.length}`)
+      // let pipecount = 0
+      // for (let pipe of pipelist) {
+      //   pipecount++
+      //
+      //   console.log(`=> ${card.cardno} ${type} pipelist ${pipecount}/${pipelist.length}`)
 
         // let result = effectfunc.call(card, effectpack)
         // console.log(`${card.cardno} ${type} result is`, R.type(item))
@@ -152,16 +166,19 @@ export default {
         //   resolve()
         //   return false
         // } else if (_.isFunction(item)) {
-        if (_.isFunction(pipe)) {
-          pipe = pipe.call(card, effectpack)
-        }
+
+        // if (_.isFunction(pipe)) {
+        //   pipe = pipe.call(card, effectpack)
+        // }
 
         // convert & flatten any vaule to pipe array
-        let effectpipe = R.is(Array, pipe) ? pipe : [pipe]
-        effectpipe = R.flatten(effectpipe)
+        // let effectpipe = R.is(Array, pipe) ? pipe : [pipe]
+        // effectpipe = R.flatten(effectpipe)
+
+        // let effectpipe = mutil.packcall(pipe, card, effectpack)
+
 
         // await version foreach
-        console.group()
         console.log('TIGGER_EFFECT result is effect pipe start')
 
         // 处理效果目标对象 owner, card...
@@ -170,7 +187,6 @@ export default {
         commit('SELECT_CARD', card)
         if (player !== state.currentPlayer) {
           console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
-          // throw '发动效果卡不等于 placeholder'
         }
 
         // 改成map不行，不在目前主线程 blocking
@@ -194,8 +210,12 @@ export default {
         for (let act of effectpipe) {
           count++
 
+          // console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
+          // 不能使用外部call
+          // await mutil.call(act, card, effectpack)
+
           if (_.isFunction(act)) {
-            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
+            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
             await act.call(card, effectpack)
             console.log('await pipe call finish next')
           } else {
@@ -203,9 +223,7 @@ export default {
           }
         }
         console.log('TIGGER_EFFECT result is effect pipe finish')
-        console.groupEnd()
-        console.groupEnd()
-      }
+      // }
 
       console.groupEnd()
 

@@ -127,7 +127,16 @@ phase(is.win).draw(1)
 ==、效果自带的message展示系统
 ==、effect修改buff state (strict: true)
 隐藏包装ASYNC_ACT_SELECT_CARD_START
+==、回合结束，清除阶段，清除掉所有play效果标签
 
+effect tagging
+add
+clear
+check
+if
+
+==、effect pipe 中断，logic check
+==、effect context
 
 
 7、英雄系统
