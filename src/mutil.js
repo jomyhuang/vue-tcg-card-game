@@ -526,7 +526,7 @@ export default {
     const state = $store.state
     let list
 
-    console.log('mutil.selectcards selector', selector)
+    // console.log('mutil.selectcards selector', selector)
 
     if (R.is(String, selector)) { // string
       switch (selector) {
@@ -542,15 +542,15 @@ export default {
             let oppplayer = this.opponent(placeplayer)
 
             list = oppplayer[opt[1]]
-            console.log('mutil.selectcards (type string) opponent select', list)
+            console.log(`mutil.selectcards (type string ${selector}) opponent select`, list)
           } else {
             list = placeplayer[selector]
-            console.log(`mutil.selectcards (type string) placeplayer ${placeplayer.id} select`, list)
+            console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
     }
     else if (_.isFunction(selector)) { // function
-      console.log(`mutil.selectcards (type function) select call`)
+      // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
       console.log(`mutil.selectcards (type function) select`, list)
     }
@@ -575,24 +575,37 @@ export default {
   },
   call(fn, thisobj, ...args) {
     let res
-    if( _.isFunction(fn) ) {
-      res = fn.apply(thisobj, args)
+    if( !_.isFunction(fn) ) {
+      return fn
     }
+    res = fn.apply(thisobj, args)
+    return res
+  },
+  // Trampoline functional
+  tcall(fn, thisobj, ...args) {
+    let res
+    if( !_.isFunction(fn) ) {
+      return fn
+    }
+    res = fn.apply(thisobj, args)
     // if(!this.isPromise(res)) {
     //   res = Promise.resolve(res)
     // }
-
-    return res
+    return this.call(res, thisobj, ...args)
   },
   packcall(fn, thisobj, ...args) {
     let res = []
-    if( _.isArray(fn)) {
+    if( R.is(Array,fn) ) {
       res = fn
     }
     else if( _.isFunction(fn)) {
-      res = fn.apply(thisobj, args)
+      // res = fn.apply(thisobj, args)
+      res = this.tcall(fn, thisobj, ...args)
       res = R.is(Array,res) ? res : [res]
-      res = R.flatten(res)
+      // res = R.flatten(res)
+    }
+    else {
+      res = [fn]
     }
     return res
   },

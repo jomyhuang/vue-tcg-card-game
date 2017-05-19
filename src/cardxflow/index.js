@@ -26,13 +26,6 @@ export function cxrun(type, payload) {
 }
 
 export function cxpipe(...items) {
-  // let pipearr = []
-  // items.forEach((effect) => {
-  //   const fn = effect.bind($store.placeholder)
-  //   pipearr.push(fn)
-  // })
-  // return pipearr
-  // return items
   return function ({
     phase
   }) {
@@ -49,16 +42,6 @@ export function cxengage(...items) {
     const card = thiscard()
     // console.log('cxengage call', phase)
     return [ cxtap('cxengage call'), ...items ]
-    // console.log('cxengage',phase)
-    // // console.log('cxengage when',when)
-    // if(when()(phase)) {
-    //   console.log(`cxengage ${phase} check ok`)
-    //   return items
-    // }
-    // else {
-    //   console.log(`cxengage ${phase} check fail`)
-    //   return false
-    // }
   }
 }
 

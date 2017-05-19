@@ -93,6 +93,16 @@ B、NLP for TCG gaming/effect self-programming
 phase/condition in card effect function:
 isAttacker: $cx.engage($cx.buff(500),$cx.buff(500,'special power!')),
 
+isDefenser: [
+  [$cx.engage($cx.tap('do this tap message array1'))],
+  [$cx.engage($cx.buff(500), $cx.tap('effect array2'))],
+],
+new format:
+$cx.engage(
+      [$cx.engage($cx.tap('do this tap message array1'))],
+      [$cx.engage($cx.buff(500), $cx.tap('effect array2'))]
+      ),
+
 isAttacker(effectpack,payload) {
   return $cx.pipe(
     $cx.run('SELECT_LIST', 'opp_zone'),
@@ -102,6 +112,9 @@ isAttacker(effectpack,payload) {
     $cx.run('TO_GRAVEYARD'),
   )
 }
+
+make
+pipelist = [ [acts11,acts12], [act21,act22,act23...] ]
 
 //
 

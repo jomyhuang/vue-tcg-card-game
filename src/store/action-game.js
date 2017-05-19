@@ -238,14 +238,10 @@ export default {
   }, payload) {
     payload = R.assoc('player', state.currentPlayer)(payload)
     // 使用SELECT_LIST模式
-    const list = payload.list
-    commit('SELECT_PLAYER', state.currentPlayer)
-    commit('SELECT_LIST', list)
-    payload = R.dissoc('list')(payload)
-
-    // if(payload.list == 'opp_zone') {
-    //   payload = R.assoc('list', state.opponentPlayer.zone)(payload)
-    // }
+    // const list = payload.list
+    // commit('SELECT_PLAYER', state.currentPlayer)
+    // commit('SELECT_LIST', list)
+    // payload = R.dissoc('list')(payload)
 
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
@@ -256,10 +252,10 @@ export default {
   }, payload) {
     payload = R.assoc('player', state.opponentPlayer)(payload)
     // 使用SELECT_LIST模式
-    const list = payload.list
-    commit('SELECT_PLAYER', state.opponentPlayer)
-    commit('SELECT_LIST', payload.list)
-    payload = R.dissoc('list')(payload)
+    // const list = payload.list
+    // commit('SELECT_PLAYER', state.opponentPlayer)
+    // commit('SELECT_LIST', payload.list)
+    // payload = R.dissoc('list')(payload)
 
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },

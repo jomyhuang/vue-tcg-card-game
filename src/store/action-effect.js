@@ -134,30 +134,30 @@ export default {
 
     return new Promise(async function (resolve, reject) {
 
-      // let pipelist = mutil.packcall(effectfunc, card, effectpack)
-      let effectpipe = mutil.packcall(effectfunc, card, effectpack)
-      // let res = effectfunc
-      // if (_.isFunction(res)) {
-      //   res = effectfunc.call(card, effectpack)
-      // }
-      // if (R.isNil(res)) {
-      if (mutil.packisNil(effectpipe)) {
+      let pipelist = mutil.packcall(effectfunc, card, effectpack)
+      // let effectpipe = mutil.packcall(effectfunc, card, effectpack)
+
+      // if (mutil.packisNil(effectpipe)) {
+      if (mutil.packisNil(pipelist)) {
         console.log('TIGGER_EFFECT result is nil skip do effect pipe')
         resolve()
         return true
       }
+      pipelist = R.is(Array,pipelist[0]) ? pipelist : [pipelist]
+      // console.log(pipelist)
 
       console.group()
       console.log(`=> ${card.cardno} ${type} effect action`)
 
       // let pipelist = R.is(Array, res) ? res : [res]
       // pipelist = R.flatten(pipelist)
+      console.log(pipelist);
 
-      // let pipecount = 0
-      // for (let pipe of pipelist) {
-      //   pipecount++
-      //
-      //   console.log(`=> ${card.cardno} ${type} pipelist ${pipecount}/${pipelist.length}`)
+      let pipecount = 0
+      for (let pipe of pipelist) {
+        pipecount++
+
+        console.log(`=> ${card.cardno} ${type} effect action pipelist ${pipecount}/${pipelist.length}`)
 
         // let result = effectfunc.call(card, effectpack)
         // console.log(`${card.cardno} ${type} result is`, R.type(item))
@@ -173,13 +173,15 @@ export default {
 
         // convert & flatten any vaule to pipe array
         // let effectpipe = R.is(Array, pipe) ? pipe : [pipe]
-        // effectpipe = R.flatten(effectpipe)
 
-        // let effectpipe = mutil.packcall(pipe, card, effectpack)
+        // console.log('pipe', _.isFunction(pipe), R.is(Array,pipe))
 
+        let effectpipe = mutil.packcall(pipe, card, effectpack)
+        // console.log(effectpipe)
 
+        console.group()
         // await version foreach
-        console.log('TIGGER_EFFECT result is effect pipe start')
+        console.log(`${card.cardno} ${type} effect step ${effectpipe.length} actions`)
 
         // 处理效果目标对象 owner, card...
         // select card owner
@@ -212,19 +214,23 @@ export default {
 
           // console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
           // 不能使用外部call
-          // await mutil.call(act, card, effectpack)
+          // XXXX await mutil.call(act, card, effectpack)
 
           if (_.isFunction(act)) {
             console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
-            await act.call(card, effectpack)
-            console.log('await pipe call finish next')
+            let res = await act.call(card, effectpack)
+            if( _.isFunction(res) ) {
+              res = await res.call(card,effectpack)
+            }
+            console.log('await pipe call finish next',res)
           } else {
             console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object]`, act)
           }
         }
         console.log('TIGGER_EFFECT result is effect pipe finish')
-      // }
+        console.groupEnd()
 
+      }
       console.groupEnd()
 
       resolve()
