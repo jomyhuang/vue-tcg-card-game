@@ -30,8 +30,8 @@ export function cxpipe(...items) {
     phase
   }) {
     const card = thiscard()
-    // console.log('cxpipe call', phase)
-    return [ cxtap('cxpipe call'), ...items ]
+
+    return items
   }
 }
 
@@ -40,8 +40,8 @@ export function cxengage(...items) {
     phase
   }) {
     const card = thiscard()
-    // console.log('cxengage call', phase)
-    return [ cxtap('cxengage call'), ...items ]
+
+    return [cxtap('cxengage call')].concat(items)
   }
 }
 

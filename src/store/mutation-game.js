@@ -563,6 +563,6 @@ export default {
     const card = state.placeholder
     const buff = payload
     card.power.push(buff)
-    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`, buff)
+    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`,buff)
   },
 }

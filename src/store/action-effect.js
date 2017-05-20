@@ -143,11 +143,15 @@ export default {
         resolve()
         return true
       }
-      pipelist = R.is(Array,pipelist[0]) ? pipelist : [pipelist]
-      // console.log(pipelist)
+
+      // !!重要！！如果没有Array，则降维为合并成一个标准模式
+      if( !R.any(R.is(Array),pipelist)) {
+        pipelist = [pipelist]
+      }
+
 
       console.group()
-      console.log(`=> ${card.cardno} ${type} effect action`)
+      console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
 
       // let pipelist = R.is(Array, res) ? res : [res]
       // pipelist = R.flatten(pipelist)
@@ -157,7 +161,8 @@ export default {
       for (let pipe of pipelist) {
         pipecount++
 
-        console.log(`=> ${card.cardno} ${type} effect action pipelist ${pipecount}/${pipelist.length}`)
+        if(pipelist.length > 1)
+          console.log(`=> ${card.cardno} ${type} effect action pipelist ${pipecount}/${pipelist.length}`)
 
         // let result = effectfunc.call(card, effectpack)
         // console.log(`${card.cardno} ${type} result is`, R.type(item))
@@ -224,10 +229,10 @@ export default {
             }
             console.log('await pipe call finish next',res)
           } else {
-            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object]`, act)
+            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object] next`, act)
           }
         }
-        console.log('TIGGER_EFFECT result is effect pipe finish')
+        console.log('TIGGER_EFFECT result is effect step finish')
         console.groupEnd()
 
       }

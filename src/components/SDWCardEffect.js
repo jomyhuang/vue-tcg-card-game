@@ -16,10 +16,14 @@ export default {
       // console.log('JW15-001 mounted test ok')
     },
     isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
-    isDefenser: [
-      [$cx.engage($cx.tap('do this tap message array1'))],
-      [$cx.engage($cx.buff(500), $cx.tap('effect array2'))],
-    ],
+    isDefenser: $cx.engage(
+      [$cx.tap('do this tap message array1')],
+      [$cx.buff(500), $cx.tap('effect array2')],
+    ),
+    // isDefenser: [
+    //   $cx.engage($cx.tap('do this tap message array1')),
+    //   $cx.engage($cx.buff(500), $cx.tap('effect array2')),
+    // ],
     faceup({
       dispatch,
     }) {
