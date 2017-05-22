@@ -135,9 +135,7 @@ export default {
     return new Promise(async function (resolve, reject) {
 
       let pipelist = mutil.packcall(effectfunc, card, effectpack)
-      // let effectpipe = mutil.packcall(effectfunc, card, effectpack)
 
-      // if (mutil.packisNil(effectpipe)) {
       if (mutil.packisNil(pipelist)) {
         console.log('TIGGER_EFFECT result is nil skip do effect pipe')
         resolve()
@@ -153,8 +151,6 @@ export default {
       console.group()
       console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
 
-      // let pipelist = R.is(Array, res) ? res : [res]
-      // pipelist = R.flatten(pipelist)
       console.log(pipelist);
 
       let pipecount = 0
@@ -163,23 +159,6 @@ export default {
 
         if(pipelist.length > 1)
           console.log(`=> ${card.cardno} ${type} effect action pipelist ${pipecount}/${pipelist.length}`)
-
-        // let result = effectfunc.call(card, effectpack)
-        // console.log(`${card.cardno} ${type} result is`, R.type(item))
-        // if (R.isNil(item)) {
-        //   console.log('TIGGER_EFFECT result is nil skip effect')
-        //   resolve()
-        //   return false
-        // } else if (_.isFunction(item)) {
-
-        // if (_.isFunction(pipe)) {
-        //   pipe = pipe.call(card, effectpack)
-        // }
-
-        // convert & flatten any vaule to pipe array
-        // let effectpipe = R.is(Array, pipe) ? pipe : [pipe]
-
-        // console.log('pipe', _.isFunction(pipe), R.is(Array,pipe))
 
         let effectpipe = mutil.packcall(pipe, card, effectpack)
         // console.log(effectpipe)
@@ -224,9 +203,9 @@ export default {
           if (_.isFunction(act)) {
             console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
             let res = await act.call(card, effectpack)
-            if( _.isFunction(res) ) {
-              res = await res.call(card,effectpack)
-            }
+            // if( _.isFunction(res) ) {
+            //   res = await res.call(card,effectpack)
+            // }
             console.log('await pipe call finish next',res)
           } else {
             console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object] next`, act)

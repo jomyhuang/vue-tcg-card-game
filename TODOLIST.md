@@ -1,5 +1,7 @@
 
 TODO MEMO:
+TODO, FIXME, CHANGED, XXX, IDEA, HACK, NOTE, REVIEW, NB and BUG
+
 
 OK、增加效果计算Buff OK
 OK、修改合并攻击力架构 OK
@@ -60,6 +62,21 @@ OK、支援卡牌离开手牌区域
 => 增加support pipe
 
 
+OK、卡牌选择战斗支援后，已经移出要手牌
+
+OK、隐藏包装ASYNC_ACT_SELECT_CARD_START
+PLAY_CARD
+OPP_PLAY_CARD
+EFFECT_CHOICE
+EFFECT_OPP_CHOICE
+
+OK、effect修改buff state (strict: true)
+commit CARD_ADD_BUFF
+
+
+
+
+
 -------------------------------------------------------
 TODO:
 
@@ -93,15 +110,11 @@ B、NLP for TCG gaming/effect self-programming
 phase/condition in card effect function:
 isAttacker: $cx.engage($cx.buff(500),$cx.buff(500,'special power!')),
 
-isDefenser: [
-  [$cx.engage($cx.tap('do this tap message array1'))],
-  [$cx.engage($cx.buff(500), $cx.tap('effect array2'))],
-],
 new format:
-$cx.engage(
-      [$cx.engage($cx.tap('do this tap message array1'))],
-      [$cx.engage($cx.buff(500), $cx.tap('effect array2'))]
-      ),
+isDefenser: $cx.engage(
+  [$cx.engage($cx.tap('do this tap message array1'))],
+  [$cx.engage($cx.buff(500), $cx.tap('effect array2'))]
+),
 
 isAttacker(effectpack,payload) {
   return $cx.pipe(
@@ -114,9 +127,8 @@ isAttacker(effectpack,payload) {
 }
 
 make
-pipelist = [ [acts11,acts12], [act21,act22,act23...] ]
-
-//
+pipliest (1 action) = [ [[acts11,acts12...]] ]
+pipelist (compose) = [ [acts11,acts12], [act21,act22,act23...] ]
 
 engage(is.supporter).choice('opp_zone', not(card.faceup)).draw(1)
 engage(is.supporter).opp_choice('zone', not(card.faceup)).draw(1)
@@ -124,32 +136,28 @@ engage(is.faceup).discard('opp_hand',1)
 phase(is.win).draw(1)
 
 
+4、更精炼的效果函数动作DSL表示方式：
+？check 使用marco 语言
 
-
-4、更精炼的效果函数动作表示方式：
 
 
 
 
 6、LIST
-卡牌选择战斗支援后，已经移出要手牌
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理
 ==、支援增加的buff是在主战、还是支援精灵本身
 ==、check 对手回合发动卡牌的效果的处理、检查
 ==、效果自带的message展示系统
-==、effect修改buff state (strict: true)
-隐藏包装ASYNC_ACT_SELECT_CARD_START
+==、effect tagging
 ==、回合结束，清除阶段，清除掉所有play效果标签
-
-effect tagging
 add
 clear
 check
 if
 
+==、增加effect context，用于测试、记录、信息
 ==、effect pipe 中断，logic check
-==、effect context
 
 
 7、英雄系统
