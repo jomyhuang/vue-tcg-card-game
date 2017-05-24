@@ -555,14 +555,55 @@ export default {
     console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
-  CARD_ADD_BUFF(state, payload) {
+  ADD_BUFF(state, payload) {
     if (!state.placeholder) {
-      console.log('commit CARD_ADD_BUFF ERROR no placeholder card')
+      console.log('commit ADD_BUFF ERROR no placeholder card')
       return
     }
     const card = state.placeholder
     const buff = payload
     card.power.push(buff)
-    console.log(`commit CARD_ADD_BUFF ${state.placeholder.name}`,buff)
+    console.log(`commit ADD_BUFF ${state.placeholder.name}`,buff)
+  },
+  ADD_TAG(state, payload) {
+    if (!state.placeholder) {
+      console.log('commit ADD_TAG ERROR no placeholder card')
+      return
+    }
+    const card = state.placeholder
+    const tag = payload
+    if (R.is(String,tag)) {
+      card.play = R.assoc(tag,true)(card.play)
+    }
+    else {
+      card.play = R.merge(tag,card.play)
+    }
+    console.log(`commit ADD_TAG ${state.placeholder.name}`,card.play)
+  },
+  REMOVE_TAG(state, payload) {
+    if (!state.placeholder) {
+      console.log('commit REMOVE_TAG ERROR no placeholder card')
+      return
+    }
+    const card = state.placeholder
+    const tag = payload
+    if (R.is(String,tag)) {
+      card.play = R.dissoc(tag)(card.play)
+    }
+    else {
+      console.error('REMOVE_TAG payload must is string')
+    }
+    console.log(`commit REMOVE_TAG ${state.placeholder.name}`,card.play)
+  },
+  CLEAR_TAG(state, payload) {
+    if (!state.placeholder) {
+      console.log('commit CLEAR_TAG ERROR no placeholder card')
+      return
+    }
+    const card = state.placeholder
+    const tag = payload
+    card.play = null
+    card.play = {}
+    console.log(`commit CLEAR_TAG ${state.placeholder.name}`)
   },
 }

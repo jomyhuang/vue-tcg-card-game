@@ -611,5 +611,8 @@ export default {
   },
   packisNil(pack) {
     return R.isNil(pack) || R.isNil(R.head(pack))
+  },
+  hasTag(tag,card=$store.state.placeholder) {
+    return !R.isNil(card.play[tag])
   }
 }

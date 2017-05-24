@@ -60,7 +60,7 @@ export function cxbuff(power = 0, tag) {
       // type: type,
       // card: card,
     }
-    commit('CARD_ADD_BUFF', buff)
+    commit('ADD_BUFF', buff)
     return buff
   }
 }

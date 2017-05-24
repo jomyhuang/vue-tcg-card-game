@@ -140,7 +140,7 @@ export default {
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[A]'
-        card.play = R.assoc('isAttacker', true)(card.play)
+        // card.play = R.assoc('isAttacker', true)(card.play)
       },
       selectedAction: (state, card) => {
         commit('BATTLE_SET', {
@@ -148,6 +148,7 @@ export default {
             main: card,
           }
         })
+        commit('ADD_TAG', 'isAttacker')
         commit('SET_FACEUP')
       },
       thenAction: (state) => {
@@ -172,7 +173,7 @@ export default {
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[D]'
-        card.play = R.assoc('isDefenser', true)(card.play)
+        // card.play = R.assoc('isDefenser', true)(card.play)
       },
       selectedAction: (state, card) => {
         commit('BATTLE_SET', {
@@ -180,6 +181,7 @@ export default {
             main: card,
           }
         })
+        commit('ADD_TAG', 'isDefenser')
         commit('SET_FACEUP')
       },
       thenAction: (state) => {
@@ -204,7 +206,7 @@ export default {
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
-        card.play = R.assoc('isSupporter', true)(card.play)
+        // card.play = R.assoc('isSupporter', true)(card.play)
       },
       selectedAction: (state, card) => {
         commit('BATTLE_SET', {
@@ -212,6 +214,7 @@ export default {
             support: card,
           }
         })
+        commit('ADD_TAG', 'isSupporter')
       },
       thenAction: (state, card) => {
         commit('PICK_CARD', state.battle.attacker.support)
@@ -231,7 +234,7 @@ export default {
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
-        card.play = R.assoc('isSupporter', true)(card.play)
+        // card.play = R.assoc('isSupporter', true)(card.play)
       },
       selectedAction: (state, card) => {
         commit('BATTLE_SET', {
@@ -239,6 +242,7 @@ export default {
             support: card,
           }
         })
+        commit('ADD_TAG', 'isSupporter')
       },
       thenAction: (state, card) => {
         commit('PICK_CARD', state.battle.defenser.support)
@@ -326,7 +330,7 @@ export default {
       if (score.draw) {
         console.log('battle draw clear');
         R.forEach(x => {
-          commit('SELECT_PLAYER', x.player)
+          // commit('SELECT_PLAYER', x.player)
           commit('PICK_CARD', x.main)
           commit('TO_GRAVEYARD')
           commit('PICK_CARD', x.support)
@@ -335,7 +339,7 @@ export default {
       } else {
         console.log('battle win clear');
         let win = battle.score.win
-        commit('SELECT_PLAYER', win.player)
+        // commit('SELECT_PLAYER', win.player)
         commit('PICK_CARD', win.main)
         let index = state.pickindex
         commit('TO_BASE')
@@ -344,12 +348,19 @@ export default {
 
         console.log('battle lose clear');
         let lose = battle.score.lose
-        commit('SELECT_PLAYER', lose.player)
+        // commit('SELECT_PLAYER', lose.player)
         commit('PICK_CARD', lose.main)
         commit('TO_GRAVEYARD')
         commit('PICK_CARD', lose.support)
         commit('TO_GRAVEYARD')
       }
+
+      console.log(`BATTLE_EFFECT_CLEAR clear play tag`)
+      const cards = battle.chain
+      R.map((x) => {
+        commit('SELECT_CARD',x)
+        commit('CLEAR_TAG')
+      }, cards )
 
       console.log(`BATTLE_EFFECT_CLEAR end`)
       resolve()

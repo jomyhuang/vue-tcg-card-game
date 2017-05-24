@@ -15,8 +15,8 @@ module.exports = function (config) {
     // browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
     // reporters: ['spec', 'coverage'],
-    // reporters: ['mocha'],
-    reporters: ['mocha','log-reporter'],
+    reporters: ['mocha'],
+    // reporters: ['mocha','log-repo÷rter'],
     // reporters: ['spec'],
     files: [
       '../../node_modules/babel-polyfill/dist/polyfill.js',

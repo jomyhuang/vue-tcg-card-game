@@ -77,6 +77,9 @@ describe('GameAPP', () => {
     // vm = createVM(GameApp, true)
     let state = vm.$store.state
 
+    // set timeout
+    this.timeout(5000)
+
     vm.gameReset()
     await vm.gameloop()
     expect(state.game.over).to.equal(true)
@@ -87,7 +90,7 @@ describe('GameAPP', () => {
     let state = vm.$store.state
 
     // set timeout
-    // this.timeout(5000)
+    this.timeout(3000)
 
     // vm.gameReset
     // set agent
