@@ -26,8 +26,9 @@ Vue.use(Vuex)
 const mutations = R.mergeAll([mutation1, mutation2, mutation3])
 const actions = R.mergeAll([actions1, actions2, actions3, actions4])
 
+// 修改state同时修改default state mutil
 const state = {
-  storemsg: 'vuex store test',
+  storemsg: 'Hello Vuex Store',
   // cardDB: {},
   // page
   pageFullList: [],
@@ -89,7 +90,7 @@ const state = {
   turn: {},
   effect: {},
   HMI: {},
-  
+
   // battle package (move to default)
   battle: {
     attacker: {

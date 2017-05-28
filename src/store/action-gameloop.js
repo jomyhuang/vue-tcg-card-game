@@ -42,6 +42,14 @@ export default {
       resolve()
     })
   },
+  GAME_PHASE({
+    commit,
+    state,
+    dispatch
+  },payload) {
+    const phase = payload
+    commit('GAME_PHASE',phase)
+  },
   GAME_RESET({
     commit,
     state,
@@ -80,6 +88,7 @@ export default {
     // TODO: joining game, set deck, shuffle
 
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_START')
       commit('GAME_SET', {
         started: true
       })
@@ -99,6 +108,7 @@ export default {
     dispatch
   }) {
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_TURN_BEGIN')
       commit('GAME_SET', {
         turnCount: state.game.turnCount + 1
       })
@@ -112,6 +122,7 @@ export default {
     dispatch
   }) {
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_DRAW')
       dispatch('DRAW', 1)
       resolve()
     })
@@ -122,6 +133,7 @@ export default {
     dispatch
   }, payload) {
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','BATTLE_START')
       commit('BATTLE_START')
       resolve()
     })
@@ -131,6 +143,8 @@ export default {
     state,
     dispatch
   }) {
+
+    dispatch('GAME_PHASE','BATTLE_DECALRE_ATTACKER')
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_DECALRE_ATTACKER',
@@ -166,6 +180,8 @@ export default {
     dispatch
   }) {
 
+    dispatch('GAME_PHASE','BATTLE_OPP_DECLARE_DEFENSER')
+
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_OPP_DECLARE_DEFENSER',
       list: 'opp_zone',
@@ -198,6 +214,7 @@ export default {
     state,
     dispatch
   }) {
+    dispatch('GAME_PHASE','BATTLE_PLAY_SUPPORTER')
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_PLAY_SUPPORTER',
@@ -227,6 +244,7 @@ export default {
     state,
     dispatch
   }) {
+    dispatch('GAME_PHASE','BATTLE_OPP_PLAY_SUPPORTER')
 
     return dispatch('OPP_PLAY_CARD', {
       phase: 'BATTLE_OPP_PLAY_SUPPORTER',
@@ -255,7 +273,10 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(async function (resolve, reject) {
+      dispatch('GAME_PHASE','BATTLE_EFFECT')
+
       console.info(`BATTLE_EFFECT begin----------------------`)
 
       commit('BATTLE_CALC')
@@ -323,7 +344,10 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','BATTLE_EFFECT_CLEAR')
+
       console.log(`BATTLE_EFFECT_CLEAR start`)
       let battle = state.battle
       let score = state.battle.score
@@ -371,7 +395,9 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','BATTLE_END')
       console.log(`BATTLE_END`)
       resolve()
     })
@@ -381,7 +407,9 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_NEXT_TURN')
       commit('GAME_NEXT_PLAYER')
       resolve()
     })
@@ -391,7 +419,9 @@ export default {
     state,
     dispatch
   }, payload) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_CHECK_GAMEOVER')
       commit('GAME_CHECK_GAMEOVER')
       let gameover = state.game.over
 
@@ -408,7 +438,9 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_SCOREBOARD')
       resolve()
     })
   },
@@ -417,7 +449,9 @@ export default {
     state,
     dispatch
   }) {
+
     return new Promise(function (resolve, reject) {
+      dispatch('GAME_PHASE','GAME_END')
       resolve()
     })
   },

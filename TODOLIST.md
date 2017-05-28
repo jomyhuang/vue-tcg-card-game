@@ -143,7 +143,7 @@ phase(is.win).draw(1)
 
 
 
-6、LIST
+// TODO LIST
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理
 ==、支援增加的buff是在主战、还是支援精灵本身
@@ -158,9 +158,21 @@ if
 
 ==、增加effect context，用于测试、记录、信息
 ==、effect pipe 中断，logic check
+==、play card -> zone, play 所在位置place location UI信息
 
 
-7、英雄系统
+7、HERO/英雄系统
+
+
+
+
+0、Stage1.0目标
+完成美化UI布局
+基础规则 playable
+完成效果交互（EFFECT_CHOICE）：
+= 抽一张牌
+= 弃一张手牌到XX牌推
+= 从XX牌堆回手一张牌
 
 
 

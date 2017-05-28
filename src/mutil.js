@@ -291,7 +291,18 @@ export default {
   },
   resetGameState(state) {
     const init = {
-      storemsg: 'vuex default state',
+      storemsg: 'Hello Vuex Store',
+      // cardDB: {},
+      // page
+      pageFullList: [],
+      pageList: [],
+      pageKeyList: [],
+      pageCurrent: 1,
+      pagePerItems: 10,
+      pageTotalPage: 0,
+      // pageNextDisabled: false,
+      // pagePrevDisabled: false,
+      pageFilter: 'all',
 
       // game app
       currentPlayer: null,
@@ -303,7 +314,12 @@ export default {
       placelist: [],
       placeplayer: null,
       pickindex: -1,
+      placeindex: -1,
+
+      // game test
       test: {},
+      ramda: {},
+
       // ACT_SELECT_CARD_...
       act_selection: {
         list: [],
@@ -315,7 +331,6 @@ export default {
         agent: null,
       },
       // game/turn package
-      ramda: {},
       game: {
         started: false,
         turnCount: 0,
@@ -332,8 +347,13 @@ export default {
           battleshow_pauseonly: false,
           maxturn: 99,
         },
+        phase: 'INIT',
       },
+      // context
       turn: {},
+      effect: {},
+      HMI: {},
+
       // battle package (move to default)
       battle: {
         attacker: {
@@ -382,7 +402,6 @@ export default {
         mana: 0,
         maxMana: 10,
         agent: null,
-        // agent: null,
       },
       player2: {
         id: 'playerId2',
@@ -407,7 +426,6 @@ export default {
     }
 
     R.forEachObjIndexed((value, key) => {
-      // console.log('each ' + key + ':' + value)
       state[key] = value
     })(init)
   },
