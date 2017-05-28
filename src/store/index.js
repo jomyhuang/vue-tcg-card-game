@@ -82,12 +82,8 @@ const state = {
     },
   },
   turn: {},
-<<<<<<< HEAD
   effect: {},
   HMI: {},
-
-=======
->>>>>>> parent of 70686d1... 1107
   // battle package (move to default)
   battle: {
     attacker: {
