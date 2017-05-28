@@ -36,14 +36,15 @@ export default {
     // 从store中分离
     const {
       state,
-      commit,
-      getters
+      commit
     } = store
 
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
 
-    // getters.testGetter
+    // console.log('test code')
+    // let foo = () => console.log('test')
+    // R.call(foo)
   },
   GAME_INIT_STORE({
     commit,
