@@ -126,6 +126,12 @@ export default {
 
     // console.log('commit INIT_GAME end')
   },
+  GAME_PHASE(state,payload) {
+    const phase = payload
+    state.game.phase = phase
+
+    console.log(`commit GAME_PHASE ${phase}`)
+  },
   GAME_SET(state, payload) {
 
     // ramda.js 可以assign sub-key

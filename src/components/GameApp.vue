@@ -195,6 +195,13 @@ export default {
       return this.config.message ? this.$refs.info.async_message(msg) : console.info(msg)
       // return this.config.message ? this.$refs.info.async_message(msg) : true
     },
+    run_message(msg) {
+      console.log(msg)
+    },
+    run_next(newphase, payload) {
+      console.log(`next %c${newphase}`,'color:blue')
+      return this.$store.dispatch(newphase,payload)
+    },
     async async_battleshow(value = 1000) {
       if (!this.config.battelshow &&
         !(value == 0 && this.config.battleshow_pauseonly))
@@ -244,13 +251,13 @@ export default {
       }
 
       let firstplayer = null
-      await this.$store.dispatch('GAME_START').then(async() => {
+      await this.run_next('GAME_START').then(async() => {
         await this.message('游戏开始', 2000)
       }).then(async() => {
-        await this.$store.dispatch('GAME_WHO_FIRST').then((who) => {
+        await this.run_next('GAME_WHO_FIRST').then((who) => {
           firstplayer = who
         })
-        await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+        await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
         await this.message(`${this.firstPlayer.name} 先攻`)
       })
 
@@ -266,44 +273,44 @@ export default {
         //   await this.message('抽牌')
         //   await this.$store.dispatch('GAME_DRAW')
         // })
-        await this.$store.dispatch('GAME_TURN_BEGIN')
+        await this.run_next('GAME_TURN_BEGIN')
         await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
         await this.message('抽牌')
-        await this.$store.dispatch('GAME_DRAW')
+        await this.run_next('GAME_DRAW')
         await this.message('战斗开始')
-        await this.$store.dispatch('BATTLE_START')
+        await this.run_next('BATTLE_START')
 
         await this.message(`${this.currentPlayer.name} 宣告攻击精灵`)
-        await this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
+        await this.run_next('BATTLE_DECALRE_ATTACKER')
         await this.async_battleshow(1000)
 
         await this.message(`指定攻击目标`)
-        await this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
+        await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
         await this.async_battleshow(1000)
 
         await this.message(`${this.currentPlayer.name} 派遣支援精灵`)
-        await this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
+        await this.run_next('BATTLE_PLAY_SUPPORTER')
 
         await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
-        await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
+        await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
         await this.message(`效果：发动阶段`)
-        await this.$store.dispatch('BATTLE_EFFECT')
+        await this.run_next('BATTLE_EFFECT')
         await this.message(`效果：清除阶段`)
-        await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
+        await this.run_next('BATTLE_EFFECT_CLEAR')
 
         await this.async_battleshow(0)
 
-        await this.$store.dispatch('BATTLE_END')
+        await this.run_next('BATTLE_END')
 
         // check game over block
-        await this.$store.dispatch('GAME_CHECK_GAMEOVER').catch((reason) => {
+        await this.run_next('GAME_CHECK_GAMEOVER').catch((reason) => {
           console.log(`GAMEOVER: ${reason}`)
         })
         if (this.gameover) break
         // end check game over
 
-        await this.$store.dispatch('GAME_NEXT_TURN')
+        await this.run_next('GAME_NEXT_TURN')
 
         if (this.turnCount >= this.config.maxturn)
           loop = false
@@ -323,31 +330,28 @@ export default {
         }
       }
     },
-    run_message(msg) {
-      console.log(msg)
-    },
     // 单回合战斗测试
     async run_battle(testbattle) {
       await this.run_message('run_battle START battle')
       await this.run_message('set test data')
       await this.$store.commit('TEST_SET', testbattle)
 
-      await this.$store.dispatch('GAME_START')
+      await this.run_next('GAME_START')
       let firstplayer = this.$store.state.player1
-      await this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+      await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
 
-      await this.$store.dispatch('GAME_TURN_BEGIN')
-      await this.$store.dispatch('BATTLE_START')
+      await this.run_next('GAME_TURN_BEGIN')
+      await this.run_next('BATTLE_START')
 
-      await this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
-      await this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
-      await this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
-      await this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_DECALRE_ATTACKER')
+      await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
+      await this.run_next('BATTLE_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
-      await this.$store.dispatch('BATTLE_EFFECT')
+      await this.run_next('BATTLE_EFFECT')
       console.log('pass BATTLE_EFFECT')
-      // await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
-      await this.$store.dispatch('BATTLE_END')
+      // await this.run_next('BATTLE_EFFECT_CLEAR')
+      await this.run_next('BATTLE_END')
       await this.run_message('run_battle END battle')
     },
     // run gameloop + step 非同步版本／回合step步进版本
@@ -360,12 +364,12 @@ export default {
       }
 
       let firstplayer = null
-      this.$store.dispatch('GAME_START')
+      this.run_next('GAME_START')
       this.run_message('游戏开始')
 
-      this.$store.dispatch('GAME_WHO_FIRST')
+      this.run_next('GAME_WHO_FIRST')
       firstplayer = this.$store.state.player1
-      this.$store.dispatch('GAME_SET_FIRSTPLAYER', firstplayer)
+      this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
       this.run_message(`${this.firstPlayer.name} 先攻`)
 
       let maxturn = testturn > 0 ? testturn : this.config.maxturn
@@ -400,10 +404,10 @@ export default {
     },
     async run_step() {
 
-      this.$store.dispatch('GAME_TURN_BEGIN')
+      this.run_next('GAME_TURN_BEGIN')
       this.run_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
       this.run_message('抽牌')
-      this.$store.dispatch('GAME_DRAW')
+      this.run_next('GAME_DRAW')
 
       // promise then 非阻塞问题
       // this.$store.dispatch('GAME_TURN_BEGIN').then(() => {
@@ -414,29 +418,29 @@ export default {
       // })
 
       this.run_message('战斗开始')
-      this.$store.dispatch('BATTLE_START')
+      this.run_next('BATTLE_START')
 
       this.run_message(`${this.currentPlayer.name} 宣告攻击精灵`)
-      this.$store.dispatch('BATTLE_DECALRE_ATTACKER')
+      this.run_next('BATTLE_DECALRE_ATTACKER')
       //await this.async_battleshow(1000)
 
       this.run_message(`指定攻击目标`)
-      this.$store.dispatch('BATTLE_OPP_DECLARE_DEFENSER')
+      this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
       // this.async_battleshow(1000)
 
       this.run_message(`${this.currentPlayer.name} 派遣支援精灵`)
-      this.$store.dispatch('BATTLE_PLAY_SUPPORTER')
+      this.run_next('BATTLE_PLAY_SUPPORTER')
 
       this.run_message(`${this.opponentPlayer.name} 派遣支援精灵`)
-      this.$store.dispatch('BATTLE_OPP_PLAY_SUPPORTER')
+      this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
       this.run_message(`效果：发动阶段`)
-      await this.$store.dispatch('BATTLE_EFFECT')
+      await this.run_next('BATTLE_EFFECT')
       this.run_message(`效果：清除阶段`)
-      await this.$store.dispatch('BATTLE_EFFECT_CLEAR')
+      await this.run_next('BATTLE_EFFECT_CLEAR')
 
       // await this.async_battleshow(0)
-      await this.$store.dispatch('BATTLE_END')
+      await this.run_next('BATTLE_END')
 
       // check game over block
       // this.$store.dispatch('GAME_CHECK_GAMEOVER')
@@ -447,12 +451,12 @@ export default {
     run_step_nextturn() {
       let result = true
 
-      this.$store.dispatch('GAME_CHECK_GAMEOVER').catch((reason) => {
+      this.run_next('GAME_CHECK_GAMEOVER').catch((reason) => {
         // this.run_message(`GAMEOVER: ${reason}`)
         result = false
       })
       if (!this.gameover)
-        this.$store.dispatch('GAME_NEXT_TURN')
+        this.run_next('GAME_NEXT_TURN')
 
       return result
     },
