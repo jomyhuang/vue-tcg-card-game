@@ -1,6 +1,5 @@
 export default {
-  testGetter(state,payload) {
-    console.log('gatters test', payload);
+  testGetter(state) {
     return state.pageCurrent
   },
   pageNextDisabled(state) {
@@ -18,5 +17,5 @@ export default {
     return cards
   },
   // GAME APP
-
+  
 }

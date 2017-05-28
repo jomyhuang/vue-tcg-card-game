@@ -10,7 +10,6 @@ import mutil from '@/mutil'
 import firstAgent from '@/components/agent-first'
 
 export default {
-  // ------------------------------------------------ context quick function
   STORE_SET(state, payload) {
 
     // meta store set
@@ -35,18 +34,6 @@ export default {
       owner.deck.push(card)
     }
     R.forEachObjIndexed(fpadd2deck, state.test)
-  },
-  HMI_SET(state, payload) {
-    state.HMI = R.merge(payload)(state.HMI)
-    console.log(`commit HMI_SET`, payload)
-  },
-  TURN_SET(state, payload) {
-    state.turn = R.merge(payload)(state.turn)
-    console.log(`commit TURN_SET`, payload)
-  },
-  EFFECT_SET(state, payload) {
-    state.effect = R.merge(payload)(state.effect)
-    console.log(`commit EFFECT_SET`, payload)
   },
   // ---------------------------------------------------- GAME_XXX
   GAME_RESET(state, payload) {
@@ -219,12 +206,6 @@ export default {
 
     console.log(`commit set GAME_NEXT_PLAYER CURR ${state.currentPlayer.id}`)
     console.log(`commit set GAME_NEXT_PLAYER OPP ${state.opponentPlayer.id}`)
-  },
-  GAME_PHASE(state, payload) {
-    const phase = payload
-    state.game.phase = phase
-
-    console.log(`commit GAME_PHASE ${phase}`)
   },
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {

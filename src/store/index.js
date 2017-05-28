@@ -51,12 +51,7 @@ const state = {
   placelist: [],
   placeplayer: null,
   pickindex: -1,
-  placeindex: -1,
-
-  // game test
   test: {},
-  ramda: {},
-
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
@@ -68,6 +63,7 @@ const state = {
     agent: null,
   },
   // game/turn package
+  ramda: {},
   game: {
     started: false,
     turnCount: 0,
@@ -84,13 +80,10 @@ const state = {
       battleshow_pauseonly: false,
       maxturn: 99,
     },
-    phase: 'INIT',
   },
-  // context
   turn: {},
   effect: {},
   HMI: {},
-
   // battle package (move to default)
   battle: {
     attacker: {
