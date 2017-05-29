@@ -119,5 +119,11 @@ export default {
   },
   tap(message) {
     return cxtap(message)
-  }
+  },
+  iftest(message) {
+    return function() {
+      console.log('iftest')
+      // Promise.reject('promise 中断测试')
+    }
+  },
 }

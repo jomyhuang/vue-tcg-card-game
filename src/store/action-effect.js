@@ -132,93 +132,122 @@ export default {
       return false
     }
 
-    return new Promise(async function (resolve, reject) {
+    let pipelist = mutil.packcall(effectfunc, card, effectpack)
 
-      let pipelist = mutil.packcall(effectfunc, card, effectpack)
+    if (mutil.packisNil(pipelist)) {
+      console.log('TIGGER_EFFECT result is nil skip do effect pipe')
+      // resolve()
+      return true
+    }
 
-      if (mutil.packisNil(pipelist)) {
-        console.log('TIGGER_EFFECT result is nil skip do effect pipe')
-        resolve()
-        return true
-      }
+    // !!重要！！如果没有Array，则降维为合并成一个标准模式
+    if (!R.any(R.is(Array), pipelist)) {
+      pipelist = [pipelist]
+    }
+    console.group()
+    console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
 
-      // !!重要！！如果没有Array，则降维为合并成一个标准模式
-      if( !R.any(R.is(Array),pipelist)) {
-        pipelist = [pipelist]
-      }
+    mutil.assert(pipelist.length == 1, 'WARN! new async only exec array[0]')
 
+    let effectpipe = mutil.packcall(pipelist[0], card, effectpack)
 
-      console.group()
-      console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
+    // async map / promise all
+    // http://promise-nuggets.github.io/articles/15-map-in-series.html
+    // start with current being an "empty" already-fulfilled promise
+    let current = Promise.resolve()
 
-      console.log(pipelist);
-
-      let pipecount = 0
-      for (let pipe of pipelist) {
-        pipecount++
-
-        if(pipelist.length > 1)
-          console.log(`=> ${card.cardno} ${type} effect action pipelist ${pipecount}/${pipelist.length}`)
-
-        let effectpipe = mutil.packcall(pipe, card, effectpack)
-        // console.log(effectpipe)
-
-        console.group()
-        // await version foreach
-        console.log(`${card.cardno} ${type} effect step ${effectpipe.length} actions`)
-
-        // 处理效果目标对象 owner, card...
-        // select card owner
-        commit('SELECT_PLAYER', player)
-        commit('SELECT_CARD', card)
-        if (player !== state.currentPlayer) {
-          console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
+    return Promise.all(effectpipe.map(function (act) {
+      current = current.then(function () {
+        console.log('act-----------------')
+        if (_.isFunction(act)) {
+          let res = act.call(card, effectpack)
+          // TODO: context 中断reject的判断
+          // if(res) {
+          //   resolve()
+          // }
+          // else {
+          //   reject()
+          // }
+          return res
+        } else {
+          return console.log(act)
         }
-
-        // 改成map不行，不在目前主线程 blocking
-        // promise hell!
-        // await new Promise(function(resolve, reject) {
-        //
-        //   effectpipe.map(async function (x) {
-        //     if (_.isFunction(x)) {
-        //       console.log(`effect pipe call start`, x)
-        //       await x.call(card,effectpack)
-        //       console.log('await pipe call finish next')
-        //     } else {
-        //       console.log(`effect pipe [object]`, x)
-        //     }
-        //   })
-        //   console.log('TIGGER_EFFECT map ok');
-        //   resolve()
-        // })
-
-        let count = 0
-        for (let act of effectpipe) {
-          count++
-
-          // console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
-          // 不能使用外部call
-          // XXXX await mutil.call(act, card, effectpack)
-
-          if (_.isFunction(act)) {
-            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
-            let res = await act.call(card, effectpack)
-            // if( _.isFunction(res) ) {
-            //   res = await res.call(card,effectpack)
-            // }
-            console.log('await pipe call finish next',res)
-          } else {
-            console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object] next`, act)
-          }
-        }
-        console.log('TIGGER_EFFECT result is effect step finish')
-        console.groupEnd()
-
-      }
+      }).then(function (result) {
+        // console.log('exec act ok')
+      })
+      // console.log(current)
+      return current
+    })).then(function (results) {
+      console.log('------------------ok')
+      console.log('effect act all finish')
       console.groupEnd()
-
-      resolve()
+    }).catch((err) => {
+      console.log('-----catch----------')
+      console.log('effect 中断 promise all')
+      console.groupEnd()
     })
+
+    // return new Promise(async function (resolve, reject) {
+    //
+    //   let pipecount = 0
+    //   for (let pipe of pipelist) {
+    //     pipecount++
+    //
+    //     // console.log(effectpipe)
+    //
+    //     // console.group()
+    //     // // await version foreach
+    //     // console.log(`${card.cardno} ${type} effect step ${effectpipe.length} actions`)
+    //
+    //     // 处理效果目标对象 owner, card...
+    //     // select card owner
+    //     // if (player !== state.currentPlayer) {
+    //     //   console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
+    //     // }
+    //
+    //     // 改成map不行，不在目前主线程 blocking
+    //     // promise hell!
+    //     // await new Promise(function(resolve, reject) {
+    //     //
+    //     //   effectpipe.map(async function (x) {
+    //     //     if (_.isFunction(x)) {
+    //     //       console.log(`effect pipe call start`, x)
+    //     //       await x.call(card,effectpack)
+    //     //       console.log('await pipe call finish next')
+    //     //     } else {
+    //     //       console.log(`effect pipe [object]`, x)
+    //     //     }
+    //     //   })
+    //     //   console.log('TIGGER_EFFECT map ok');
+    //     //   resolve()
+    //     // })
+    //
+    //     let count = 0
+    //     for (let act of effectpipe) {
+    //       count++
+    //
+    //       // console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
+    //       // 不能使用外部call
+    //       // XXXX await mutil.call(act, card, effectpack)
+    //
+    //       if (_.isFunction(act)) {
+    //         console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
+    //         let res = await act.call(card, effectpack)
+    //         // if( _.isFunction(res) ) {
+    //         //   res = await res.call(card,effectpack)
+    //         // }
+    //         console.log('await pipe call finish next',res)
+    //       } else {
+    //         console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object] next`, act)
+    //       }
+    //     }
+    //     console.log('TIGGER_EFFECT result is effect step finish')
+    //     console.groupEnd()
+    //
+    //   }
+    //
+    //   resolve()
+    // })
   },
   EFFECT_CHOICE({
     commit,

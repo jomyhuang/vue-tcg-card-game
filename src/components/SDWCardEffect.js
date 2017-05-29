@@ -48,6 +48,9 @@ export default {
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+        $cx.iftest(),
+        $cx.tap('do this tap message main action'),
+        'string message',
       )
     },
   },

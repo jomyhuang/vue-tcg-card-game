@@ -141,8 +141,6 @@ phase(is.win).draw(1)
 
 
 
-
-
 // TODO LIST
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理

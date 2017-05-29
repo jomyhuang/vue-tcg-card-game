@@ -20,16 +20,7 @@ export default {
     commit,
     state
   }, payload) {
-    // commit('RAMDA_TEST', payload)
     console.log('RAMDA_TEST action result')
-    // let card = state.player1.deck[0]
-    // console.log(`test result ${card.name} ${card.play.info} ${card.play.tag}`)
-    // console.log(mutil.convertPower('1亿2000万'));
-    // console.log(mutil.convertPower('2000万'));
-    // console.log(mutil.convertPower('2亿'));
-    // console.log(mutil.convertPower('2'));
-    // console.log(mutil.convertPower('万'));
-
   },
   GAME_INIT(store, payload) {
 
@@ -42,9 +33,14 @@ export default {
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
 
-    // console.log('test code')
-    // let foo = () => console.log('test')
-    // R.call(foo)
+    commit('EFFECT_SET', { test: 'hello', val: 2})
+    console.log(state.effect)
+    commit('EFFECT_SET', { test: 'hello effect', val: 2})
+    console.log(state.effect)
+    commit('EFFECT_SET', {})
+    console.log(state.effect)
+    
+
   },
   GAME_INIT_STORE({
     commit,
