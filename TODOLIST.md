@@ -74,7 +74,10 @@ OK、effect修改buff state (strict: true)
 commit CARD_ADD_BUFF
 
 
-
+NOTE、使用 v-tooltip
+https://github.com/Akryum/v-tooltip
+使用sass dynamic css class 有问题
+定义在标准 allstyle.css
 
 
 -------------------------------------------------------

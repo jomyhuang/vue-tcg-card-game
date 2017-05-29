@@ -13,7 +13,7 @@
      "antipro": "T",
      "attack2": "梦·飞叶风暴",
      "power2": 4000,
-     "effect": ""
+     "effecttext": "攻击时，抽一张牌"
   },
   "JW15-002": {
      "from": "TEST",
@@ -29,7 +29,7 @@
      "antipro": "A",
      "attack2": "涛·高压水枪",
      "power2": 5000,
-     "effect": ""
+     "effecttext": ""
   },
   "JW15-003": {
      "from": "TEST",
@@ -45,7 +45,7 @@
      "antipro": "H",
      "attack2": "炽·烈焰冲撞",
      "power2": 4000,
-     "effect": ""
+     "effecttext": ""
   },
    "LKJ01-001": {
       "cardno": "LKJ01-001",
@@ -57,7 +57,7 @@
       "power1": 3000,
       "antipro": "A",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-002": {
       "cardno": "LKJ01-002",
@@ -69,7 +69,7 @@
       "power1": 3000,
       "antipro": "H",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-003": {
       "cardno": "LKJ01-003",
@@ -81,7 +81,7 @@
       "power1": 3000,
       "antipro": "T",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-004": {
       "cardno": "LKJ01-004",
@@ -93,7 +93,7 @@
       "power1": 2000,
       "antipro": "A",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-005": {
       "cardno": "LKJ01-005",
@@ -105,7 +105,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-006": {
       "cardno": "LKJ01-006",
@@ -117,7 +117,7 @@
       "power1": 2000,
       "antipro": "T",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-007": {
       "cardno": "LKJ01-007",
@@ -129,7 +129,7 @@
       "power1": 2000,
       "antipro": "A",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-008": {
       "cardno": "LKJ01-008",
@@ -141,7 +141,7 @@
       "power1": 3000,
       "antipro": "H",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-009": {
       "cardno": "LKJ01-009",
@@ -153,7 +153,7 @@
       "power1": 2000,
       "antipro": "T",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-010": {
       "cardno": "LKJ01-010",
@@ -165,7 +165,7 @@
       "power1": 4000,
       "antipro": "A",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-011": {
       "cardno": "LKJ01-011",
@@ -177,7 +177,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 7000,
-      "effect": "【翻】翻开时，抽一张牌。"
+      "effecttext": "【翻】翻开时，抽一张牌。"
    },
    "LKJ01-012": {
       "cardno": "LKJ01-012",
@@ -189,7 +189,7 @@
       "power1": 4000,
       "antipro": "T",
       "power2": 6000,
-      "effect": "【攻】攻击时，本回合此卡战斗力+3000。"
+      "effecttext": "【攻】攻击时，本回合此卡战斗力+3000。"
    },
    "LKJ01-013": {
       "cardno": "LKJ01-013",
@@ -201,7 +201,7 @@
       "power1": 6000,
       "antipro": "A",
       "power2": 8000,
-      "effect": "【翻】翻开时，本回合此卡战斗力+2000。"
+      "effecttext": "【翻】翻开时，本回合此卡战斗力+2000。"
    },
    "LKJ01-014": {
       "cardno": "LKJ01-014",
@@ -213,7 +213,7 @@
       "power1": 7000,
       "antipro": "H",
       "power2": 8000,
-      "effect": "【支】支援时，本回合此卡战斗力+1000。"
+      "effecttext": "【支】支援时，本回合此卡战斗力+1000。"
    },
    "LKJ01-015": {
       "cardno": "LKJ01-015",
@@ -225,7 +225,7 @@
       "power1": 6000,
       "antipro": "T",
       "power2": 7000,
-      "effect": "此卡被舍弃时，从卡组检索一张8星的角色卡加入手牌。"
+      "effecttext": "此卡被舍弃时，从卡组检索一张8星的角色卡加入手牌。"
    },
    "LKJ01-016": {
       "cardno": "LKJ01-016",
@@ -237,7 +237,7 @@
       "power1": 8000,
       "antipro": "A",
       "power2": 9000,
-      "effect": "此卡被黄色的角色卡支援时，本回合此卡战斗力+4000。"
+      "effecttext": "此卡被黄色的角色卡支援时，本回合此卡战斗力+4000。"
    },
    "LKJ01-017": {
       "cardno": "LKJ01-017",
@@ -249,7 +249,7 @@
       "power1": 7000,
       "antipro": "H",
       "power2": 11000,
-      "effect": "【翻】翻开时，本回合双方必须弃一张手牌才能使用支援卡。"
+      "effecttext": "【翻】翻开时，本回合双方必须弃一张手牌才能使用支援卡。"
    },
    "LKJ01-018": {
       "cardno": "LKJ01-018",
@@ -261,7 +261,7 @@
       "power1": 8000,
       "antipro": "T",
       "power2": 10000,
-      "effect": "【攻】攻击时，舍弃一张手牌，从卡组检索一张红色或黄色的角色卡加入手牌。"
+      "effecttext": "【攻】攻击时，舍弃一张手牌，从卡组检索一张红色或黄色的角色卡加入手牌。"
    },
    "LKJ01-019": {
       "cardno": "LKJ01-019",
@@ -273,7 +273,7 @@
       "power1": 7000,
       "antipro": "A",
       "power2": 9000,
-      "effect": "此卡被舍弃时，对方下个回合不能使用支援卡。\n【攻】攻击时，本回合此卡战斗力+3000。"
+      "effecttext": "此卡被舍弃时，对方下个回合不能使用支援卡。\n【攻】攻击时，本回合此卡战斗力+3000。"
    },
    "LKJ01-020": {
       "cardno": "LKJ01-020",
@@ -285,7 +285,7 @@
       "power1": 10000,
       "antipro": "H",
       "power2": 13000,
-      "effect": "【攻】攻击时，从卡组检索一张黄色的角色卡入手。\n【翻】舍弃一张红色或黄色的角色牌，本回合对方不能使用支援卡。"
+      "effecttext": "【攻】攻击时，从卡组检索一张黄色的角色卡入手。\n【翻】舍弃一张红色或黄色的角色牌，本回合对方不能使用支援卡。"
    },
    "LKJ01-021": {
       "cardno": "LKJ01-021",
@@ -297,7 +297,7 @@
       "power1": 3000,
       "antipro": "T",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-022": {
       "cardno": "LKJ01-022",
@@ -309,7 +309,7 @@
       "power1": 5000,
       "antipro": "A",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-023": {
       "cardno": "LKJ01-023",
@@ -321,7 +321,7 @@
       "power1": 4000,
       "antipro": "H",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-024": {
       "cardno": "LKJ01-024",
@@ -333,7 +333,7 @@
       "power1": 4000,
       "antipro": "T",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-025": {
       "cardno": "LKJ01-025",
@@ -345,7 +345,7 @@
       "power1": 5000,
       "antipro": "A",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-026": {
       "cardno": "LKJ01-026",
@@ -357,7 +357,7 @@
       "power1": 2000,
       "antipro": "H",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-027": {
       "cardno": "LKJ01-027",
@@ -369,7 +369,7 @@
       "power1": 5000,
       "antipro": "T",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-028": {
       "cardno": "LKJ01-028",
@@ -381,7 +381,7 @@
       "power1": 4000,
       "antipro": "A",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-029": {
       "cardno": "LKJ01-029",
@@ -393,7 +393,7 @@
       "power1": 3000,
       "antipro": "H",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-030": {
       "cardno": "LKJ01-030",
@@ -405,7 +405,7 @@
       "power1": 2000,
       "antipro": "T",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-031": {
       "cardno": "LKJ01-031",
@@ -417,7 +417,7 @@
       "power1": 6000,
       "antipro": "A",
       "power2": 7000,
-      "effect": "【翻】翻开时，对方弃一张牌。"
+      "effecttext": "【翻】翻开时，对方弃一张牌。"
    },
    "LKJ01-032": {
       "cardno": "LKJ01-032",
@@ -429,7 +429,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 7000,
-      "effect": "【防】防守时，本回合此卡战斗力+3000。"
+      "effecttext": "【防】防守时，本回合此卡战斗力+3000。"
    },
    "LKJ01-033": {
       "cardno": "LKJ01-033",
@@ -441,7 +441,7 @@
       "power1": 7000,
       "antipro": "T",
       "power2": 8000,
-      "effect": "【防】防守时，本回合此卡战斗力+1000。"
+      "effecttext": "【防】防守时，本回合此卡战斗力+1000。"
    },
    "LKJ01-034": {
       "cardno": "LKJ01-034",
@@ -453,7 +453,7 @@
       "power1": 7000,
       "antipro": "A",
       "power2": 9000,
-      "effect": "【支】支援时，本回合此卡战斗力+2000。"
+      "effecttext": "【支】支援时，本回合此卡战斗力+2000。"
    },
    "LKJ01-035": {
       "cardno": "LKJ01-035",
@@ -465,7 +465,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 8000,
-      "effect": "【翻】翻开时，双方各弃一张牌。"
+      "effecttext": "【翻】翻开时，双方各弃一张牌。"
    },
    "LKJ01-036": {
       "cardno": "LKJ01-036",
@@ -477,7 +477,7 @@
       "power1": 6000,
       "antipro": "T",
       "power2": 8000,
-      "effect": "此卡被舍弃时，本回合我方红色的角色卡战斗力+2000。"
+      "effecttext": "此卡被舍弃时，本回合我方红色的角色卡战斗力+2000。"
    },
    "LKJ01-037": {
       "cardno": "LKJ01-037",
@@ -489,7 +489,7 @@
       "power1": 7000,
       "antipro": "A",
       "power2": 8000,
-      "effect": "此卡被舍弃时，改为将此卡移回牌组底，抽一张牌。"
+      "effecttext": "此卡被舍弃时，改为将此卡移回牌组底，抽一张牌。"
    },
    "LKJ01-038": {
       "cardno": "LKJ01-038",
@@ -501,7 +501,7 @@
       "power1": 7000,
       "antipro": "H",
       "power2": 9000,
-      "effect": "【翻】翻开时，舍弃一张手牌，此卡本回合战斗力+5000。\n【防】防守时，对方必须弃一张手牌才能使用支援卡。"
+      "effecttext": "【翻】翻开时，舍弃一张手牌，此卡本回合战斗力+5000。\n【防】防守时，对方必须弃一张手牌才能使用支援卡。"
    },
    "LKJ01-039": {
       "cardno": "LKJ01-039",
@@ -513,7 +513,7 @@
       "power1": 7000,
       "antipro": "T",
       "power2": 11000,
-      "effect": "【翻】翻开时，抽一张牌，对方弃一张牌。\n此卡支援红色的角色卡时，本回合此卡战斗力+3000。"
+      "effecttext": "【翻】翻开时，抽一张牌，对方弃一张牌。\n此卡支援红色的角色卡时，本回合此卡战斗力+3000。"
    },
    "LKJ01-040": {
       "cardno": "LKJ01-040",
@@ -525,7 +525,7 @@
       "power1": 9000,
       "antipro": "A",
       "power2": 14000,
-      "effect": "【永】对方不能从牌组顶使用支援卡。\n【支】支援时，对方弃一张牌。我方可以舍弃一张红色或黄色的角色卡，对方再弃两张牌。"
+      "effecttext": "【永】对方不能从牌组顶使用支援卡。\n【支】支援时，对方弃一张牌。我方可以舍弃一张红色或黄色的角色卡，对方再弃两张牌。"
    },
    "LKJ01-041": {
       "cardno": "LKJ01-041",
@@ -537,7 +537,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-042": {
       "cardno": "LKJ01-042",
@@ -549,7 +549,7 @@
       "power1": 6000,
       "antipro": "T",
       "power2": 3000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-043": {
       "cardno": "LKJ01-043",
@@ -561,7 +561,7 @@
       "power1": 5000,
       "antipro": "A",
       "power2": 2000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-044": {
       "cardno": "LKJ01-044",
@@ -573,7 +573,7 @@
       "power1": 8000,
       "antipro": "H",
       "power2": 2000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-045": {
       "cardno": "LKJ01-045",
@@ -585,7 +585,7 @@
       "power1": 6000,
       "antipro": "T",
       "power2": 3000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-046": {
       "cardno": "LKJ01-046",
@@ -597,7 +597,7 @@
       "power1": 8000,
       "antipro": "A",
       "power2": 3000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-047": {
       "cardno": "LKJ01-047",
@@ -609,7 +609,7 @@
       "power1": 7000,
       "antipro": "H",
       "power2": 3000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-048": {
       "cardno": "LKJ01-048",
@@ -621,7 +621,7 @@
       "power1": 5000,
       "antipro": "T",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-049": {
       "cardno": "LKJ01-049",
@@ -633,7 +633,7 @@
       "power1": 7000,
       "antipro": "A",
       "power2": 2000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-050": {
       "cardno": "LKJ01-050",
@@ -645,7 +645,7 @@
       "power1": 6000,
       "antipro": "H",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-051": {
       "cardno": "LKJ01-051",
@@ -657,7 +657,7 @@
       "power1": 10000,
       "antipro": "T",
       "power2": 5000,
-      "effect": "【胜】战斗胜利时，抽一张牌。"
+      "effecttext": "【胜】战斗胜利时，抽一张牌。"
    },
    "LKJ01-052": {
       "cardno": "LKJ01-052",
@@ -669,7 +669,7 @@
       "power1": 8000,
       "antipro": "A",
       "power2": 5000,
-      "effect": "【攻】攻击时，本回合此卡战斗力+2000。"
+      "effecttext": "【攻】攻击时，本回合此卡战斗力+2000。"
    },
    "LKJ01-053": {
       "cardno": "LKJ01-053",
@@ -681,7 +681,7 @@
       "power1": 9000,
       "antipro": "H",
       "power2": 7000,
-      "effect": "【防】防守时，本回合此卡战斗力+1000。"
+      "effecttext": "【防】防守时，本回合此卡战斗力+1000。"
    },
    "LKJ01-054": {
       "cardno": "LKJ01-054",
@@ -693,7 +693,7 @@
       "power1": 8000,
       "antipro": "T",
       "power2": 5000,
-      "effect": "【支】支援时，我方可以额外使用一张7星以下的角色卡支援。"
+      "effecttext": "【支】支援时，我方可以额外使用一张7星以下的角色卡支援。"
    },
    "LKJ01-055": {
       "cardno": "LKJ01-055",
@@ -705,7 +705,7 @@
       "power1": 8000,
       "antipro": "A",
       "power2": 7000,
-      "effect": "我方7星以下的角色卡战斗失败时，此卡可以从休息区进场。"
+      "effecttext": "我方7星以下的角色卡战斗失败时，此卡可以从休息区进场。"
    },
    "LKJ01-056": {
       "cardno": "LKJ01-056",
@@ -717,7 +717,7 @@
       "power1": 9000,
       "antipro": "H",
       "power2": 6000,
-      "effect": "【翻】翻开时，本回合我方可以额外使用一张7星以下的角色卡支援。"
+      "effecttext": "【翻】翻开时，本回合我方可以额外使用一张7星以下的角色卡支援。"
    },
    "LKJ01-057": {
       "cardno": "LKJ01-057",
@@ -729,7 +729,7 @@
       "power1": 7000,
       "antipro": "T",
       "power2": 6000,
-      "effect": "此卡被7星以下的角色卡支援时，本回合此卡战斗力+4000。\n【攻】攻击时，本回合此卡战斗力+4000。"
+      "effecttext": "此卡被7星以下的角色卡支援时，本回合此卡战斗力+4000。\n【攻】攻击时，本回合此卡战斗力+4000。"
    },
    "LKJ01-058": {
       "cardno": "LKJ01-058",
@@ -741,7 +741,7 @@
       "power1": 8000,
       "antipro": "A",
       "power2": 7000,
-      "effect": "【攻】攻击时，舍弃任意张7星以下的角色卡，每弃一张，本回合此卡战斗力+3000。"
+      "effecttext": "【攻】攻击时，舍弃任意张7星以下的角色卡，每弃一张，本回合此卡战斗力+3000。"
    },
    "LKJ01-059": {
       "cardno": "LKJ01-059",
@@ -753,7 +753,7 @@
       "power1": 11000,
       "antipro": "H",
       "power2": 5000,
-      "effect": "【翻】翻开时，本回合双方都可以额外使用一张支援卡。\n【胜】战斗胜利时，抽一张牌。"
+      "effecttext": "【翻】翻开时，本回合双方都可以额外使用一张支援卡。\n【胜】战斗胜利时，抽一张牌。"
    },
    "LKJ01-060": {
       "cardno": "LKJ01-060",
@@ -765,7 +765,7 @@
       "power1": 12000,
       "antipro": "T",
       "power2": 9000,
-      "effect": "此卡每被一张卡支援时，本回合此卡战斗力+3000。\n【胜】战斗胜利时，本回合此卡可以额外攻击一次，这个效果一回合只能发动一次。"
+      "effecttext": "此卡每被一张卡支援时，本回合此卡战斗力+3000。\n【胜】战斗胜利时，本回合此卡可以额外攻击一次，这个效果一回合只能发动一次。"
    },
    "LKJ01-061": {
       "cardno": "LKJ01-061",
@@ -777,7 +777,7 @@
       "power1": 4000,
       "antipro": "A",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-062": {
       "cardno": "LKJ01-062",
@@ -789,7 +789,7 @@
       "power1": 5000,
       "antipro": "H",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-063": {
       "cardno": "LKJ01-063",
@@ -801,7 +801,7 @@
       "power1": 2000,
       "antipro": "T",
       "power2": 4000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-064": {
       "cardno": "LKJ01-064",
@@ -813,7 +813,7 @@
       "power1": 4000,
       "antipro": "A",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-065": {
       "cardno": "LKJ01-065",
@@ -825,7 +825,7 @@
       "power1": 3000,
       "antipro": "H",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-066": {
       "cardno": "LKJ01-066",
@@ -837,7 +837,7 @@
       "power1": 3000,
       "antipro": "T",
       "power2": 8000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-067": {
       "cardno": "LKJ01-067",
@@ -849,7 +849,7 @@
       "power1": 3000,
       "antipro": "A",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-068": {
       "cardno": "LKJ01-068",
@@ -861,7 +861,7 @@
       "power1": 4000,
       "antipro": "H",
       "power2": 7000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-069": {
       "cardno": "LKJ01-069",
@@ -873,7 +873,7 @@
       "power1": 4000,
       "antipro": "T",
       "power2": 5000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-070": {
       "cardno": "LKJ01-070",
@@ -885,7 +885,7 @@
       "power1": 3000,
       "antipro": "A",
       "power2": 6000,
-      "effect": ""
+      "effecttext": ""
    },
    "LKJ01-071": {
       "cardno": "LKJ01-071",
@@ -897,7 +897,7 @@
       "power1": 4000,
       "antipro": "H",
       "power2": 8000,
-      "effect": "【支】支援时，抽一张牌。"
+      "effecttext": "【支】支援时，抽一张牌。"
    },
    "LKJ01-072": {
       "cardno": "LKJ01-072",
@@ -909,7 +909,7 @@
       "power1": 5000,
       "antipro": "T",
       "power2": 7000,
-      "effect": "【攻】攻击时，本回合此卡战斗力+1000。"
+      "effecttext": "【攻】攻击时，本回合此卡战斗力+1000。"
    },
    "LKJ01-073": {
       "cardno": "LKJ01-073",
@@ -921,7 +921,7 @@
       "power1": 6000,
       "antipro": "A",
       "power2": 7000,
-      "effect": "【支】支援时，本回合此卡战斗力+3000。"
+      "effecttext": "【支】支援时，本回合此卡战斗力+3000。"
    },
    "LKJ01-074": {
       "cardno": "LKJ01-074",
@@ -933,7 +933,7 @@
       "power1": 4000,
       "antipro": "H",
       "power2": 10000,
-      "effect": "【翻】翻开时，从卡组检索两张7星以下的角色卡加入手牌。"
+      "effecttext": "【翻】翻开时，从卡组检索两张7星以下的角色卡加入手牌。"
    },
    "LKJ01-075": {
       "cardno": "LKJ01-075",
@@ -945,7 +945,7 @@
       "power1": 4000,
       "antipro": "T",
       "power2": 7000,
-      "effect": "【支】支援时，本回合我方7星以下的角色卡战斗力+8000。"
+      "effecttext": "【支】支援时，本回合我方7星以下的角色卡战斗力+8000。"
    },
    "LKJ01-076": {
       "cardno": "LKJ01-076",
@@ -957,7 +957,7 @@
       "power1": 6000,
       "antipro": "A",
       "power2": 8000,
-      "effect": "【翻】翻开时，展示牌组顶五张牌，将所有7星以下的角色卡加入手牌。"
+      "effecttext": "【翻】翻开时，展示牌组顶五张牌，将所有7星以下的角色卡加入手牌。"
    },
    "LKJ01-077": {
       "cardno": "LKJ01-077",
@@ -969,7 +969,7 @@
       "power1": 6000,
       "antipro": "H",
       "power2": 9000,
-      "effect": "【翻】翻开时，舍弃任意张7星以下的角色卡，每弃一张，本回合此卡战斗力+3000。"
+      "effecttext": "【翻】翻开时，舍弃任意张7星以下的角色卡，每弃一张，本回合此卡战斗力+3000。"
    },
    "LKJ01-078": {
       "cardno": "LKJ01-078",
@@ -981,7 +981,7 @@
       "power1": 7000,
       "antipro": "T",
       "power2": 9000,
-      "effect": "【防】防守时，本回合此卡战斗力+3000。\n【翻】翻开时，可以将一张7星以下的角色卡，从手牌放进战场。"
+      "effecttext": "【防】防守时，本回合此卡战斗力+3000。\n【翻】翻开时，可以将一张7星以下的角色卡，从手牌放进战场。"
    },
    "LKJ01-079": {
       "cardno": "LKJ01-079",
@@ -993,7 +993,7 @@
       "power1": 7000,
       "antipro": "A",
       "power2": 8000,
-      "effect": "此卡支援7星以下的角色卡时，本回合此卡战斗力+6000。\n【防】防守时，抽两张卡。"
+      "effecttext": "此卡支援7星以下的角色卡时，本回合此卡战斗力+6000。\n【防】防守时，抽两张卡。"
    },
    "LKJ01-080": {
       "cardno": "LKJ01-080",
@@ -1005,6 +1005,6 @@
       "power1": 10000,
       "antipro": "H",
       "power2": 13000,
-      "effect": "【支】支援时，本回合此卡战斗力+3000。\n【翻】抽四张牌，然后从手上舍弃一张蓝色或紫色的角色卡，否则弃两张牌。"
+      "effecttext": "【支】支援时，本回合此卡战斗力+3000。\n【翻】抽四张牌，然后从手上舍弃一张蓝色或紫色的角色卡，否则弃两张牌。"
    }
 }

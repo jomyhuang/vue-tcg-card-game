@@ -33,13 +33,13 @@ export default {
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
 
-    commit('EFFECT_SET', { test: 'hello', val: 2})
-    console.log(state.effect)
-    commit('EFFECT_SET', { test: 'hello effect', val: 2})
-    console.log(state.effect)
-    commit('EFFECT_SET', {})
-    console.log(state.effect)
-    
+    // commit('EFFECT_SET', { test: 'hello', val: 2})
+    // console.log(state.effect)
+    // commit('EFFECT_SET', { test: 'hello effect', val: 2})
+    // console.log(state.effect)
+    // commit('EFFECT_SET', {})
+    // console.log(state.effect)
+    //
 
   },
   GAME_INIT_STORE({
