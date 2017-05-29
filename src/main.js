@@ -12,6 +12,8 @@ import App from './App'
 import store from '@/store'
 import router from '@/router'
 
+import './allstyle.css'
+
 // Vue.use(Vuex)
 Vue.use(ElementUI)
 
@@ -22,7 +24,7 @@ require('vue2-animate/dist/vue2-animate.min.css')
 
 // Vue.directive('my-tooltip', VTooltip.VTooltip)
 Vue.use(VTooltip)
-// must define CSS in index.html
+// must global define CSS in allstyle.css / index.html
 
 /* eslint-disable no-new */
 new Vue({

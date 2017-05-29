@@ -483,6 +483,7 @@ export default {
       owner: player,
       play: {},
       power: [],
+      effecttext: cardDB[cardid].effecttext ? cardDB[cardid].effecttext : '无效果',
     })
 
     gamecard.power1 = this.convertPower(gamecard.power1)
