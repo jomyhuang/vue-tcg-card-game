@@ -11,7 +11,6 @@ import firstAgent from '@/components/agent-first'
 
 export default {
   STORE_SET(state, payload) {
-
     // meta store set
     const settingState = (value, key) => {
       if (R.has(key)(state)) {
@@ -28,17 +27,46 @@ export default {
     console.log('TEST_SET payload', payload)
 
     console.log('TEST_SET add test card to deck', payload)
-    const fpadd2deck = (value, key) => {
+    const fnadd2deck = (value, key) => {
       const card = value
       const owner = card.owner
       owner.deck.push(card)
     }
-    R.forEachObjIndexed(fpadd2deck, state.test)
+    R.forEachObjIndexed(fnadd2deck, state.test)
+  },
+  EFFECT_SET(state, payload) {
+
+    if(R.isEmpty(payload)) {
+      state.effect = null
+      state.effect = {}
+    }
+    else {
+      state.effect = R.merge(state.effect)(payload)
+    }
+
+    console.log('commit EFFECT_SET payload', payload)
+  },
+  STORE_MESSAGE(state,payload) {
+    state.storemsg = payload
   },
   // ---------------------------------------------------- GAME_XXX
   GAME_RESET(state, payload) {
     mutil.resetGameState(state)
     console.log('commit GAME_RESET')
+  },
+  GAME_SET(state, payload) {
+
+    // ramda.js 可以assign sub-key
+    // state = R.merge(state)(payload) 不行！
+    state.game = R.merge(state.game)(payload)
+
+    console.log('GAME_SET payload', payload)
+  },
+  GAME_SET_CONFIG(state, payload) {
+
+    state.game.config = R.merge(state.game.config)(payload)
+
+    console.log('GAME_SET_CONFIG payload', payload)
   },
   GAME_INIT(state, {
     decklist = null,
@@ -131,14 +159,6 @@ export default {
     state.game.phase = phase
 
     console.log(`commit GAME_PHASE ${phase}`)
-  },
-  GAME_SET(state, payload) {
-
-    // ramda.js 可以assign sub-key
-    // state = R.merge(state)(payload) 不行！
-    state.game = R.merge(state.game)(payload)
-
-    console.log('GAME_SET payload', payload)
   },
   GAME_SET_PLAYERDECK(state, {
     player = null,

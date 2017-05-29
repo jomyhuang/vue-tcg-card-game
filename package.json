@@ -17,6 +17,7 @@
     "element-ui": "^1.2.9",
     "lodash": "^4.17.4",
     "ramda": "^0.23.0",
+    "v-tooltip": "^2.0.0-beta.4",
     "vue": "^2.2.6",
     "vue-router": "^2.4.0",
     "vue2-animate": "^1.0.4",

@@ -1,5 +1,5 @@
 <template>
-<div class="comCard">
+<div :class="classCard" class="comCard" >
   <div v-if="card===null">
     <h4>精灵战争</h4>
     <h5>未选择战士</h5>
@@ -12,7 +12,7 @@
           </i>
       <br/>
     </div>
-    <div v-if="card.facedown">
+    <div v-if="card.facedown" v-tooltip="'tooltipContent'">
       <h4>精灵战争</h4>
       <div>{{card.name}}</div>
       <!-- <i class="el-icon-plus" @click.stop.prevent="faceup($event)">FACEUP</i> -->
@@ -43,7 +43,8 @@ export default {
   name: 'comCard',
   data() {
     return {
-      msg: 'comCard msg'
+      msg: 'comCard msg',
+      background: '#FF0000',
     }
   },
   // props: ['card'],
@@ -53,11 +54,19 @@ export default {
       default: () => {},
     }
   },
-  components: {},
+  components: {
+  },
   created() {},
   mounted() {},
   beforeDestroy() {},
-  computed: {},
+  computed: {
+    classCard() {
+      return {
+        'normal': !this.card.selectable,
+        'selectable': this.card.selectable,
+      }
+    }
+  },
   methods: {
     faceup(event) {
       this.$store.dispatch('SET_FACEUP', this.card)
@@ -85,7 +94,7 @@ export default {
 <!-- card size 150x200 -->
 <style scoped>
 .comCard {
-  background-color: lightgrey;
+  /*background-color: lightgrey;*/
   width: 120px;
   height: 150px;
   margin: 5px;
@@ -93,5 +102,11 @@ export default {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+}
+.normal {
+  background-color: lightgrey;
+}
+.selectable {
+  background-color: red;
 }
 </style>

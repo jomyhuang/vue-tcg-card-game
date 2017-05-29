@@ -128,7 +128,7 @@ export default {
         shuffle: false,
       })
       if(umi) {
-        this.$store.commit('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
       }
     },
     gameTestBattle() {
@@ -192,15 +192,26 @@ export default {
       // return promise from component
       // return this.$refs.info.async_message(msg)
       this.msg = msg
-      return this.config.message ? this.$refs.info.async_message(msg) : console.info(msg)
+      const duration = 500
+      this.run_command('STORE_MESSAGE',msg)
+      console.info('%c'+msg,'color:green')
+      return this.config.message ? this.$refs.info.async_message(msg,duration) : true
       // return this.config.message ? this.$refs.info.async_message(msg) : true
     },
     run_message(msg) {
-      console.log(msg)
+      return this.message(msg)
     },
     run_next(newphase, payload) {
       console.log(`next %c${newphase}`,'color:blue')
       return this.$store.dispatch(newphase,payload)
+    },
+    run_command(type, payload) {
+      if(this.$store._actions[type]) {
+        return this.$store.dispatch(type,payload)
+      }
+      else {
+        return this.$store.commit(type,payload)
+      }
     },
     async async_battleshow(value = 1000) {
       if (!this.config.battelshow &&
@@ -242,37 +253,23 @@ export default {
         return
       }
 
-      // 重构使用 promise async selection
-      // await dispatch('PHASE1').then((value) => {})
-      // await dispatch('PHASE2').then((value) => {})
-      // if( !this.initial ) {
       if(umi) {
-        this.$store.commit('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+        this.run_command('GAME_SET_CONFIG', { message: true })
       }
 
       let firstplayer = null
-      await this.run_next('GAME_START').then(async() => {
-        await this.message('游戏开始', 2000)
-      }).then(async() => {
-        await this.run_next('GAME_WHO_FIRST').then((who) => {
-          firstplayer = who
-        })
-        await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
-        await this.message(`${this.firstPlayer.name} 先攻`)
+      await this.run_next('GAME_START')
+      await this.message('游戏开始', 2000)
+      await this.run_next('GAME_WHO_FIRST').then((who) => {
+        firstplayer = who
       })
-
-      // console.log(`gameloop first ${this.$store.state.firstPlayer.id} current ${this.$store.state.currentPlayer.id}`)
-      // this.initial = true
-      // }
+      await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
+      await this.message(`${this.firstPlayer.name} 先攻`)
 
       let loop = true
       do {
-        // await this.$store.dispatch('GAME_TURN_BEGIN').then(async() => {
-        //   await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
-        // }).then(async() => {
-        //   await this.message('抽牌')
-        //   await this.$store.dispatch('GAME_DRAW')
-        // })
+
         await this.run_next('GAME_TURN_BEGIN')
         await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
         await this.message('抽牌')
@@ -334,7 +331,7 @@ export default {
     async run_battle(testbattle) {
       await this.run_message('run_battle START battle')
       await this.run_message('set test data')
-      await this.$store.commit('TEST_SET', testbattle)
+      await this.run_command('TEST_SET', testbattle)
 
       await this.run_next('GAME_START')
       let firstplayer = this.$store.state.player1
