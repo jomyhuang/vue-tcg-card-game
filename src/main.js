@@ -17,6 +17,13 @@ import './allstyle.css'
 // Vue.use(Vuex)
 Vue.use(ElementUI)
 
+// use MuseUI
+import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
+import 'muse-ui/dist/theme-light.css'
+Vue.use(MuseUI)
+
+
 // vue2-animate
 // https://github.com/asika32764/vue2-animate
 require('vue2-animate/dist/vue2-animate.min.css')
