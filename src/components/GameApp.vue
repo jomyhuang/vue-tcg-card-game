@@ -2,7 +2,7 @@
 <div class="gameapp">
   <Row class="gameboard">
     <div>
-      <h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
+      <h2>{{ msg }} $ {{ $store.state.storemsg }}</h2>
       <Button @click="gameTest()">GAME TEST</Button>
       <Button @click="battleshow(0)">Battle Show</Button>
     </div>
@@ -39,7 +39,7 @@
   </Row>
   <Row class="gameboard">
     <div>
-      <h3>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h3>
+      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
       <Button @click="gameloop()" shape="circle">GAME LOOP</Button>
       <Button @click="gameloop(true)" shape="circle">GAME LOOP UI</Button>
@@ -157,11 +157,8 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value = 1000) {
-      // console.log('battle test click')
-      // console.log(this.$refs.battle)
+    battleshow(value=1000) {
       this.$refs.battle.open(value)
-      // console.log('check data',this.$refs.battle.battleVisible);
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
@@ -194,8 +191,21 @@ export default {
       const duration = 500
       this.run_command('STORE_MESSAGE',msg)
       console.info('%c'+msg,'color:green')
-      return this.config.message ? this.$refs.info.async_message(msg,duration) : true
-      // return this.config.message ? this.$refs.info.async_message(msg) : true
+      // if(this.config.message) {
+      //   return new Promise((resolve, reject) => {
+      //       this.$Message.info(msg, 1, ()=> resolve())
+      //   })
+      // }
+      // return true
+      // if(this.config.message) {
+      //   return new Promise((resolve, reject) => {
+      //     this.$Notice.open({title: msg, duration: 2.5, onClose: ()=>resolve()})
+      //     // resolve()
+      //   })
+      // }
+      // return true
+      return this.config.message ? this.$Notice.open({title: msg, duration: 4}) : true
+      // return this.config.message ? this.$refs.info.async_message(msg,duration) : true
     },
     run_message(msg) {
       return this.message(msg)

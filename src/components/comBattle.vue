@@ -1,22 +1,26 @@
 <template>
 <div class="comBattle">
-  <el-dialog ref="battleDialog" title="精灵战争开战！" v-model="battleVisible" v-on:open="_afterOpen" size="large">
-    <div class="row gameboard">
-      <div class="col-md-6 gameboard flex-container-right">
+  <div ref="battleDialog" title="精灵战争开战！" v-model="battleVisible" v-on:open="_afterOpen" size="large">
+    <Row class="gameboard">
+      <Col span="12" class="gameboard flex-container-right">
         <h4>攻击方</h4>
         <comCard :card="$store.state.battle.attacker.main"></comCard>
         <comCard :card="$store.state.battle.attacker.support"></comCard>
-      </div>
-      <div class="col-md-6 gameboard flex-container">
+        <!-- <comCard :card="$store.state.battle.attacker.main" v-if="$store.state.battle.attacker.main"></comCard>
+        <comCard :card="$store.state.battle.attacker.support" v-if="$store.state.battle.attacker.support"></comCard> -->
+      </Col>
+      <Col span="12" class="gameboard flex-container">
         <h4>防守方</h4>
+        <!-- <comCard :card="$store.state.battle.defenser.main" v-if="$store.state.battle.defenser.main"></comCard>
+        <comCard :card="$store.state.battle.defenser.support" v-if="$store.state.battle.defenser.support"></comCard> -->
         <comCard :card="$store.state.battle.defenser.main"></comCard>
         <comCard :card="$store.state.battle.defenser.support"></comCard>
-      </div>
-    </div>
-    <span v-if="autoClose==0" slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="battleVisible = false">>关 闭</el-button>
-      </span>
-  </el-dialog>
+      </Col>
+      <!-- <span v-if="autoClose==0" slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="battleVisible = false">>关 闭</el-button>
+      </span> -->
+  </Row>
+  </div>
   <!-- <el-button @click="battleVisible = true">点击打开 Battle</el-button> -->
   <!-- <h3>battle mode props {{value}}</h3> -->
 </div>

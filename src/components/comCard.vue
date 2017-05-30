@@ -1,45 +1,34 @@
 <template>
-<Card :class="classCard" class="comCard-iview" padding="1">
-  <div v-if="card===null">
-    <h4>精灵战争</h4>
-    <h5>CARD NULL</h5>
-  </div>
-  <!-- <div v-else @click.stop.prevent="selectcard($event)"> -->
-  <div v-else @click.stop.prevent="card.selectable ? selectcard($event) : undefined">
-    <div v-if="card.selectable">
-      <Button type="text" icon="checkmark-round" @click.stop.prevent="selectcard($event)">
+<Card :class="classCard" class="comCard-iview" :padding="padding">
+  <div v-if="card">
+    <div @click.stop.prevent="card.selectable ? selectcard($event) : undefined">
+      <div v-if="card.selectable">
+        <Button type="text" icon="checkmark-round" @click.stop.prevent="selectcard($event)">
           <span v-if="card.selected">UNSELECT</span>
           <span v-else="card.selected">SELECT</span>
       </Button>
-    </div>
-    <div v-if="card.facedown">
-      <h4>精灵战争</h4>
-      <div>{{card.name}}</div>
-    </div>
-    <div v-else>
-      <div>
-        <h5>{{card.name}}</h5>
       </div>
-      <div>
-        <span v-for="n in card.star">🌟</span>
+      <div v-if="card.facedown">
+        <div>精灵战争</div>
+        <div class="comCard-title">{{card.name}}</div>
       </div>
-      <!-- <div v-tooltip.bottom-end="{ content: this.cardtext, classes: 'cardtip' }"> -->
-      <!-- <div class="mu-card-tip" ref="cardtext" @mouseenter="handleHover" @mouseleave="handleHoverExit"> -->
-        <!-- <mu-tooltip :label="cardtext" :show="show" :trigger="trigger" verticalPosition="bottom" horizontalPosition="center"/> -->
-      <Tooltip placement="bottom-start">
-        <div slot="content">
-          {{card.class}} {{card.race}} {{card.color}}<br/>
-          # {{card.cardno}} [{{card.pro}}]<br/>
-          {{card.attack1}} {{card.power1}}{{card.attack2}} {{card.power2}}<br/>
-          {{card.effecttext}}
-        </div>
+      <div v-else>
+        <div class="comCard-title">{{card.name}}</div>
         <div>
-          {{card.class}} {{card.race}} {{card.color}}<br/>
-          # {{card.cardno}} [{{card.pro}}]<br/>
-          {{card.attack1}} {{card.power1}}<br/>
-          {{card.attack2}} {{card.power2}}<br/>
+          <span v-for="n in card.star">🌟</span>
         </div>
-      </Tooltip>
+        <!-- <div v-tooltip.bottom-end="{ content: this.cardtext, classes: 'cardtip' }"> -->
+        <!-- <div class="mu-card-tip" ref="cardtext" @mouseenter="handleHover" @mouseleave="handleHoverExit"> -->
+        <!-- <mu-tooltip :label="cardtext" :show="show" :trigger="trigger" verticalPosition="bottom" horizontalPosition="center"/> -->
+        <Tooltip placement="bottom-start">
+          <div slot="content">
+            {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}{{card.attack2}} {{card.power2}}<br/> {{card.effecttext}}
+          </div>
+          <div class="comCard-text">
+            {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}<br/> {{card.attack2}} {{card.power2}}<br/>
+          </div>
+        </Tooltip>
+      </div>
     </div>
   </div>
 </Card>
@@ -53,13 +42,16 @@ export default {
       background: '#FF0000',
       trigger: null,
       show: false,
+      padding: 1,
     }
   },
   // props: ['card'],
   props: {
     card: {
       type: Object,
-      default: () => {},
+      default: () => {
+        selectable: false
+      },
     }
   },
   components: {},
@@ -70,10 +62,14 @@ export default {
   beforeDestroy() {},
   computed: {
     classCard() {
-      return {
-        'normal': !this.card.selectable,
-        'selectable': this.card.selectable,
-      }
+      const res = this.card ? {
+          'normal': !this.card.selectable,
+          'selectable': this.card.selectable,
+        } : {
+          'normal': true,
+          'selectable': false,
+        }
+      return res
     },
     cardtext() {
       return this.card ? `${this.card.class} ${this.card.color} [${this.card.pro}]<br/>${this.card.power1} ${this.card.power2}<br/>${this.card.effecttext}` : 'NULL'
@@ -98,10 +94,9 @@ export default {
       this.$store.commit('TO_GRAVEYARD')
     },
     selectcard(event) {
-      if(this.card.selectable) {
+      if (this.card.selectable) {
         this.$store.dispatch('ACT_SELECTED_CARD', this.card)
-      }
-      else {
+      } else {
         console.log('card no choice')
       }
       // this.$store.commit('PICK_CARD',this.card)
@@ -127,8 +122,16 @@ export default {
   border-radius: 5px;
 }
 
+.comCard-title {
+  padding: 1px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
 .comCard-text {
   padding: 1px;
+  font-size: 12px;
+  font-weight: normal;
 }
 
 .comCard-muse {
@@ -164,19 +167,18 @@ export default {
   border: solid 2px red;
 }
 
-.mu-card-tip{
+.mu-card-tip {
   display: inline-block;
   cursor: default;
   position: relative;
 }
-
 </style>
 
 <style lang="scss">
 $primary-color: blue;
 
 .scssstyle {
-  color: $primary-color;
+    color: $primary-color;
 }
 </style>
 
