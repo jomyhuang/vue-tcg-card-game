@@ -28,16 +28,20 @@
         <span v-for="n in card.star">🌟</span>
       </div>
       <div v-tooltip.bottom-end="{ content: this.cardtext, classes: 'cardtip' }">
+      <!-- <div class="mu-card-tip" ref="cardtext" @mouseenter="handleHover" @mouseleave="handleHoverExit"> -->
+        <!-- <mu-tooltip :label="cardtext" :show="show" :trigger="trigger" verticalPosition="bottom" horizontalPosition="center"/> -->
+      <!-- <Tooltip :content="cardtext"> -->
+      <!-- <div> -->
         {{card.class}} {{card.race}} {{card.color}}<br/>
         # {{card.cardno}} [{{card.pro}}]<br/>
         {{card.attack1}} {{card.power1}}<br/>
         {{card.attack2}} {{card.power2}}<br/>
       </div>
+      <!-- </Tooltip> -->
     </mu-card-text>
   </div>
 </mu-card>
 </template>
-
 <script>
 export default {
   name: 'comCard',
@@ -45,6 +49,8 @@ export default {
     return {
       msg: 'comCard msg',
       background: '#FF0000',
+      trigger: null,
+      show: false,
     }
   },
   // props: ['card'],
@@ -56,7 +62,9 @@ export default {
   },
   components: {},
   created() {},
-  mounted() {},
+  mounted() {
+    // this.trigger = this.$refs.cardtext
+  },
   beforeDestroy() {},
   computed: {
     classCard() {
@@ -66,10 +74,16 @@ export default {
       }
     },
     cardtext() {
-      return this.card ? `${this.card.class} ${this.card.color} [${this.card.pro}]<BR>${this.card.power1} ${this.card.power2}<BR>${this.card.effecttext}` : 'NULL'
+      return this.card ? `${this.card.class} ${this.card.color} [${this.card.pro}]<br/>${this.card.power1} ${this.card.power2}<br/>${this.card.effecttext}` : 'NULL'
     }
   },
   methods: {
+    // handleHover () {
+    //   this.show = true
+    // },
+    // handleHoverExit () {
+    //   this.show = false
+    // },
     faceup(event) {
       this.$store.dispatch('SET_FACEUP', this.card)
     },
@@ -136,26 +150,12 @@ export default {
   border: solid 2px red;
 }
 
-.mytip2 {
-  display: none;
-  opacity: 0;
-  transition: opacity .15s;
-  pointer-events: none;
-  padding: 4px;
-  z-index: 10000;
-  .tooltip-content {
-    background: green;
-    color: white;
-    border-radius: 16px;
-    padding: 5px 10px 4px;
-  }
-  &.tooltip-open-transitionend {
-    display: block;
-  }
-  &.tooltip-after-open {
-    opacity: 1;
-  }
+.mu-card-tip{
+  display: inline-block;
+  cursor: default;
+  position: relative;
 }
+
 </style>
 
 <style lang="scss">
@@ -163,27 +163,6 @@ $primary-color: blue;
 
 .scssstyle {
   color: $primary-color;
-}
-
-.mytip_bug {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    pointer-events: none;
-    padding: 4px;
-    z-index: 10000;
-    .tooltip-content {
-        background: green;
-        color: white;
-        border-radius: 16px;
-        padding: 5px 10px 4px;
-    }
-    &.tooltip-open-transitionend {
-        display: block;
-    }
-    &.tooltip-after-open {
-        opacity: 1;
-    }
 }
 </style>
 

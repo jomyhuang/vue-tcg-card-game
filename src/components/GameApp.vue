@@ -14,20 +14,20 @@
       <comDeck :player="$store.state.player2"></comDeck>
     </div>
     <div class="col-md-9 gameboard">
-      <div class="row gameboard">
+      <div class="gameboard">
         <comHand :player="$store.state.player2"></comHand>
       </div>
-      <div class="row gameboard">
+      <div class="gameboard">
         <comZone :player="$store.state.player2"></comZone>
       </div>
     </div>
   </div>
   <div class="row gameboard">
     <div class="col-md-9">
-      <div class="row gameboard">
+      <div class="gameboard">
         <comZone :player="$store.state.player1"></comZone>
       </div>
-      <div class="row gameboard">
+      <div class="gameboard">
         <comHand :player="$store.state.player1"></comHand>
       </div>
     </div>

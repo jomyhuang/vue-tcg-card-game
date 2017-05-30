@@ -17,10 +17,16 @@ import './allstyle.css'
 // Vue.use(Vuex)
 Vue.use(ElementUI)
 
+// use iView
+import iView from 'iview'
+// import 'iview/dist/styles/iview.css'
+import '../my-theme/dist/iview.css'
+Vue.use(iView)
+
 // use MuseUI
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
-import 'muse-ui/dist/theme-light.css'
+// import 'muse-ui/dist/theme-light.css'
 Vue.use(MuseUI)
 
 
