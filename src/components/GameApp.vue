@@ -1,62 +1,61 @@
 <template>
 <div class="gameapp">
-  <div class="row gameboard">
-    <div class="col-md-12">
+  <Row class="gameboard">
+    <div>
       <h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
-      <el-button @click="gameTest()">GAME TEST</el-button>
-      <!-- <el-button @click="gameStart()">GAME START</el-button> -->
-      <el-button @click="battleshow(0)">Battle Show</el-button>
+      <Button @click="gameTest()">GAME TEST</Button>
+      <Button @click="battleshow(0)">Battle Show</Button>
     </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-3 gameboard">
+  </Row>
+  <Row class="gameboard">
+    <Col span="4" class="gameboard">
       <h3>player 2 deck</h3>
       <comDeck :player="$store.state.player2"></comDeck>
-    </div>
-    <div class="col-md-9 gameboard">
+    </Col>
+    <Col span="20" class="gameboard">
       <div class="gameboard">
         <comHand :player="$store.state.player2"></comHand>
       </div>
       <div class="gameboard">
         <comZone :player="$store.state.player2"></comZone>
       </div>
-    </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-9">
+    </Col>
+  </Row>
+  <Row class="gameboard">
+    <Col span="20">
       <div class="gameboard">
         <comZone :player="$store.state.player1"></comZone>
       </div>
       <div class="gameboard">
         <comHand :player="$store.state.player1"></comHand>
       </div>
-    </div>
-    <div class="col-md-3 gameboard">
+    </Col>
+    <Col span="4" class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
-      <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
-      <el-button @click="playcard()">PLAY</el-button>
-    </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-12">
+      <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
+      <Button @click="playcard()">PLAY</Button>
+    </Col>
+  </Row>
+  <Row class="gameboard">
+    <div>
       <h3>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h3>
-      <!-- <el-button @click="gameloop_temp()">TEST LOOP</el-button> -->
-      <el-button @click="gameloop()">GAME LOOP</el-button>
-      <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
-      <el-button @click="run_gameloop()">RUN</el-button>
-      <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
-      <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
+      <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
+      <Button @click="gameloop()" shape="circle">GAME LOOP</Button>
+      <Button @click="gameloop(true)" shape="circle">GAME LOOP UI</Button>
+      <Button @click="run_gameloop()">RUN</Button>
+      <Button @click="run_gameloop(1)">RUN ONE TURN</Button>
+      <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
       <BR/>
-      <el-button @click="gameTest()">TEST</el-button>
-      <el-button @click="battleshow(0)">Battle Show</el-button>
-      <el-button @click="gameReset()">RESET</el-button>
-      <el-button @click="gameNewdeck()">NewDeck</el-button>
-      <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
+      <Button @click="gameTest()">TEST</Button>
+      <Button @click="battleshow(0)">Battle Show</Button>
+      <Button @click="gameReset()">RESET</Button>
+      <Button @click="gameNewdeck()">NewDeck</Button>
+      <Button @click="gameNewdeck(true)">NewDeck UI</Button>
       <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
       <comMessage ref="info"></comMessage>
     </div>
-  </div>
+  </Row>
 </div>
 </template>
 

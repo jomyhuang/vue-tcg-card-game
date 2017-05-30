@@ -4,6 +4,7 @@
   <transition-group name="bounceRight" tag="div" class="flex-container">
     <comCard v-for="(card,key,index) in player.zone" :card="card" :key="key"></comCard>
   </transition-group>
+  
   <!-- <mu-flexbox>
     <transition-group name="bounceRight" tag="div">
     <mu-flexbox-item v-for="(card,key,index) in player.zone" :key="key">

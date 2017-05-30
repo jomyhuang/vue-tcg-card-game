@@ -3,8 +3,6 @@
 import Vue from 'vue'
 // import Vuex from 'vuex'
 
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-default/index.css'
 
 import VTooltip from 'v-tooltip'
 
@@ -15,6 +13,8 @@ import router from '@/router'
 import './allstyle.css'
 
 // Vue.use(Vuex)
+import ElementUI from 'element-ui'
+// import 'element-ui/lib/theme-default/index.css'
 Vue.use(ElementUI)
 
 // use iView
@@ -36,7 +36,7 @@ require('vue2-animate/dist/vue2-animate.min.css')
 
 
 // Vue.directive('my-tooltip', VTooltip.VTooltip)
-Vue.use(VTooltip)
+// Vue.use(VTooltip)
 // must global define CSS in allstyle.css / index.html
 
 /* eslint-disable no-new */
