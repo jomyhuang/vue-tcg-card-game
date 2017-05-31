@@ -13,7 +13,7 @@
         <div class="comCard-title">{{card.name}}</div>
       </div>
       <div v-else>
-        <div class="comCard-title">{{card.name}}</div>
+        <div class="card-title">{{card.name}}</div>
         <div>
           <span v-for="n in card.star">🌟</span>
         </div>
@@ -31,8 +31,12 @@
       </div>
     </div>
   </div>
+  <div v-else>
+    <div>准备中</div>
+  </div>
 </Card>
 </template>
+
 <script>
 export default {
   name: 'comCard',
@@ -132,17 +136,6 @@ export default {
   padding: 1px;
   font-size: 12px;
   font-weight: normal;
-}
-
-.comCard-muse {
-  /*background-color: lightgrey;*/
-  width: 120px;
-  height: 150px;
-  margin: 5px;
-  /*border: none 2px #000000;*/
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
 }
 
 .comCard-iview {

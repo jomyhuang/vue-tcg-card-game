@@ -1,0 +1,44 @@
+
+h1,
+h2 {
+  font-weight: bold;
+}
+
+.gameboard {
+  border: thin solid #0000ff;
+  background-color: lightblue;
+  padding: 15px;
+}
+
+.flex-container {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flex-container-right {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.card-title {
+  color: blue;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+
+.flex-item {
+  background-color: lightgrey;
+  width: 150px;
+  height: 200px;
+  margin: 10px;
+  border: none 5px #000000;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}

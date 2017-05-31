@@ -1,28 +1,33 @@
 <template>
 <div class="comBattle">
-  <div ref="battleDialog" title="精灵战争开战！" v-model="battleVisible" v-on:open="_afterOpen" size="large">
+  <Modal ref="battleDialog" v-model="battleVisible" width="800" @on-ok="ok" @on-cancel="cancel">
+    <div slot="header" style="text-align:center">
+    精灵战争开战！
+    </div>
     <Row class="gameboard">
-      <Col span="12" class="gameboard flex-container-right">
+      <Col span="12">
+      <div class="gameboard flex-container-right">
         <h4>攻击方</h4>
         <comCard :card="$store.state.battle.attacker.main"></comCard>
         <comCard :card="$store.state.battle.attacker.support"></comCard>
         <!-- <comCard :card="$store.state.battle.attacker.main" v-if="$store.state.battle.attacker.main"></comCard>
         <comCard :card="$store.state.battle.attacker.support" v-if="$store.state.battle.attacker.support"></comCard> -->
+      </div>
       </Col>
-      <Col span="12" class="gameboard flex-container">
+      <Col span="12">
+      <div class="gameboard flex-container">
         <h4>防守方</h4>
-        <!-- <comCard :card="$store.state.battle.defenser.main" v-if="$store.state.battle.defenser.main"></comCard>
-        <comCard :card="$store.state.battle.defenser.support" v-if="$store.state.battle.defenser.support"></comCard> -->
         <comCard :card="$store.state.battle.defenser.main"></comCard>
         <comCard :card="$store.state.battle.defenser.support"></comCard>
+      </div>
       </Col>
       <!-- <span v-if="autoClose==0" slot="footer" class="dialog-footer">
           <el-button type="primary" @click="battleVisible = false">>关 闭</el-button>
       </span> -->
-  </Row>
-  </div>
-  <!-- <el-button @click="battleVisible = true">点击打开 Battle</el-button> -->
-  <!-- <h3>battle mode props {{value}}</h3> -->
+    </Row>
+  </Modal>
+<!-- <el-button @click="battleVisible = true">点击打开 Battle</el-button> -->
+<!-- <h3>battle mode props {{value}}</h3> -->
 </div>
 </template>
 
@@ -76,56 +81,28 @@ export default {
   beforeDestroy() {},
   computed: {},
   methods: {
-    _afterOpen() {
-      // console.log('open battle dialog autoclose:', this.autoClose)
-      // console.log(`test v-model : ${this.value}`)
-      if (this.autoClose > 0) {
-        setTimeout(() => {
-          // console.log('battle dialog timeout auto close')
-          this.battleVisible = false
-          this.autoClose = 0
-        }, this.autoClose)
-      }
+    ok() {
+    },
+    cancel() {
     },
     open(auto = 0) {
-      // console.log(this.$refs.battleDialog)
       this.autoClose = auto
-      // call method by ref id
-      this.$refs.battleDialog.open()
+      this.battleVisible = true
+
+      if(this.autoClose) {
+        setTimeout(() => {
+          this.battleVisible = false
+        },this.autoClose)
+      }
     }
   }
 }
 </script>
 
+<style>
+/*@import '../style/base.scss';*/
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1,
-h2 {
-  font-weight: bold;
-}
-
-.gameboard {
-  border: thin solid #0000ff;
-  background-color: lightblue;
-  padding: 15px;
-}
-
-.flex-container {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
-
-.flex-container-right {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
 </style>

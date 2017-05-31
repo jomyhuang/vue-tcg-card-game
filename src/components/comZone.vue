@@ -4,7 +4,7 @@
   <transition-group name="bounceRight" tag="div" class="flex-container">
     <comCard v-for="(card,key,index) in player.zone" :card="card" :key="key"></comCard>
   </transition-group>
-  
+
   <!-- <mu-flexbox>
     <transition-group name="bounceRight" tag="div">
     <mu-flexbox-item v-for="(card,key,index) in player.zone" :key="key">
@@ -45,26 +45,11 @@ export default {
 }
 </script>
 
+<style>
+/*@import '../style/base.scss';*/
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.flex-container {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
-
-.flex-item {
-  background-color: lightgrey;
-  width: 150px;
-  height: 200px;
-  margin: 5px;
-  border: none 5px #000000;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
 </style>
