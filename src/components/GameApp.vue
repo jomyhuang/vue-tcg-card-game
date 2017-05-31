@@ -146,10 +146,10 @@ export default {
       })
     },
     gameReset(init) {
-      this.$Message.info({
-                content: 'Game Reset',
-                duration: 10
-            })
+      // this.$Message.info({
+      //           content: 'Game Reset',
+      //           duration: 10
+      //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
       console.log(init);
