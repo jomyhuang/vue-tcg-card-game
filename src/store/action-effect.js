@@ -14,6 +14,18 @@ import $cx from '@/cardxflow'
 
 
 export default {
+  EFFECT_CONTEXT_INIT({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    commit('EFFECT_SET',{})
+    commit('EFFECT_SET',{
+      loop: true,
+    })
+    commit('EFFECT_SET',payload)
+    console.log(`EFFECT_CONTEXT_INIT`,state.effect)
+  },
   EFFECT_SOURCE({
     commit,
     state,
@@ -37,21 +49,20 @@ export default {
     }
 
     const type = payload
-    const phase = payload
+    const phase = state.game.phase
     const card = state.placeholder
     const player = card.owner
     const opponent = mutil.opponent(player)
 
-    // move to effect loop
-    // // 处理效果目标对象 owner, card...
-    // // select card owner
-    // commit('SELECT_PLAYER', player)
+    // INIT CONTEXT
+    dispatch('EFFECT_CONTEXT_INIT', {
+      type: type,
+      phase: state.game.phase,
+      card: card,
+      player: player,
+      opponent: opponent
+    })
 
-    // if (player !== state.currentPlayer) {
-    //   console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
-    //   // throw '发动效果卡不等于 placeholder'
-    // }
-    //
     const funcdispatch = (type, payload) => {
       return () => dispatch(type, payload)
     }
@@ -161,12 +172,10 @@ export default {
         console.log('act-----------------')
         if (_.isFunction(act)) {
           let res = act.call(card, effectpack)
-          // TODO: context 中断reject的判断
-          // if(res) {
-          //   resolve()
-          // }
-          // else {
-          //   reject()
+          // 中断loop
+          // if(!state.effect.loop) {
+            // TODO: 处理效果中断
+            // Promise.reject('效果中断')
           // }
           return res
         } else {
@@ -175,16 +184,22 @@ export default {
       }).then(function (result) {
         // console.log('exec act ok')
       })
-      // console.log(current)
       return current
-    })).then(function (results) {
-      console.log('------------------ok')
+    }))
+    .then(function (results) {
+      console.log('-------OK---------')
       console.log('effect act all finish')
       console.groupEnd()
-    }).catch((err) => {
-      console.log('-----catch----------')
-      console.log('effect 中断 promise all')
+    })
+    .catch((err) => {
+      console.log('%c-----catch------','color:red')
+      console.log('%ceffect 中断 promise all','color:red')
+      console.log('%c'+err,'color:red')
       console.groupEnd()
+      // TODO: 如果有catch时，错误会忽略/ effect.loop = true
+      if(state.effect.loop) {
+        throw 'ERROR IN EFFECT FUNCTION'
+      }
     })
 
     // return new Promise(async function (resolve, reject) {

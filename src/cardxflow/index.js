@@ -66,8 +66,8 @@ export function cxbuff(power = 0, tag) {
 }
 
 export function cxtap(message) {
-  return function() {
-    return console.log(`cxtap %c${message}`,'color:blue')
+  return function () {
+    return console.log(`cxtap %c${message}`, 'color:blue')
   }
 }
 
@@ -122,8 +122,25 @@ export default {
   },
   iftest(message) {
     return function() {
-      console.log('iftest')
-      // Promise.reject('promise 中断测试')
+      return new Promise(function(resolve, reject) {
+        console.log('iftest中断测试')
+        commit('EFFECT_SET', {
+          loop: false
+        })
+        reject(new Error('效果中断测试'))
+      })
     }
+    // return function () {
+    //   console.log('iftest中断测试')
+    //   commit('EFFECT_SET', {
+    //     loop: false
+    //   })
+    // }
   },
+  tapUI() {
+    return function () {
+      console.log('tapUI 呼叫UI funcion')
+      return mu.tapUI('呼叫tapUI')
+    }
+  }
 }

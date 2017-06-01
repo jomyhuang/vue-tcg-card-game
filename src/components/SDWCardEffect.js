@@ -45,9 +45,11 @@ export default {
         // $cx.run('SELECT_FILTER', x => x.star >= 3),
         // $cx.run('EFFECT_OPP_CHOICE', () => mutil.opponent(state.placeplayer)['hand']),
         // $cx.run('EFFECT_CHOICE', () => mutil.opponent(state.placeplayer)['hand']),
+
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+        $cx.tapUI(),
         $cx.iftest(),
         $cx.tap('do this tap message main action'),
         'string message',

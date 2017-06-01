@@ -20,38 +20,21 @@ export function testfn() {
   console.log('test func this', this)
 }
 
-// export function thiscard() {
-//   return $store.state.placeholder
-// }
-//
-// export function rxrun(type, payload) {
-//   // return store._actions[type] ? () => store.dispatch(type, payload) : () => store.commit(type, payload)
-//   return function () {
-//     const fn = $store._actions[type] ? $store.dispatch : $store.commit
-//     const card = thiscard()
-//     return fn.call(card, type, payload)
-//     // const cardfn = fn.bind(card)
-//     // return cardfn(type,payload)
-//   }
-// }
-//
-// export function pipec(...items) {
-//   // let pipearr = []
-//   // items.forEach((effect) => {
-//   //   const fn = effect.bind($store.placeholder)
-//   //   pipearr.push(fn)
-//   // })
-//   // return pipearr
-//   return items
-// }
-
-
+export var UIShow
 
 export default {
   // store,
   mixin: false,
   tap(fn) {
     console.log('mutil tap this func', this)
+  },
+  tapUI() {
+    console.log('tapUI',UIShow);
+    return UIShow(1500)
+  },
+  setUI(fn) {
+    console.log('setUI',fn);
+    UIShow = fn
   },
   assert(...args) {
     return console.assert(...args)

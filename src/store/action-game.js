@@ -33,8 +33,7 @@ export default {
     commit('GAME_INIT', payload)
     console.log('action GAME_INIT', payload)
 
-    // commit('EFFECT_SET', { test: 'hello', val: 2})
-    // console.log(state.effect)
+    let res = commit('EFFECT_SET', { test: 'hello', val: 2})
     // commit('EFFECT_SET', { test: 'hello effect', val: 2})
     // console.log(state.effect)
     // commit('EFFECT_SET', {})
@@ -177,11 +176,12 @@ export default {
         selectcard = agent.SELECT_CARD(state, payload)
         dispatch('ACT_SELECTED_CARD', selectcard)
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
-        // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
+        // FIXME: agent 在测试模式下选择没有 actselection.list, selectedlist
       } else {
         console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
         // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
         // move from _WAIT_ACT_SYNC_SELECT_UI
+        // IDEA: FIXME: 修改resolve callback方式blocking，取消while loop，如何监控store值改变？？
         const waitfunc = () => {
           return new Promise(function (resolve, reject) {
             setTimeout(() => {
@@ -196,7 +196,7 @@ export default {
 
         let message = R.prop('message',state.act_selection)
         let type = R.prop('type',state.act_selection)
-        console.log(`_WAIT [UI] START BLOCKING ${message}`)
+        console.log(`_WAIT [UI] START BLOCKING ${type} ${message}`)
         let waiting = true
         while (waiting) {
           await waitfunc().then((resolve) => {

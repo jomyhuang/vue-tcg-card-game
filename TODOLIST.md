@@ -165,6 +165,9 @@ if
 7、HERO/英雄系统
 
 
+Effect FUNCTION -> Agent HMI -> GAMEVUE UI
+                -> STORE -----> COM -> GAMEVUE UI
+
 
 
 0、Stage1.0目标

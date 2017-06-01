@@ -2,43 +2,43 @@
 <div class="gameapp">
   <Row class="gameboard">
     <div>
-      <h2>{{ msg }} $ {{ $store.state.storemsg }}</h2>
+      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <Button @click="gameTest()">GAME TEST</Button>
       <Button @click="battleshow(0)">Battle Show</Button>
     </div>
   </Row>
   <Row class="gameboard">
     <Col span="4">
-      <div class="gameboard">
-        <h3>deck2</h3>
-        <comDeck :player="$store.state.player2"></comDeck>
-      </div>
+    <div class="gameboard">
+      <h3>deck2</h3>
+      <comDeck :player="$store.state.player2"></comDeck>
+    </div>
     </Col>
     <Col span="20">
-      <div class="gameboard" style="min-height:200px">
-        <comHand :player="$store.state.player2"></comHand>
-      </div>
-      <div class="gameboard" style="min-height:200px">
-        <comZone :player="$store.state.player2"></comZone>
-      </div>
+    <div class="gameboard" style="min-height:200px">
+      <comHand :player="$store.state.player2"></comHand>
+    </div>
+    <div class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player2"></comZone>
+    </div>
     </Col>
   </Row>
   <Row class="gameboard">
     <Col span="20">
-      <div class="gameboard" style="min-height:200px">
-        <comZone :player="$store.state.player1"></comZone>
-      </div>
-      <div class="gameboard" style="min-height:200px">
-        <comHand :player="$store.state.player1"></comHand>
-      </div>
+    <div class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player1"></comZone>
+    </div>
+    <div class="gameboard" style="min-height:200px">
+      <comHand :player="$store.state.player1"></comHand>
+    </div>
     </Col>
     <Col span="4">
-      <div class="gameboard">
-        <h3>deck1</h3>
-        <comDeck :player="$store.state.player1"></comDeck>
-        <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
-        <Button @click="playcard()">PLAY</Button>
-      </div>
+    <div class="gameboard">
+      <h3>deck1</h3>
+      <comDeck :player="$store.state.player1"></comDeck>
+      <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
+      <Button @click="playcard()">PLAY</Button>
+    </div>
     </Col>
   </Row>
   <Row class="gameboard">
@@ -56,10 +56,12 @@
       <Button @click="gameReset()">RESET</Button>
       <Button @click="gameNewdeck()">NewDeck</Button>
       <Button @click="gameNewdeck(true)">NewDeck UI</Button>
-      <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
-      <comMessage ref="info"></comMessage>
+      <Button @click="scoreshow()" shape="circle">Score Show</Button>
     </div>
   </Row>
+  <comMessage ref="info"></comMessage>
+  <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
+  <comScore ref="score" v-model="$store.state.score"></comScore>
 </div>
 </template>
 
@@ -68,6 +70,7 @@ import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
 import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
+import comScore from './comScore.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
@@ -90,6 +93,7 @@ export default {
     comZone,
     comBattle,
     comMessage,
+    comScore,
   },
   created() {},
   mounted() {
@@ -99,6 +103,9 @@ export default {
     console.log('gameapp.vue GAME initial')
     this.$store.dispatch('GAME_INIT_STORE', this.$store)
     this.$store.dispatch('GAME_INIT')
+
+    mutil.setUI(this.battleshow)
+    // mutil.tapUI()
   },
   beforeDestroy() {},
   computed: {
@@ -125,24 +132,27 @@ export default {
     },
   },
   methods: {
-    gameNewdeck(umi=false) {
+    gameNewdeck(umi = false) {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
         shuffle: false,
       })
-      if(umi) {
-        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+      if (umi) {
+        this.run_command('GAME_SET_AGENT', {
+          player: this.$store.state.player1,
+          agent: null
+        })
       }
     },
     gameTestBattle() {
       this.gameReset()
       this.gameNewdeck()
 
-      this.run_battle( {
-        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',this.$store.state.player1,true),
-        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',this.$store.state.player1),
-        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',this.$store.state.player2,true),
-        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002',this.$store.state.player2),
+      this.run_battle({
+        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001', this.$store.state.player1, true),
+        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001', this.$store.state.player1),
+        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002', this.$store.state.player2, true),
+        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002', this.$store.state.player2),
       })
     },
     gameReset(init) {
@@ -165,8 +175,11 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value=1000) {
-      return this.$refs.battle.open(value)
+    battleshow(value = 1000, onclose) {
+      return this.$refs.battle.open(value, onclose)
+    },
+    scoreshow(value=0,onclose) {
+      return this.$refs.score.open(value,onclose)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
@@ -197,8 +210,8 @@ export default {
       // return this.$refs.info.async_message(msg)
       this.msg = msg
       const duration = 500
-      this.run_command('STORE_MESSAGE',msg)
-      console.info('%c'+msg,'color:green')
+      this.run_command('STORE_MESSAGE', msg)
+      console.info('%c' + msg, 'color:green')
       // if(this.config.message) {
       //   return new Promise((resolve, reject) => {
       //       const res = this.$Message.info({ content: this.msg, duration: 2000 })
@@ -206,9 +219,13 @@ export default {
       //   })
       // }
       // return true
-      if(this.config.message) {
+      if (this.config.message) {
         return new Promise((resolve, reject) => {
-          this.$Notice.open({title: msg, duration: 1, onClose: ()=>resolve()})
+          this.$Notice.open({
+            title: msg,
+            duration: 1,
+            onClose: () => resolve()
+          })
           // resolve()
         })
       }
@@ -220,31 +237,38 @@ export default {
       return this.message(msg)
     },
     run_next(newphase, payload) {
-      console.log(`next %c${newphase}`,'color:blue')
-      return this.$store.dispatch(newphase,payload)
+      console.log(`next %c${newphase}`, 'color:blue')
+      return this.$store.dispatch(newphase, payload)
     },
     run_command(type, payload) {
-      if(this.$store._actions[type]) {
-        return this.$store.dispatch(type,payload)
-      }
-      else {
-        return this.$store.commit(type,payload)
+      if (this.$store._actions[type]) {
+        return this.$store.dispatch(type, payload)
+      } else {
+        return this.$store.commit(type, payload)
       }
     },
-    async_battleshow(value=1000) {
+    async_battleshow(value = 1000) {
       if (!this.config.battelshow &&
         !(value == 0 && this.config.battleshow_pauseonly))
         return
 
-      this.battleshow(value)
+      // TIPS: 取消使用loop check，使用传入 resolve -> watch -> callback resolve()
+      return new Promise((resolve, reject) => {
+        this.battleshow(value, resolve)
+      })
 
-      if (value == 0) {
-        return this.__waiting_check(() => !this.$refs.battle.battleVisible)
-      } else {
-        return new Promise(function(resolve, reject) {
-          setTimeout(()=>resolve(),value+500)
-        })
-      }
+      // if (value == 0) {
+      //   // return this.__waiting_check(() => !this.$refs.battle.battleVisible)
+      //   return new Promise((resolve, reject) => {
+      //     // test callback resolve
+      //     this.battleshow(value,resolve)
+      //   })
+      // } else {
+      //   return new Promise((resolve, reject) => {
+      //     this.battleshow(value)
+      //     setTimeout(()=>resolve(),value+500)
+      //   })
+      // }
     },
     __waiting_check(checkfunc = () => true) {
       return new Promise(async function(resolve, reject) {
@@ -276,7 +300,7 @@ export default {
     //     }
     //   }
     // },
-    async gameloop(umi=false) {
+    async gameloop(umi = false) {
       console.log('start gameloop')
 
       if (this.$store.state.game.started) {
@@ -284,9 +308,15 @@ export default {
         return
       }
 
-      if(umi) {
-        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
-        this.run_command('GAME_SET_CONFIG', { message: true, battelshow: true })
+      if (umi) {
+        this.run_command('GAME_SET_AGENT', {
+          player: this.$store.state.player1,
+          agent: null
+        })
+        this.run_command('GAME_SET_CONFIG', {
+          message: true,
+          battelshow: true
+        })
       }
 
       let firstplayer = null
@@ -350,12 +380,17 @@ export default {
 
       if (this.gameover) {
         console.log(`game over, turn ${this.turnCount}`)
+        await this.message(`游戏结束`)
+
         if (this.score.draw) {
           console.log(`game draw is true`)
+          await this.message(`战斗平手`)
         } else {
           console.log(`game win ${this.score.win.id} ${this.score.win.name}`)
           console.log(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
+          await this.message(`获胜 ${this.score.win.id} ${this.score.win.name}`)
         }
+        await this.scoreshow(0)
       }
     },
     // 单回合战斗测试
@@ -428,6 +463,7 @@ export default {
           this.run_message(`game win ${this.score.win.id} ${this.score.win.name}`)
           this.run_message(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
         }
+        await this.scoreshow(0)
       }
     },
     async run_step() {
@@ -459,11 +495,6 @@ export default {
 
       await this.run_next('BATTLE_END')
 
-      // check game over block
-      // this.$store.dispatch('GAME_CHECK_GAMEOVER')
-      // if (this.gameover) {
-      //   break
-      // }
     },
     run_step_nextturn() {
       let result = true
@@ -502,15 +533,18 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /* scoped 不含向下传递 */
+
 h2 {
   color: blue;
 }
+
 
 /*
 h1,
 h2 {
   font-weight: bold;
 }*/
+
 
 /*.gameboard {
   border: thin solid #0000ff;
@@ -535,5 +569,4 @@ h2 {
   -webkit-border-radius: 5px;
   border-radius: 5px;
 }*/
-
 </style>
