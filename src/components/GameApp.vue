@@ -48,10 +48,11 @@
       <Button @click="gameloop()" shape="circle">GAME LOOP</Button>
       <Button @click="gameloop(true)" shape="circle">GAME LOOP UI</Button>
       <Button @click="battleshow(0)" shape="circle">Battle Show</Button>
-      <Button @click="run_gameloop()">RUN</Button>
-      <Button @click="run_gameloop(1)">RUN ONE TURN</Button>
+      <Button @click="run_gameloop()">QUICK RUN</Button>
+      <Button @click="run_gameloop(1)">QUICK RUN ONE TURN</Button>
       <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
       <BR/>
+      显示讯息 <i-switch v-model="isMessage"/>
       <Button @click="gameTest()">TEST</Button>
       <Button @click="gameReset()">RESET</Button>
       <Button @click="gameNewdeck()">NewDeck</Button>
@@ -77,6 +78,8 @@ import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 
 import mutil from '@/mutil'
+import R from 'ramda'
+
 
 
 export default {
@@ -85,6 +88,8 @@ export default {
     return {
       msg: 'SDW GAME APP',
       initial: false,
+      isMessage: true,
+      isTestmode: false,
     }
   },
   components: {
@@ -101,11 +106,14 @@ export default {
     // console.log('gameapp.vue mixinEffect effect');
     // mutil.mixinEffect()
     console.log('gameapp.vue GAME initial')
-    this.$store.dispatch('GAME_INIT_STORE', this.$store)
-    this.$store.dispatch('GAME_INIT')
-
+    this.$store.dispatch('GAME_INIT_STORE',
+      { store: this.$store,
+        mainapp: this,
+      })
     mutil.setUI(this.battleshow)
     // mutil.tapUI()
+
+    this.$store.dispatch('GAME_READY')
   },
   beforeDestroy() {},
   computed: {
@@ -132,6 +140,13 @@ export default {
     },
   },
   methods: {
+    testui() {
+      console.log('TEST UI');
+    },
+    gameTestmode() {
+      this.isTestmode = true
+      console.log('TURN ON TEST MODE')
+    },
     gameNewdeck(umi = false) {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
@@ -143,6 +158,7 @@ export default {
           agent: null
         })
       }
+      this.UImessage('game set new deck')
     },
     gameTestBattle() {
       this.gameReset()
@@ -158,12 +174,14 @@ export default {
     gameReset(init) {
       // this.$Message.info({
       //           content: 'Game Reset',
-      //           duration: 10
+      //           duration: 2,
       //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
       console.log(init);
-      this.$store.dispatch('GAME_INIT', init)
+      this.$store.dispatch('GAME_READY', init)
+      this.UImessage('game Reset')
+
     },
     gameStart() {
       // console.log('game Start')
@@ -176,7 +194,7 @@ export default {
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
     battleshow(value = 1000, onclose) {
-      return this.$refs.battle.open(value, onclose)
+      return this.$refs.battle.open(value,onclose)
     },
     scoreshow(value=0,onclose) {
       return this.$refs.score.open(value,onclose)
@@ -205,6 +223,17 @@ export default {
       //   console.log('hello promise')
       // })
     },
+    UImessage(msg) {
+      this.msg = msg
+      this.run_command('STORE_MESSAGE', msg)
+      console.info('%c' + msg, 'color:green')
+
+      if(this.isTestmode) return
+      this.$Message.info({
+                content: msg,
+                duration: 1.5,
+            })
+    },
     message(msg) {
       // return promise from component
       // return this.$refs.info.async_message(msg)
@@ -219,6 +248,8 @@ export default {
       //   })
       // }
       // return true
+      if(this.isTestmode) return
+
       if (this.config.message) {
         return new Promise((resolve, reject) => {
           this.$Notice.open({
@@ -226,7 +257,7 @@ export default {
             duration: 1,
             onClose: () => resolve()
           })
-          // resolve()
+          resolve()
         })
       }
       return true
@@ -238,6 +269,7 @@ export default {
     },
     run_next(newphase, payload) {
       console.log(`next %c${newphase}`, 'color:blue')
+      // dispatch('GAME_PHASE',newphase)
       return this.$store.dispatch(newphase, payload)
     },
     run_command(type, payload) {
@@ -248,9 +280,8 @@ export default {
       }
     },
     async_battleshow(value = 1000) {
-      if (!this.config.battelshow &&
-        !(value == 0 && this.config.battleshow_pauseonly))
-        return
+      if (!this.config.battelshow) return
+      if(this.isTestmode) return
 
       // TIPS: 取消使用loop check，使用传入 resolve -> watch -> callback resolve()
       return new Promise((resolve, reject) => {
@@ -304,8 +335,7 @@ export default {
       console.log('start gameloop')
 
       if (this.$store.state.game.started) {
-        await this.message('对战已经开始')
-        return
+        return await this.message('对战已经开始')
       }
 
       if (umi) {
@@ -313,11 +343,11 @@ export default {
           player: this.$store.state.player1,
           agent: null
         })
-        this.run_command('GAME_SET_CONFIG', {
-          message: true,
-          battelshow: true
-        })
       }
+      this.run_command('GAME_SET_CONFIG', {
+        message: this.isMessage,
+        battelshow: true,
+      })
 
       let firstplayer = null
       await this.run_next('GAME_START')
@@ -420,6 +450,11 @@ export default {
     // run gameloop + step 非同步版本／回合step步进版本
     async run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
+
+      if(R.isNil(this.$store.state.player1.agent)) {
+        this.run_message('run_gameloop 无法使用UI agent')
+        return
+      }
 
       if (this.$store.state.game.started) {
         this.run_message('对战已经开始')

@@ -54,7 +54,7 @@ export default {
       // console.log( 'v-model vaule changed :', val, oldval )
       if(!val) {
         if(this.onClose) {
-          console.log('callback on close');
+          console.log('callback on close/resolve promise');
           this.onClose.call(this)
           this.onClose = null
         }

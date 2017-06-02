@@ -173,6 +173,7 @@ export default {
         if (_.isFunction(act)) {
           let res = act.call(card, effectpack)
           // 中断loop
+          // 直接在Promise内reject
           // if(!state.effect.loop) {
             // TODO: 处理效果中断
             // Promise.reject('效果中断')

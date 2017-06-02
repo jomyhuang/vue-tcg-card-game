@@ -22,7 +22,7 @@ export default {
   }, payload) {
     console.log('RAMDA_TEST action result')
   },
-  GAME_INIT(store, payload) {
+  GAME_READY(store, payload) {
 
     // 从store中分离
     const {
@@ -30,10 +30,10 @@ export default {
       commit
     } = store
 
-    commit('GAME_INIT', payload)
-    console.log('action GAME_INIT', payload)
+    commit('GAME_READY', payload)
+    console.log('action GAME_READY', payload)
 
-    let res = commit('EFFECT_SET', { test: 'hello', val: 2})
+    // let res = commit('EFFECT_SET', { test: 'hello', val: 2})
     // commit('EFFECT_SET', { test: 'hello effect', val: 2})
     // console.log(state.effect)
     // commit('EFFECT_SET', {})
@@ -47,15 +47,7 @@ export default {
     dispatch
   }, payload) {
 
-    // 将store实例传入mutil, _vm.this.$store
-    // mutil.store = payload
-    // console.log('action GAME_INIT_STORE keep store instance',mutil.store)
-
-    // 将store实例传入mutil, _vm.this.$store
-    // mixin
-    // mutil.mixinEffect(payload)
-    // console.log('action GAME_INIT_STORE keep store instance',mutil.$store)
-    // testfn()
+    // $cx, mutil link
     $cx.install(payload)
   },
   GAME_RESET({

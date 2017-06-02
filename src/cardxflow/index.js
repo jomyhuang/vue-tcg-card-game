@@ -5,6 +5,7 @@ import mu from '@/mutil'
 
 
 export var $store = {}
+export var $mainapp
 var dispatch
 var commit
 
@@ -15,13 +16,10 @@ export function thiscard() {
 }
 
 export function cxrun(type, payload) {
-  // return store._actions[type] ? () => store.dispatch(type, payload) : () => store.commit(type, payload)
   return function () {
     const fn = $store._actions[type] ? $store.dispatch : $store.commit
     const card = thiscard()
     return fn.call(card, type, payload)
-    // const cardfn = fn.bind(card)
-    // return cardfn(type,payload)
   }
 }
 
@@ -30,7 +28,6 @@ export function cxpipe(...items) {
     phase
   }) {
     const card = thiscard()
-
     return items
   }
 }
@@ -84,16 +81,18 @@ export default {
     }
 
     if (payload) {
-      $store = payload
-      console.log('cardxflow install $store', $store);
+      $store = payload.store
+      console.log('cardxflow install $store', $store)
+      $mainapp = payload.mainapp
+      console.log('cardxflow install $mainapp', $mainapp)
     }
-    if (!$store._actions) {
-      console.error('请设置store')
-    }
+    mu.assert($store._actions, '请设置store')
+
     dispatch = $store.dispatch
     commit = $store.commit
 
     mu.mixinEffect(payload)
+    console.log('cardflow link mutil')
 
     this.init = true
     console.log('cardflow installed')
@@ -105,6 +104,8 @@ export default {
   source() {
     return thiscard()
   },
+
+  // export effect function wrapper
   run(type, payload) {
     return cxrun(type, payload)
   },
@@ -120,6 +121,8 @@ export default {
   tap(message) {
     return cxtap(message)
   },
+
+  // function
   iftest(message) {
     return function() {
       return new Promise(function(resolve, reject) {
@@ -130,17 +133,11 @@ export default {
         reject(new Error('效果中断测试'))
       })
     }
-    // return function () {
-    //   console.log('iftest中断测试')
-    //   commit('EFFECT_SET', {
-    //     loop: false
-    //   })
-    // }
   },
   tapUI() {
     return function () {
       console.log('tapUI 呼叫UI funcion')
-      return mu.tapUI('呼叫tapUI')
+      return $mainapp.run_message('tapUI 呼叫UI funcion')
     }
   }
 }

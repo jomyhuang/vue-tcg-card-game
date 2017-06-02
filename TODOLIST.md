@@ -177,7 +177,7 @@ Effect FUNCTION -> Agent HMI -> GAMEVUE UI
 = 抽一张牌
 = 弃一张手牌到XX牌推
 = 从XX牌堆回手一张牌
-
+= 附加Tag，不能使用支援卡
 
 
 

@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "element-ui": "^1.2.9",
-    "iview": "^2.0.0-rc.14",
+    "iview": "^2.0.0-rc.15",
     "lodash": "^4.17.4",
     "muse-ui": "^2.0.3",
     "ramda": "^0.23.0",
@@ -49,6 +49,8 @@
     "eslint-friendly-formatter": "^2.0.7",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-html": "^2.0.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-node": "^5.0.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "eventsource-polyfill": "^0.9.6",

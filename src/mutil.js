@@ -14,6 +14,7 @@ import effectDB from '@/components/SDWCardEffect.js'
 // }
 
 export var $store = {}
+export var $mainapp
 
 export function testfn() {
   console.log('test func $store', $store)
@@ -29,11 +30,11 @@ export default {
     console.log('mutil tap this func', this)
   },
   tapUI() {
-    console.log('tapUI',UIShow);
+    console.log('tapUI',UIShow)
     return UIShow(1500)
   },
   setUI(fn) {
-    console.log('setUI',fn);
+    // console.log('setUI',fn);
     UIShow = fn
   },
   assert(...args) {
@@ -44,19 +45,20 @@ export default {
     let source = effectDB
 
     if (payload) {
-      if (payload._actions) {
-        $store = payload
+      if (payload.store) {
+        $store = payload.store
         console.log('mutil install $store', $store)
+        $mainapp = payload.mainapp
+        console.log('mutil install $mainapp', $mainapp)
       } else {
         source = payload
-        console.log('mixeffect other source')
+        console.log('mixeffect 其他效果库')
       }
     }
-    if (!$store._actions) {
-      console.error('设置store在mixeffect前')
-    }
+    this.assert($store._actions, '设置store在mixeffect前')
 
     if (this.mixin && source === effectDB) {
+      console.error('effectDB已经mixin')
       return
     }
 
