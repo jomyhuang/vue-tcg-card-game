@@ -406,18 +406,21 @@ export default {
     // const init = initstate_mutil
     // const init = initstate_mutil
     const init = R.clone(initstate)
+    if(init.player1.deck.length>0) {
+      throw 'mutil.resetGameState init object is not default'
+    }
     // FIXME: 在测试环境中 replacestate失效
     // console.log('resetGameState by repalceState')
     // $store.replaceState(initstate)
     // console.log(initstate)
-    if(init.player1.deck.length>0) {
-      throw 'mutil.resetGameState init object is not default'
-    }
-    // this.assert(init.player1.deck.length==0,'init object is not default')
 
     R.forEachObjIndexed((value, key) => {
       state[key] = value
     })(init)
+
+    if(state.player1.deck.length>0) {
+      throw 'mutil.resetGameState fail init object'
+    }
 
     return init
   },
