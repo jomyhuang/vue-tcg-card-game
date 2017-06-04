@@ -53,7 +53,7 @@
       <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
       <BR/>
       显示讯息 <i-switch v-model="isMessage"/>
-      异步信息模式 <i-switch v-model="isAsyncMssage"/>
+      异步讯息 <i-switch v-model="isAsyncMssage"/>
       <Button @click="gameTest()">TEST</Button>
       <Button @click="gameReset()">RESET</Button>
       <Button @click="gameNewdeck()">NewDeck</Button>
