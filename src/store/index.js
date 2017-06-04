@@ -26,7 +26,7 @@ Vue.use(Vuex)
 const mutations = R.mergeAll([mutation1, mutation2, mutation3])
 const actions = R.mergeAll([actions1, actions2, actions3, actions4])
 
-export const initstate = {
+const state = {
   storemsg: 'Hello Vuex Store',
   // cardDB: {},
   // page
@@ -156,6 +156,8 @@ export const initstate = {
   },
 }
 
+export const initstate = R.clone(state)
+
 export const initbattle = {
   attacker: {
     player: null,
@@ -185,7 +187,7 @@ export const initbattle = {
 
 export default new Vuex.Store({
   // state: R.clone(initstate),
-  state: initstate,
+  state: state,
   getters,
   actions,
   mutations,

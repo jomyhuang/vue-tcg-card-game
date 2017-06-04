@@ -273,138 +273,139 @@ export default {
   },
   resetGameState(state) {
 
-    const initstate_mutil = {
-      storemsg: 'Hello Vuex Store',
-      // cardDB: {},
-      // page
-      pageFullList: [],
-      pageList: [],
-      pageKeyList: [],
-      pageCurrent: 1,
-      pagePerItems: 10,
-      pageTotalPage: 0,
-      // pageNextDisabled: false,
-      // pagePrevDisabled: false,
-      pageFilter: 'all',
-
-      // game app
-      currentPlayer: null,
-      opponentPlayer: null,
-      firstPlayer: null,
-
-      // chain function
-      placeholder: null,
-      placelist: [],
-      placeplayer: null,
-      pickindex: -1,
-      test: {},
-      // ACT_SELECT_CARD_...
-      act_selection: {
-        list: [],
-        many: 0,
-        selectedAction: null,
-        selectedMuation: null,
-        thenAction: null,
-        selectedList: [],
-        agent: null,
-      },
-      // game/turn package
-      ramda: {},
-      game: {
-        started: false,
-        turnCount: 0,
-        over: false,
-        score: {
-          reason: '',
-          draw: false,
-          win: null,
-          lose: null,
-        },
-        config: {
-          message: false,
-          battelshow: false,
-          battleshow_pauseonly: false,
-          maxturn: 99,
-        },
-      },
-      turn: {},
-      effect: {},
-      HMI: {},
-
-      // re-state by  initbattle
-      battle: {
-        attacker: {
-          player: null,
-          main: null,
-          support: null,
-          hero: null,
-          power: [],
-          chain: [],
-        },
-        defenser: {
-          player: null,
-          main: null,
-          support: null,
-          hero: null,
-          power: [],
-          chain: [],
-        },
-        score: {
-          finish: false,
-          winside: null,
-          draw: false,
-          win: null,
-          lose: null,
-        },
-        chain: [],
-      },
-
-      // player list
-      players: [],
-      player1: {
-        id: 'playerId1',
-        hero: 'heroId1',
-        name: 'PLAYER-1',
-        cardPool: [],
-        deck: [],
-        zone: [],
-        hand: [],
-        graveyard: [],
-        base: [],
-        supporter: [],
-
-        secrets: [],
-        effects: [],
-        auras: [],
-        minions: [],
-        mana: 0,
-        maxMana: 10,
-        agent: null,
-      },
-      player2: {
-        id: 'playerId2',
-        hero: 'heroId2',
-        name: 'PLAYER-2',
-        cardPool: [],
-        deck: [],
-        zone: [],
-        hand: [],
-        graveyard: [],
-        base: [],
-        supporter: [],
-
-        secrets: [],
-        effects: [],
-        auras: [],
-        minions: [],
-        mana: 0,
-        maxMana: 10,
-        agent: null,
-      },
-    }
+    // const initstate_mutil = {
+    //   storemsg: 'Hello Vuex Store',
+    //   // cardDB: {},
+    //   // page
+    //   pageFullList: [],
+    //   pageList: [],
+    //   pageKeyList: [],
+    //   pageCurrent: 1,
+    //   pagePerItems: 10,
+    //   pageTotalPage: 0,
+    //   // pageNextDisabled: false,
+    //   // pagePrevDisabled: false,
+    //   pageFilter: 'all',
+    //
+    //   // game app
+    //   currentPlayer: null,
+    //   opponentPlayer: null,
+    //   firstPlayer: null,
+    //
+    //   // chain function
+    //   placeholder: null,
+    //   placelist: [],
+    //   placeplayer: null,
+    //   pickindex: -1,
+    //   test: {},
+    //   // ACT_SELECT_CARD_...
+    //   act_selection: {
+    //     list: [],
+    //     many: 0,
+    //     selectedAction: null,
+    //     selectedMuation: null,
+    //     thenAction: null,
+    //     selectedList: [],
+    //     agent: null,
+    //   },
+    //   // game/turn package
+    //   ramda: {},
+    //   game: {
+    //     started: false,
+    //     turnCount: 0,
+    //     over: false,
+    //     score: {
+    //       reason: '',
+    //       draw: false,
+    //       win: null,
+    //       lose: null,
+    //     },
+    //     config: {
+    //       message: false,
+    //       battelshow: false,
+    //       battleshow_pauseonly: false,
+    //       maxturn: 99,
+    //     },
+    //   },
+    //   turn: {},
+    //   effect: {},
+    //   HMI: {},
+    //
+    //   // re-state by  initbattle
+    //   battle: {
+    //     attacker: {
+    //       player: null,
+    //       main: null,
+    //       support: null,
+    //       hero: null,
+    //       power: [],
+    //       chain: [],
+    //     },
+    //     defenser: {
+    //       player: null,
+    //       main: null,
+    //       support: null,
+    //       hero: null,
+    //       power: [],
+    //       chain: [],
+    //     },
+    //     score: {
+    //       finish: false,
+    //       winside: null,
+    //       draw: false,
+    //       win: null,
+    //       lose: null,
+    //     },
+    //     chain: [],
+    //   },
+    //
+    //   // player list
+    //   players: [],
+    //   player1: {
+    //     id: 'playerId1',
+    //     hero: 'heroId1',
+    //     name: 'PLAYER-1',
+    //     cardPool: [],
+    //     deck: [],
+    //     zone: [],
+    //     hand: [],
+    //     graveyard: [],
+    //     base: [],
+    //     supporter: [],
+    //
+    //     secrets: [],
+    //     effects: [],
+    //     auras: [],
+    //     minions: [],
+    //     mana: 0,
+    //     maxMana: 10,
+    //     agent: null,
+    //   },
+    //   player2: {
+    //     id: 'playerId2',
+    //     hero: 'heroId2',
+    //     name: 'PLAYER-2',
+    //     cardPool: [],
+    //     deck: [],
+    //     zone: [],
+    //     hand: [],
+    //     graveyard: [],
+    //     base: [],
+    //     supporter: [],
+    //
+    //     secrets: [],
+    //     effects: [],
+    //     auras: [],
+    //     minions: [],
+    //     mana: 0,
+    //     maxMana: 10,
+    //     agent: null,
+    //   },
+    // }
 
     // const init = initstate_mutil
-    const init = initstate_mutil
+    // const init = initstate_mutil
+    const init = R.clone(initstate)
     // FIXME: 在测试环境中 replacestate失效
     // console.log('resetGameState by repalceState')
     // $store.replaceState(initstate)
@@ -421,33 +422,35 @@ export default {
     return init
   },
   battleInit(state) {
-    // return initbattle
-    return {
-      attacker: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      defenser: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      score: {
-        finish: false,
-        winside: null,
-        draw: false,
-        win: null,
-        lose: null,
-      },
-      chain: [],
-    }
+    return initbattle
+    // const newbattle = R.clone(initbattle)
+    // return newbattle
+    // return {
+    //   attacker: {
+    //     player: null,
+    //     main: null,
+    //     support: null,
+    //     hero: null,
+    //     power: [],
+    //     chain: [],
+    //   },
+    //   defenser: {
+    //     player: null,
+    //     main: null,
+    //     support: null,
+    //     hero: null,
+    //     power: [],
+    //     chain: [],
+    //   },
+    //   score: {
+    //     finish: false,
+    //     winside: null,
+    //     draw: false,
+    //     win: null,
+    //     lose: null,
+    //   },
+    //   chain: [],
+    // }
   },
   makecard(cardid, player = {}, facedown = false) {
     // console.log('find card ', card, cardDB[card]);

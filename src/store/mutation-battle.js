@@ -16,8 +16,8 @@ export default {
   },
   // BATTLE
   BATTLE_START(state, payload) {
-    state.battle = mutil.battleInit()
-    // state.battle = R.merge({},mutil.battleInit())
+    // state.battle = mutil.battleInit()
+    state.battle = R.merge({},mutil.battleInit())
     // test data move use TEST_SET
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer
