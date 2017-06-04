@@ -53,6 +53,7 @@
       <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
       <BR/>
       显示讯息 <i-switch v-model="isMessage"/>
+      异步信息模式 <i-switch v-model="isAsyncMssage"/>
       <Button @click="gameTest()">TEST</Button>
       <Button @click="gameReset()">RESET</Button>
       <Button @click="gameNewdeck()">NewDeck</Button>
@@ -89,6 +90,7 @@ export default {
       msg: 'SDW GAME APP',
       initial: false,
       isMessage: true,
+      isAsyncMssage: false,
       isTestmode: false,
     }
   },
@@ -158,7 +160,7 @@ export default {
           agent: null
         })
       }
-      this.UImessage('game set new deck')
+      this.UI_message('game set new deck')
     },
     gameTestBattle() {
       this.gameReset()
@@ -180,7 +182,7 @@ export default {
       this.$store.dispatch('GAME_RESET')
       // mutil.resetGameState()
       this.$store.dispatch('GAME_READY', init)
-      this.UImessage('game Reset')
+      this.UI_message('game Reset')
     },
     gameStart() {
       // console.log('game Start')
@@ -222,22 +224,32 @@ export default {
       //   console.log('hello promise')
       // })
     },
-    UImessage(msg) {
+    __message(msg,duration=1.5) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
 
       if(this.isTestmode) return
-      this.$Message.info({
-                content: msg,
-                duration: 1.5,
-            })
+
+      return new Promise((resolve, reject) => {
+          this.$Message.info({
+                    content: msg,
+                    duration: duration,
+                    // onClose: () => resolve()
+          })
+          if(this.isAsyncMssage) {
+            // pause time
+            setTimeout(()=>resolve(),1500)
+          }
+          else {
+            resolve()
+          }
+      })
     },
-    message(msg) {
+    __notice(msg,duration=1.5) {
       // return promise from component
       // return this.$refs.info.async_message(msg)
       this.msg = msg
-      const duration = 500
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
       // if(this.config.message) {
@@ -253,18 +265,33 @@ export default {
         return new Promise((resolve, reject) => {
           this.$Notice.open({
             title: msg,
-            duration: 1,
-            onClose: () => resolve()
+            duration: duration,
+            // onClose: this.isAsyncMssage ? () => resolve() : () => undefined
           })
+          // if(!this.isAsyncMssage) {
           resolve()
+          // }
         })
       }
       return true
       // return this.config.message ? this.$Notice.open({title: msg, duration: 2.5}) : true
       // return this.config.message ? this.$refs.info.async_message(msg,duration) : true
     },
+    UI_message(msg) {
+      return this.__message(msg)
+    },
     run_message(msg) {
-      return this.message(msg)
+      return this.__notice(msg)
+    },
+    gameloop_phaseinfo(msg) {
+      if(!this.isTestmode) {
+        // 停留信息延迟，但有新信息来就移除前面信息
+        this.$Message.destroy()
+      }
+      return this.__message(msg, 10)
+    },
+    gameloop_message(msg) {
+      return this.__notice(msg, 1.5)
     },
     run_next(newphase, payload) {
       console.log(`next %c${newphase}`, 'color:blue')
@@ -334,7 +361,7 @@ export default {
       console.log('start gameloop')
 
       if (this.$store.state.game.started) {
-        return await this.message('对战已经开始')
+        return await this.gameloop_message('对战已经开始')
       }
 
       if (umi) {
@@ -350,42 +377,48 @@ export default {
 
       let firstplayer = null
       await this.run_next('GAME_START')
-      await this.message('游戏开始', 2000)
+      await this.gameloop_message('游戏开始', 2000)
       await this.run_next('GAME_WHO_FIRST').then((who) => {
         firstplayer = who
       })
       await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
-      await this.message(`${this.firstPlayer.name} 先攻`)
+      await this.gameloop_message(`${this.firstPlayer.name} 先攻`)
 
       let loop = true
       do {
 
         await this.run_next('GAME_TURN_BEGIN')
-        await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
-        await this.message('抽牌')
+        await this.gameloop_phaseinfo(`准备阶段`)
+        await this.gameloop_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
+        await this.gameloop_message('抽牌')
         await this.run_next('GAME_DRAW')
-        await this.message('战斗开始')
+        await this.gameloop_message('战斗开始')
         await this.run_next('BATTLE_START')
 
-        await this.message(`${this.currentPlayer.name} 宣告攻击精灵`)
+        await this.gameloop_phaseinfo(`战斗阶段`)
+        await this.gameloop_message(`${this.currentPlayer.name} 宣告攻击精灵`)
         await this.run_next('BATTLE_DECALRE_ATTACKER')
         await this.async_battleshow(1000)
 
-        await this.message(`指定攻击目标`)
+        await this.gameloop_message(`指定攻击目标`)
         await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
         await this.async_battleshow(1000)
 
-        await this.message(`${this.currentPlayer.name} 派遣支援精灵`)
+        await this.gameloop_message(`${this.currentPlayer.name} 派遣支援精灵`)
         await this.run_next('BATTLE_PLAY_SUPPORTER')
 
-        await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
+        await this.gameloop_message(`${this.opponentPlayer.name} 派遣支援精灵`)
         await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
+        await this.gameloop_message(`双方战斗准备完成`)
         await this.async_battleshow(0)
 
-        await this.message(`效果：发动阶段`)
+        await this.gameloop_phaseinfo(`主效果阶段`)
+        await this.gameloop_message(`效果：发动阶段`)
         await this.run_next('BATTLE_EFFECT')
-        await this.message(`效果：清除阶段`)
+
+        await this.gameloop_phaseinfo(`主效果阶段`)
+        await this.gameloop_message(`效果：清除阶段`)
         await this.run_next('BATTLE_EFFECT_CLEAR')
 
         await this.run_next('BATTLE_END')
@@ -409,19 +442,21 @@ export default {
 
       if (this.gameover) {
         console.log(`game over, turn ${this.turnCount}`)
-        await this.message(`游戏结束`)
+        await this.gameloop_phaseinfo(`游戏结束`)
+        await this.gameloop_message(`游戏结束`)
 
         if (this.score.draw) {
           console.log(`game draw is true`)
-          await this.message(`战斗平手`)
+          await this.gameloop_message(`战斗平手`)
         } else {
           console.log(`game win ${this.score.win.id} ${this.score.win.name}`)
           console.log(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
-          await this.message(`获胜 ${this.score.win.id} ${this.score.win.name}`)
+          await this.gameloop_message(`获胜 ${this.score.win.id} ${this.score.win.name}`)
         }
         await this.scoreshow(0)
       }
     },
+
     // 单回合战斗测试
     async run_battle(testbattle) {
       await this.run_message('run_battle START battle')

@@ -97,6 +97,10 @@ export default {
         setTimeout(() => {
           this.battleVisible = false
         },this.autoClose)
+        console.log(`battleshow open auto close ${this.autoClose}`)
+      }
+      else {
+        console.log('battleshow open waiting close')
       }
     }
   }
