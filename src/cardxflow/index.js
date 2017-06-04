@@ -28,7 +28,7 @@ export function cxpipe(...items) {
     phase
   }) {
     const card = thiscard()
-    return items
+    return [cxtap('cxpipe call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
   }
 }
 
@@ -37,8 +37,7 @@ export function cxengage(...items) {
     phase
   }) {
     const card = thiscard()
-
-    return [cxtap('cxengage call')].concat(items)
+    return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
   }
 }
 
@@ -62,9 +61,23 @@ export function cxbuff(power = 0, tag) {
   }
 }
 
-export function cxtap(message) {
+export function cxtap(fn) {
   return function () {
-    return console.log(`cxtap %c${message}`, 'color:blue')
+      return _.isFunction(fn) ? console.log(`tap function `, fn.call(this,thiscard())) : console.log(`tap %c${fn}`, 'color:blue')
+  }
+}
+
+export function cxmessage(message) {
+  return function () {
+    this.text = message
+    return $mainapp.gameloop_message(message)
+  }
+}
+
+export function cxphaseinfo(message) {
+  return function () {
+    this.text = message
+    return $mainapp.gameloop_phaseinfo(message)
   }
 }
 
@@ -122,31 +135,22 @@ export default {
   engage(...items) {
     return cxengage(...items)
   },
-  tap(message) {
-    return cxtap(message)
+  tap(fn) {
+    return cxtap(fn)
+  },
+  message(message) {
+    return cxmessage(message)
+  },
+  phaseinfo(message) {
+    return cxphaseinfo(message)
   },
 
   // function
   iftest(message) {
-    return function() {
+    return function () {
       this.reason = '效果中断测试'
       this.loop = false
       return Promise.reject(new Error('效果中断测试'))
-      // return new Promise((resolve, reject) => {
-      //   console.log('iftest中断测试')
-      //   // commit('EFFECT_SET', {
-      //   //   loop: false
-      //   // })
-      //   reject(new Error('效果中断测试'))
-      // })
     }
   },
-  tapUI() {
-    return function () {
-      console.log('tapUI 呼叫UI funcion')
-      console.log('tapUI this',this)
-      this.title = 'tapUI'
-      return $mainapp.run_message('tapUI 呼叫UI funcion')
-    }
-  }
 }

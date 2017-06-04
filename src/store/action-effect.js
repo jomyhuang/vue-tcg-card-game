@@ -10,7 +10,7 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
-import $cx from '@/cardxflow'
+// import $cx from '@/cardxflow'
 
 
 export default {
@@ -143,7 +143,18 @@ export default {
       return false
     }
 
-    let pipelist = mutil.packcall(effectfunc, card, effectpack)
+    let context = {
+      text: 'context',
+      type: type,
+      phase: state.game.phase,
+      card: card,
+      player: player,
+      opponent: opponent,
+      loop: true,
+      state: state,
+    }
+
+    let pipelist = mutil.packcall(effectfunc, context, effectpack)
 
     if (mutil.packisNil(pipelist)) {
       console.log('TIGGER_EFFECT result is nil skip do effect pipe')
@@ -156,32 +167,23 @@ export default {
       pipelist = [pipelist]
     }
     console.group()
+    // $cx.message(`${card.cardno} ${card.name} 发动${type}效果`)
     console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
-
     mutil.assert(pipelist.length == 1, 'WARN! new async only exec array[0]')
 
-    let effectpipe = mutil.packcall(pipelist[0], card, effectpack)
+    let effectpipe = mutil.packcall(pipelist[0], context, effectpack)
 
     // async map / promise all
     // http://promise-nuggets.github.io/articles/15-map-in-series.html
     // start with current being an "empty" already-fulfilled promise
     let current = Promise.resolve()
-    let context = {
-      title: 'context',
-      type: type,
-      phase: state.game.phase,
-      card: card,
-      player: player,
-      opponent: opponent,
-      loop: true
-    }
 
     let promlist = effectpipe.map(function (act) {
       current = current.then(function () {
         console.log('act-----------------')
         if (_.isFunction(act)) {
           let res = act.call(context, effectpack)
-          console.log('context', context)
+          // console.log('context', context)
           // 中断loop
           // 直接在Promise内reject
           return res
@@ -193,7 +195,7 @@ export default {
       })
       return current
     })
-    console.log('promlist',promlist)
+    // console.log('promlist',promlist)
     return Promise.all(promlist)
     // return Promise.all(effectpipe.map(function (act) {
     //   current = current.then(function () {
@@ -218,7 +220,8 @@ export default {
     .then(function (results) {
       console.log('-------OK---------')
       console.log('effect act all finish')
-      console.log('context',context)
+      // console.log('context',context)
+      mutil.clearMessage()
       console.groupEnd()
     })
     .catch((err) => {
@@ -226,10 +229,11 @@ export default {
       console.log('%ceffect 中断 promise all','color:red')
       console.log('%c'+err,'color:red')
       // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-      console.log('context',context)
+      // console.log('context',context)
       if(context.loop) {
         throw 'ERROR IN EFFECT FUNCTION'
       }
+      mutil.clearMessage()
       console.groupEnd()
       // if(state.effect.loop) {
       //   throw 'ERROR IN EFFECT FUNCTION'

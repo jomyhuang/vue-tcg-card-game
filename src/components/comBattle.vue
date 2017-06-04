@@ -2,7 +2,7 @@
 <div class="comBattle">
   <Modal ref="battleDialog" v-model="battleVisible" width="800" @on-ok="ok" @on-cancel="cancel">
     <div slot="header" style="text-align:center">
-    精灵战争开战！
+    第{{this.$store.state.game.turnCount}}回合 精灵战争开战！
     </div>
     <Row class="gameboard">
       <Col span="12">

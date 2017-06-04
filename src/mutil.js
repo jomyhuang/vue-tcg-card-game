@@ -38,6 +38,12 @@ export default {
   assert(...args) {
     return console.assert(...args)
   },
+  clearMessage() {
+    if($mainapp.isTestmode) return
+
+    $mainapp.$Message.destroy()
+    // $mainapp.$Notice.destroy()
+  },
   mixinEffect(payload) {
 
     let source = effectDB

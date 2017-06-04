@@ -417,7 +417,7 @@ export default {
         await this.gameloop_message(`效果：发动阶段`)
         await this.run_next('BATTLE_EFFECT')
 
-        await this.gameloop_phaseinfo(`主效果阶段`)
+        await this.gameloop_phaseinfo(`回合结束阶段`)
         await this.gameloop_message(`效果：清除阶段`)
         await this.run_next('BATTLE_EFFECT_CLEAR')
 
@@ -491,18 +491,19 @@ export default {
       }
 
       if (this.$store.state.game.started) {
-        this.run_message('对战已经开始')
-        return
+        this.run_message('对战已经开始，下一回合')
+        // return
       }
+      else {
+        let firstplayer = null
+        this.run_next('GAME_START')
+        this.run_message('游戏开始')
 
-      let firstplayer = null
-      this.run_next('GAME_START')
-      this.run_message('游戏开始')
-
-      this.run_next('GAME_WHO_FIRST')
-      firstplayer = this.$store.state.player1
-      this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
-      this.run_message(`${this.firstPlayer.name} 先攻`)
+        this.run_next('GAME_WHO_FIRST')
+        firstplayer = this.$store.state.player1
+        this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
+        this.run_message(`${this.firstPlayer.name} 先攻`)
+      }
 
       let maxturn = testturn > 0 ? testturn : this.config.maxturn
       // maxturn = 1
@@ -516,12 +517,12 @@ export default {
           break
 
         if (this.turnCount >= maxturn)
-          loop = false
+          break
 
       } while (!this.gameover && loop)
 
-      if (!loop)
-        console.log(`end of gameloop, turn ${this.turnCount}`)
+      // if (!loop)
+      //   console.log(`end of gameloop, turn ${this.turnCount}`)
 
       if (this.gameover) {
         this.run_message(`GAMEOVER: ${this.score.reason}`)
@@ -533,6 +534,9 @@ export default {
           this.run_message(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
         }
         await this.scoreshow(0)
+      }
+      else {
+        console.log(`end of gameloop, turn ${this.turnCount}`)
       }
     },
     async run_step() {
@@ -563,7 +567,6 @@ export default {
       await this.run_next('BATTLE_EFFECT_CLEAR')
 
       await this.run_next('BATTLE_END')
-
     },
     run_step_nextturn() {
       let result = true

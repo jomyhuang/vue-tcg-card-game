@@ -274,7 +274,7 @@ export default {
     dispatch
   }) {
 
-    return new Promise(async function (resolve, reject) {
+    return new Promise(async (resolve, reject) => {
 
       dispatch('GAME_PHASE','BATTLE_EFFECT')
       console.info(`BATTLE_EFFECT begin----------------------`)
