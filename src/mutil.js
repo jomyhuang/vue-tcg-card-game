@@ -5,13 +5,11 @@ import _ from 'lodash'
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
 import effectDB from '@/components/SDWCardEffect.js'
-
-
-// export function rx(type, payload) {
-//   console.log('mutil.rx', this)
-//
-//   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
-// }
+// state init const
+import {
+  initstate,
+  initbattle,
+} from '@/store/index.js'
 
 export var $store = {}
 export var $mainapp
@@ -24,13 +22,13 @@ export function testfn() {
 export var UIShow
 
 export default {
-  // store,
+  // store
   mixin: false,
   tap(fn) {
     console.log('mutil tap this func', this)
   },
   tapUI() {
-    console.log('tapUI',UIShow)
+    console.log('tapUI', UIShow)
     return UIShow(1500)
   },
   setUI(fn) {
@@ -240,7 +238,6 @@ export default {
     }, 0)(list)
 
     // console.log(`convertPower ${strpower} to ${power}`);
-
     return power
   },
   checkAnti(main, enemy) {
@@ -275,7 +272,8 @@ export default {
     return result
   },
   resetGameState(state) {
-    const init = {
+
+    const initstate_mutil = {
       storemsg: 'Hello Vuex Store',
       // cardDB: {},
       // page
@@ -299,12 +297,7 @@ export default {
       placelist: [],
       placeplayer: null,
       pickindex: -1,
-      placeindex: -1,
-
-      // game test
       test: {},
-      ramda: {},
-
       // ACT_SELECT_CARD_...
       act_selection: {
         list: [],
@@ -316,6 +309,7 @@ export default {
         agent: null,
       },
       // game/turn package
+      ramda: {},
       game: {
         started: false,
         turnCount: 0,
@@ -332,14 +326,12 @@ export default {
           battleshow_pauseonly: false,
           maxturn: 99,
         },
-        phase: 'INIT',
       },
-      // context
       turn: {},
       effect: {},
       HMI: {},
 
-      // battle package (move to default)
+      // re-state by  initbattle
       battle: {
         attacker: {
           player: null,
@@ -366,6 +358,7 @@ export default {
         },
         chain: [],
       },
+
       // player list
       players: [],
       player1: {
@@ -410,12 +403,26 @@ export default {
       },
     }
 
+    // const init = initstate_mutil
+    const init = initstate_mutil
+    // FIXME: 在测试环境中 replacestate失效
+    // console.log('resetGameState by repalceState')
+    // $store.replaceState(initstate)
+    // console.log(initstate)
+    if(init.player1.deck.length>0) {
+      throw 'mutil.resetGameState init object is not default'
+    }
+    // this.assert(init.player1.deck.length==0,'init object is not default')
+
     R.forEachObjIndexed((value, key) => {
       state[key] = value
     })(init)
+
+    return init
   },
   battleInit(state) {
-    state.battle = {
+    // return initbattle
+    return {
       attacker: {
         player: null,
         main: null,
@@ -552,21 +559,17 @@ export default {
             console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
-    }
-    else if (_.isFunction(selector)) { // function
+    } else if (_.isFunction(selector)) { // function
       // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
       console.log(`mutil.selectcards (type function) select`, list)
-    }
-    else if (R.is(Array, selector)) { // array
+    } else if (R.is(Array, selector)) { // array
       list = selector
       console.log(`mutil.selectcards (type array) select`, list)
-    }
-    else if (_is.isNil(selector)) { // undefined/Nil
+    } else if (_is.isNil(selector)) { // undefined/Nil
       list = placelist
       console.log(`mutil.selectcards (type Nil) select placelist`, list)
-    }
-    else {
+    } else {
       throw `mutil.selectcards (type unknown) select`
     }
 
@@ -574,12 +577,12 @@ export default {
 
     return list
   },
-  isPromise (val) {
+  isPromise(val) {
     return val && typeof val.then === 'function'
   },
   call(fn, thisobj, ...args) {
     let res
-    if( !_.isFunction(fn) ) {
+    if (!_.isFunction(fn)) {
       return fn
     }
     res = fn.apply(thisobj, args)
@@ -588,7 +591,7 @@ export default {
   // Trampoline functional
   tcall(fn, thisobj, ...args) {
     let res
-    if( !_.isFunction(fn) ) {
+    if (!_.isFunction(fn)) {
       return fn
     }
     res = fn.apply(thisobj, args)
@@ -599,16 +602,14 @@ export default {
   },
   packcall(fn, thisobj, ...args) {
     let res = []
-    if( R.is(Array,fn) ) {
+    if (R.is(Array, fn)) {
       res = fn
-    }
-    else if( _.isFunction(fn)) {
+    } else if (_.isFunction(fn)) {
       // res = fn.apply(thisobj, args)
       res = this.tcall(fn, thisobj, ...args)
-      res = R.is(Array,res) ? res : [res]
+      res = R.is(Array, res) ? res : [res]
       // res = R.flatten(res)
-    }
-    else {
+    } else {
       res = [fn]
     }
     return res
@@ -616,7 +617,7 @@ export default {
   packisNil(pack) {
     return R.isNil(pack) || R.isNil(R.head(pack))
   },
-  hasTag(tag,card=$store.state.placeholder) {
+  hasTag(tag, card = $store.state.placeholder) {
     return !R.isNil(card.play[tag])
   }
 }

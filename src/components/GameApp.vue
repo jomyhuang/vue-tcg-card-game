@@ -178,10 +178,9 @@ export default {
       //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
-      console.log(init);
+      // mutil.resetGameState()
       this.$store.dispatch('GAME_READY', init)
       this.UImessage('game Reset')
-
     },
     gameStart() {
       // console.log('game Start')

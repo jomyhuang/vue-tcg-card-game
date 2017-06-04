@@ -68,6 +68,10 @@ export function cxtap(message) {
   }
 }
 
+// effect function 定义：
+// 1、point free，单参
+// 2、可组合，函数式，pipe 模式
+// 3、this 为context、return Promise/resolve 返回(context)、标准函数返回 context
 
 // main module
 
@@ -125,18 +129,23 @@ export default {
   // function
   iftest(message) {
     return function() {
-      return new Promise(function(resolve, reject) {
-        console.log('iftest中断测试')
-        commit('EFFECT_SET', {
-          loop: false
-        })
-        reject(new Error('效果中断测试'))
-      })
+      this.reason = '效果中断测试'
+      this.loop = false
+      return Promise.reject(new Error('效果中断测试'))
+      // return new Promise((resolve, reject) => {
+      //   console.log('iftest中断测试')
+      //   // commit('EFFECT_SET', {
+      //   //   loop: false
+      //   // })
+      //   reject(new Error('效果中断测试'))
+      // })
     }
   },
   tapUI() {
     return function () {
       console.log('tapUI 呼叫UI funcion')
+      console.log('tapUI this',this)
+      this.title = 'tapUI'
       return $mainapp.run_message('tapUI 呼叫UI funcion')
     }
   }
