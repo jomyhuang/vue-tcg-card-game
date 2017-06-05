@@ -77,14 +77,14 @@ export function cxpipe(...items) {
 }
 
 
-export function cxengage__(...items) {
-  return function ({
-    phase
-  }) {
-    const card = thiscard()
-    return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
-  }
-}
+// export function cxengage__(...items) {
+//   return function ({
+//     phase
+//   }) {
+//     const card = thiscard()
+//     return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
+//   }
+// }
 
 export function cxengage(...items) {
   return function () {
