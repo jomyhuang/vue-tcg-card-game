@@ -51,7 +51,7 @@ export default {
         $cx.run('TO_GRAVEYARD'),
         // $cx.tap( ()=> console.log('JOMY') ),
         // $cx.message('do this tap message main action'),
-        // $cx.iftest(),
+        $cx.iftest(),
         // 'string message',
       )
     },

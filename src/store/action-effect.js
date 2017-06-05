@@ -219,10 +219,10 @@ export default {
     // }))
     .then(function (results) {
       console.log('-------OK---------')
-      console.log('effect act all finish')
+      // console.log('effect act all finish')
       // console.log('context',context)
-      mutil.clearMessage()
-      console.groupEnd()
+      // mutil.clearMessage()
+      // console.groupEnd()
     })
     .catch((err) => {
       console.log('%c-----catch------','color:red')
@@ -233,11 +233,16 @@ export default {
       if(context.loop) {
         throw 'ERROR IN EFFECT FUNCTION'
       }
-      mutil.clearMessage()
-      console.groupEnd()
+      // mutil.clearMessage()
+      // console.groupEnd()
       // if(state.effect.loop) {
       //   throw 'ERROR IN EFFECT FUNCTION'
       // }
+    }).then(function(results) {
+      // final task
+      // console.log('clear message')
+      mutil.clearMessage()
+      console.groupEnd()
     })
 
     // return new Promise(async function (resolve, reject) {
