@@ -165,6 +165,9 @@ if
 7、HERO/英雄系统
 
 
+Effect FUNCTION -> Agent HMI -> GAMEVUE UI
+                -> STORE -----> COM -> GAMEVUE UI
+
 
 
 0、Stage1.0目标
@@ -174,7 +177,7 @@ if
 = 抽一张牌
 = 弃一张手牌到XX牌推
 = 从XX牌堆回手一张牌
-
+= 附加Tag，不能使用支援卡
 
 
 

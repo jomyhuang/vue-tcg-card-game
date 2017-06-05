@@ -274,11 +274,10 @@ export default {
     dispatch
   }) {
 
-    return new Promise(async function (resolve, reject) {
+    return new Promise(async (resolve, reject) => {
+
       dispatch('GAME_PHASE','BATTLE_EFFECT')
-
       console.info(`BATTLE_EFFECT begin----------------------`)
-
       commit('BATTLE_CALC')
 
       // currentPlayer
@@ -300,37 +299,6 @@ export default {
       await dispatch('TIGGER_EFFECT', 'isSupporter')
       dispatch('EFFECT_SOURCE', state.battle.defenser.support)
       await dispatch('TIGGER_EFFECT', 'main')
-
-      // dispatch('TIGGER_EFFECT', 'isSupporter')
-      // dispatch('TIGGER_EFFECT', 'main')
-      // // commit('SELECT_PLAYER', state.currentPlayer)
-      // // commit('SELECT_CARD', state.battle.attacker.main)
-      // commit('SELECT_CARD', state.battle.attacker.main)
-      // await dispatch('TIGGER_EFFECT', 'isAttacker')
-      // commit('SELECT_CARD', state.battle.attacker.main)
-      // await dispatch('TIGGER_EFFECT', 'main')
-      // // dispatch('TIGGER_EFFECT', 'isAttacker')
-      // // dispatch('TIGGER_EFFECT', 'main')
-      // commit('SELECT_CARD', state.battle.attacker.support)
-      // await dispatch('TIGGER_EFFECT', 'isSupporter')
-      // commit('SELECT_CARD', state.battle.attacker.support)
-      // await dispatch('TIGGER_EFFECT', 'main')
-      // // dispatch('TIGGER_EFFECT', 'isSupporter')
-      // // dispatch('TIGGER_EFFECT', 'main')
-      //
-      // commit('SELECT_PLAYER', state.opponentPlayer)
-      // commit('SELECT_CARD', state.battle.defenser.main)
-      // await dispatch('TIGGER_EFFECT', 'isDefenser')
-      // commit('SELECT_CARD', state.battle.defenser.main)
-      // await dispatch('TIGGER_EFFECT', 'main')
-      // // dispatch('TIGGER_EFFECT', 'isDefenser')
-      // // dispatch('TIGGER_EFFECT', 'main')
-      // commit('SELECT_CARD', state.battle.defenser.support)
-      // await dispatch('TIGGER_EFFECT', 'isSupporter')
-      // commit('SELECT_CARD', state.battle.defenser.support)
-      // await dispatch('TIGGER_EFFECT', 'main')
-      // // dispatch('TIGGER_EFFECT', 'isSupporter')
-      // // dispatch('TIGGER_EFFECT', 'main')
 
       commit('BATTLE_CALC2')
       commit('BATTLE_SCORE')

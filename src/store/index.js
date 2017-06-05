@@ -26,7 +26,6 @@ Vue.use(Vuex)
 const mutations = R.mergeAll([mutation1, mutation2, mutation3])
 const actions = R.mergeAll([actions1, actions2, actions3, actions4])
 
-// 修改state同时修改default state mutil
 const state = {
   storemsg: 'Hello Vuex Store',
   // cardDB: {},
@@ -84,7 +83,8 @@ const state = {
   turn: {},
   effect: {},
   HMI: {},
-  // battle package (move to default)
+
+  // re-state by initbattle
   battle: {
     attacker: {
       player: null,
@@ -111,6 +111,7 @@ const state = {
     },
     chain: [],
   },
+
   // player list
   players: [],
   player1: {
@@ -155,8 +156,38 @@ const state = {
   },
 }
 
+export const initstate = R.clone(state)
+
+export const initbattle = {
+  attacker: {
+    player: null,
+    main: null,
+    support: null,
+    hero: null,
+    power: [],
+    chain: [],
+  },
+  defenser: {
+    player: null,
+    main: null,
+    support: null,
+    hero: null,
+    power: [],
+    chain: [],
+  },
+  score: {
+    finish: false,
+    winside: null,
+    draw: false,
+    win: null,
+    lose: null,
+  },
+  chain: [],
+}
+
 export default new Vuex.Store({
-  state,
+  // state: R.clone(initstate),
+  state: state,
   getters,
   actions,
   mutations,

@@ -1,24 +1,30 @@
 <template>
 <div class="comBattle">
-  <el-dialog ref="battleDialog" title="精灵战争开战！" v-model="battleVisible" v-on:open="_afterOpen" size="large">
-    <div class="row gameboard">
-      <div class="col-md-6 gameboard flex-container-right">
-        <h4>攻击方</h4>
-        <comCard :card="$store.state.battle.attacker.main"></comCard>
-        <comCard :card="$store.state.battle.attacker.support"></comCard>
-      </div>
-      <div class="col-md-6 gameboard flex-container">
-        <h4>防守方</h4>
-        <comCard :card="$store.state.battle.defenser.main"></comCard>
-        <comCard :card="$store.state.battle.defenser.support"></comCard>
-      </div>
+  <Modal ref="battleDialog" v-model="battleVisible" width="800" @on-ok="ok" @on-cancel="cancel">
+    <div slot="header" style="text-align:center">
+    第{{this.$store.state.game.turnCount}}回合 精灵战争开战！
     </div>
-    <span v-if="autoClose==0" slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="battleVisible = false">>关 闭</el-button>
-      </span>
-  </el-dialog>
-  <!-- <el-button @click="battleVisible = true">点击打开 Battle</el-button> -->
-  <!-- <h3>battle mode props {{value}}</h3> -->
+    <Row class="gameboard">
+      <Col span="12">
+      <div class="gameboard flex-container-right">
+        <h4>攻击方</h4>
+        <comCard :card="battle.attacker.main"></comCard>
+        <comCard :card="battle.attacker.support"></comCard>
+        <!-- <comCard :card="$store.state.battle.attacker.main" v-if="$store.state.battle.attacker.main"></comCard>
+        <comCard :card="$store.state.battle.attacker.support" v-if="$store.state.battle.attacker.support"></comCard> -->
+      </div>
+      </Col>
+      <Col span="12">
+      <div class="gameboard flex-container">
+        <h4>防守方</h4>
+        <comCard :card="battle.defenser.main"></comCard>
+        <comCard :card="battle.defenser.support"></comCard>
+      </div>
+      </Col>
+    </Row>
+  </Modal>
+<!-- <el-button @click="battleVisible = true">点击打开 Battle</el-button> -->
+<!-- <h3>battle mode props {{value}}</h3> -->
 </div>
 </template>
 
@@ -32,6 +38,7 @@ export default {
       msg: 'comBattle',
       battleVisible: false,
       autoClose: 0,
+      onClose: null,
     }
   },
   // props: ['value'],
@@ -43,15 +50,15 @@ export default {
     },
   },
   watch: {
-    value(val, oldval) {
+    battleVisible(val, oldval) {
       // console.log( 'v-model vaule changed :', val, oldval )
-      // if(val=='on') {
-      //   this.battleVisible = true
-      // }
-      // if(val=='on1000') {
-      //   this.autoClose = 1000
-      //   this.battleVisible = true
-      // }
+      if(!val) {
+        if(this.onClose) {
+          console.log('callback on close/resolve promise');
+          this.onClose.call(this)
+          this.onClose = null
+        }
+      }
     },
     // mode: function (val,oldval) {
     //   console.log( 'compoent model changed :', val, oldval )
@@ -70,58 +77,40 @@ export default {
   created() {},
   mounted() {},
   beforeDestroy() {},
-  computed: {},
-  methods: {
-    _afterOpen() {
-      // console.log('open battle dialog autoclose:', this.autoClose)
-      // console.log(`test v-model : ${this.value}`)
-      if (this.autoClose > 0) {
-        setTimeout(() => {
-          // console.log('battle dialog timeout auto close')
-          this.battleVisible = false
-          this.autoClose = 0
-        }, this.autoClose)
-      }
+  computed: {
+    battle() {
+      return this.$store.state.battle
     },
-    open(auto = 0) {
-      // console.log(this.$refs.battleDialog)
+  },
+  methods: {
+    ok() {
+      // console.log('comBattle OK press')
+    },
+    cancel() {
+    },
+    open(auto = 0, onclose) {
       this.autoClose = auto
-      // call method by ref id
-      this.$refs.battleDialog.open()
+      this.battleVisible = true
+      this.onClose = onclose
+
+      if(this.autoClose) {
+        setTimeout(() => {
+          this.battleVisible = false
+        },this.autoClose)
+        console.log(`battleshow open auto close ${this.autoClose}`)
+      }
+      else {
+        console.log('battleshow open waiting close')
+      }
     }
   }
 }
 </script>
 
+<style>
+/*@import '../style/base.scss';*/
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1,
-h2 {
-  font-weight: bold;
-}
-
-.gameboard {
-  border: thin solid #0000ff;
-  background-color: lightblue;
-  padding: 15px;
-}
-
-.flex-container {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
-
-.flex-container-right {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
 </style>

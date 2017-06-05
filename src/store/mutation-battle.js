@@ -2,7 +2,6 @@ import Vue from 'vue'
 import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/deckplayer1.js'
 
-
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
@@ -17,7 +16,8 @@ export default {
   },
   // BATTLE
   BATTLE_START(state, payload) {
-    mutil.battleInit(state)
+    // state.battle = mutil.battleInit()
+    state.battle = R.merge(state.battle,mutil.battleInit())
     // test data move use TEST_SET
     state.battle.attacker.player = state.currentPlayer
     state.battle.defenser.player = state.opponentPlayer

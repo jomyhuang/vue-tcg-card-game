@@ -20,9 +20,4 @@ export default {
   color: #2c3e50;
   margin-top: 10px;
 }
-
-.allstyle1 {
-  color: red;
-}
-
 </style>

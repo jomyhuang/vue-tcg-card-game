@@ -27,6 +27,8 @@ export default {
     return card
   },
   TALK(state, msg) {
+    // agent 自言自语用／内部信息
     console.info(`FIRST AGENT TALK: ${msg} `)
+    // call mutil -> UI
   },
 }

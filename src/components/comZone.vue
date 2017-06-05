@@ -1,10 +1,18 @@
 <template>
-<div class="comHand">
+<div class="comZone">
   <h4>Zone : {{player.zone.length}} cards</h4>
-  <!-- <div class="flex-container"> -->
   <transition-group name="bounceRight" tag="div" class="flex-container">
     <comCard v-for="(card,key,index) in player.zone" :card="card" :key="key"></comCard>
   </transition-group>
+
+  <!-- <mu-flexbox>
+    <transition-group name="bounceRight" tag="div">
+    <mu-flexbox-item v-for="(card,key,index) in player.zone" :key="key">
+      <comCard :card="card"></comCard>
+    </mu-flexbox-item>
+    </transition-group>
+  </mu-flexbox>
+ -->
 </div>
 </template>
 
@@ -37,25 +45,11 @@ export default {
 }
 </script>
 
+<style>
+/*@import '../style/base.scss';*/
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.flex-container {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
-}
 
-.flex-item {
-  background-color: lightgrey;
-  width: 150px;
-  height: 200px;
-  margin: 5px;
-  border: none 5px #000000;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
 </style>

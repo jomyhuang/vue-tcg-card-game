@@ -1,62 +1,69 @@
 <template>
 <div class="gameapp">
-  <div class="row gameboard">
-    <div class="col-md-12">
-      <h3>{{ msg }} $ {{ $store.state.storemsg }}</h3>
-      <el-button @click="gameTest()">GAME TEST</el-button>
-      <!-- <el-button @click="gameStart()">GAME START</el-button> -->
-      <el-button @click="battleshow(0)">Battle Show</el-button>
+  <Row class="gameboard">
+    <div>
+      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+      <Button @click="gameTest()">GAME TEST</Button>
+      <Button @click="battleshow(0)">Battle Show</Button>
     </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-3 gameboard">
-      <h3>player 2 deck</h3>
+  </Row>
+  <Row class="gameboard">
+    <Col span="4">
+    <div class="gameboard">
+      <h3>deck2</h3>
       <comDeck :player="$store.state.player2"></comDeck>
     </div>
-    <div class="col-md-9 gameboard">
-      <div class="row gameboard">
-        <comHand :player="$store.state.player2"></comHand>
-      </div>
-      <div class="row gameboard">
-        <comZone :player="$store.state.player2"></comZone>
-      </div>
+    </Col>
+    <Col span="20">
+    <div class="gameboard" style="min-height:200px">
+      <comHand :player="$store.state.player2"></comHand>
     </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-9">
-      <div class="row gameboard">
-        <comZone :player="$store.state.player1"></comZone>
-      </div>
-      <div class="row gameboard">
-        <comHand :player="$store.state.player1"></comHand>
-      </div>
+    <div class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player2"></comZone>
     </div>
-    <div class="col-md-3 gameboard">
+    </Col>
+  </Row>
+  <Row class="gameboard">
+    <Col span="20">
+    <div class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player1"></comZone>
+    </div>
+    <div class="gameboard" style="min-height:200px">
+      <comHand :player="$store.state.player1"></comHand>
+    </div>
+    </Col>
+    <Col span="4">
+    <div class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
-      <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
-      <el-button @click="playcard()">PLAY</el-button>
+      <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
+      <Button @click="playcard()">PLAY</Button>
     </div>
-  </div>
-  <div class="row gameboard">
-    <div class="col-md-12">
-      <h3>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h3>
-      <!-- <el-button @click="gameloop_temp()">TEST LOOP</el-button> -->
-      <el-button @click="gameloop()">GAME LOOP</el-button>
-      <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
-      <el-button @click="run_gameloop()">RUN</el-button>
-      <el-button @click="run_gameloop(1)">RUN ONE TURN</el-button>
-      <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
+    </Col>
+  </Row>
+  <Row class="gameboard">
+    <div>
+      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+      <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
+      <Button @click="gameloop()" shape="circle">GAME LOOP</Button>
+      <Button @click="gameloop(true)" shape="circle">GAME LOOP UI</Button>
+      <Button @click="battleshow(0)" shape="circle">Battle Show</Button>
+      <Button @click="run_gameloop()">QUICK RUN</Button>
+      <Button @click="run_gameloop(1)">QUICK RUN ONE TURN</Button>
+      <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
       <BR/>
-      <el-button @click="gameTest()">TEST</el-button>
-      <el-button @click="battleshow(0)">Battle Show</el-button>
-      <el-button @click="gameReset()">RESET</el-button>
-      <el-button @click="gameNewdeck()">NewDeck</el-button>
-      <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
-      <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
-      <comMessage ref="info"></comMessage>
+      显示讯息 <i-switch v-model="isMessage"/>
+      异步讯息 <i-switch v-model="isAsyncMssage"/>
+      <Button @click="gameTest()">TEST</Button>
+      <Button @click="gameReset()">RESET</Button>
+      <Button @click="gameNewdeck()">NewDeck</Button>
+      <Button @click="gameNewdeck(true)">NewDeck UI</Button>
+      <Button @click="scoreshow()" shape="circle">Score Show</Button>
     </div>
-  </div>
+  </Row>
+  <comMessage ref="info"></comMessage>
+  <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
+  <comScore ref="score" v-model="$store.state.score"></comScore>
 </div>
 </template>
 
@@ -65,12 +72,15 @@ import comDeck from './comDeck.vue'
 import comHand from './comHand.vue'
 import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
+import comScore from './comScore.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 
 import mutil from '@/mutil'
+import R from 'ramda'
+
 
 
 export default {
@@ -79,6 +89,9 @@ export default {
     return {
       msg: 'SDW GAME APP',
       initial: false,
+      isMessage: true,
+      isAsyncMssage: false,
+      isTestmode: false,
     }
   },
   components: {
@@ -87,6 +100,7 @@ export default {
     comZone,
     comBattle,
     comMessage,
+    comScore,
   },
   created() {},
   mounted() {
@@ -94,8 +108,14 @@ export default {
     // console.log('gameapp.vue mixinEffect effect');
     // mutil.mixinEffect()
     console.log('gameapp.vue GAME initial')
-    this.$store.dispatch('GAME_INIT_STORE', this.$store)
-    this.$store.dispatch('GAME_INIT')
+    this.$store.dispatch('GAME_INIT_STORE',
+      { store: this.$store,
+        mainapp: this,
+      })
+    mutil.setUI(this.battleshow)
+    // mutil.tapUI()
+
+    this.$store.dispatch('GAME_READY')
   },
   beforeDestroy() {},
   computed: {
@@ -122,31 +142,47 @@ export default {
     },
   },
   methods: {
-    gameNewdeck(umi=false) {
+    testui() {
+      console.log('TEST UI');
+    },
+    gameTestmode() {
+      this.isTestmode = true
+      console.log('TURN ON TEST MODE')
+    },
+    gameNewdeck(umi = false) {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
         shuffle: false,
       })
-      if(umi) {
-        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
+      if (umi) {
+        this.run_command('GAME_SET_AGENT', {
+          player: this.$store.state.player1,
+          agent: null
+        })
       }
+      this.UI_message('game set new deck')
     },
     gameTestBattle() {
       this.gameReset()
       this.gameNewdeck()
 
-      this.run_battle( {
-        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',this.$store.state.player1,true),
-        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',this.$store.state.player1),
-        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',this.$store.state.player2,true),
-        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002',this.$store.state.player2),
+      this.run_battle({
+        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001', this.$store.state.player1, true),
+        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001', this.$store.state.player1),
+        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002', this.$store.state.player2, true),
+        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002', this.$store.state.player2),
       })
     },
     gameReset(init) {
+      // this.$Message.info({
+      //           content: 'Game Reset',
+      //           duration: 2,
+      //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
-      console.log(init);
-      this.$store.dispatch('GAME_INIT', init)
+      // mutil.resetGameState()
+      this.$store.dispatch('GAME_READY', init)
+      this.UI_message('game Reset')
     },
     gameStart() {
       // console.log('game Start')
@@ -158,11 +194,11 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value = 1000) {
-      // console.log('battle test click')
-      // console.log(this.$refs.battle)
-      this.$refs.battle.open(value)
-      // console.log('check data',this.$refs.battle.battleVisible);
+    battleshow(value = 1000, onclose) {
+      return this.$refs.battle.open(value,onclose)
+    },
+    scoreshow(value=0,onclose) {
+      return this.$refs.score.open(value,onclose)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
@@ -188,115 +224,202 @@ export default {
       //   console.log('hello promise')
       // })
     },
-    message(msg) {
+    __message(msg,duration=1.5) {
+      this.msg = msg
+      this.run_command('STORE_MESSAGE', msg)
+      console.info('%c' + msg, 'color:green')
+
+      if(this.isTestmode) return
+
+      return new Promise((resolve, reject) => {
+          this.$Message.info({
+                    content: msg,
+                    duration: duration,
+                    // onClose: () => resolve()
+          })
+          if(this.isAsyncMssage) {
+            // pause time
+            setTimeout(()=>resolve(),1500)
+          }
+          else {
+            resolve()
+          }
+      })
+    },
+    __notice(msg,duration=1.5) {
       // return promise from component
       // return this.$refs.info.async_message(msg)
       this.msg = msg
-      const duration = 500
-      this.run_command('STORE_MESSAGE',msg)
-      console.info('%c'+msg,'color:green')
-      return this.config.message ? this.$refs.info.async_message(msg,duration) : true
-      // return this.config.message ? this.$refs.info.async_message(msg) : true
+      this.run_command('STORE_MESSAGE', msg)
+      console.info('%c' + msg, 'color:green')
+      // if(this.config.message) {
+      //   return new Promise((resolve, reject) => {
+      //       const res = this.$Message.info({ content: this.msg, duration: 2000 })
+      //       resolve()
+      //   })
+      // }
+      // return true
+      if(this.isTestmode) return
+
+      if (this.config.message) {
+        return new Promise((resolve, reject) => {
+          this.$Notice.open({
+            title: msg,
+            duration: duration,
+            // onClose: this.isAsyncMssage ? () => resolve() : () => undefined
+          })
+          // if(!this.isAsyncMssage) {
+          resolve()
+          // }
+        })
+      }
+      return true
+      // return this.config.message ? this.$Notice.open({title: msg, duration: 2.5}) : true
+      // return this.config.message ? this.$refs.info.async_message(msg,duration) : true
+    },
+    UI_message(msg) {
+      return this.__message(msg)
     },
     run_message(msg) {
-      return this.message(msg)
+      return this.__notice(msg)
+    },
+    gameloop_phaseinfo(msg) {
+      if(!this.isTestmode) {
+        // 停留信息延迟，但有新信息来就移除前面信息
+        this.$Message.destroy()
+      }
+      return this.__message(msg, 10)
+    },
+    gameloop_message(msg) {
+      return this.__notice(msg, 1.5)
     },
     run_next(newphase, payload) {
-      console.log(`next %c${newphase}`,'color:blue')
-      return this.$store.dispatch(newphase,payload)
+      console.log(`next %c${newphase}`, 'color:blue')
+      // dispatch('GAME_PHASE',newphase)
+      return this.$store.dispatch(newphase, payload)
     },
     run_command(type, payload) {
-      if(this.$store._actions[type]) {
-        return this.$store.dispatch(type,payload)
-      }
-      else {
-        return this.$store.commit(type,payload)
-      }
-    },
-    async async_battleshow(value = 1000) {
-      if (!this.config.battelshow &&
-        !(value == 0 && this.config.battleshow_pauseonly))
-        return
-
-      this.battleshow(value)
-
-      if (value == 0) {
-        await this.__waiting_click(() => !this.$refs.battle.battleVisible)
+      if (this.$store._actions[type]) {
+        return this.$store.dispatch(type, payload)
       } else {
-        await new Promise(function(resolve, reject) {
-          setTimeout(function() {
-            // console.log('async_battleshow delay out');
-            resolve()
-          }, value)
-        })
+        return this.$store.commit(type, payload)
       }
     },
-    async __waiting_click(checkfunc = () => true) {
-      let waiting = true
-      while (waiting) {
-        await new Promise(function(resolve, reject) {
-          setTimeout(function() {
-            resolve()
-          }, 1000)
-        })
-        if (checkfunc()) {
-          console.log('waiting_click pass, exit loop');
-          waiting = false
+    async_battleshow(value = 1000) {
+      if (!this.config.battelshow) return
+      if(this.isTestmode) return
+
+      // TIPS: 取消使用loop check，使用传入 resolve -> watch -> callback resolve()
+      return new Promise((resolve, reject) => {
+        this.battleshow(value, resolve)
+      })
+
+      // if (value == 0) {
+      //   // return this.__waiting_check(() => !this.$refs.battle.battleVisible)
+      //   return new Promise((resolve, reject) => {
+      //     // test callback resolve
+      //     this.battleshow(value,resolve)
+      //   })
+      // } else {
+      //   return new Promise((resolve, reject) => {
+      //     this.battleshow(value)
+      //     setTimeout(()=>resolve(),value+500)
+      //   })
+      // }
+    },
+    __waiting_check(checkfunc = () => true) {
+      return new Promise(async function(resolve, reject) {
+        let waiting = true
+        while (waiting) {
+          await new Promise(function(resolve, reject) {
+            setTimeout(function() {
+              resolve()
+            }, 1000)
+          })
+          if (checkfunc()) {
+            waiting = false
+          }
         }
-      }
+        resolve()
+      })
     },
-    async gameloop(umi=false) {
+    // async __waiting_check(checkfunc = () => true) {
+    //   let waiting = true
+    //   while (waiting) {
+    //     await new Promise(function(resolve, reject) {
+    //       setTimeout(function() {
+    //         resolve()
+    //       }, 1000)
+    //     })
+    //     if (checkfunc()) {
+    //       // console.log('waiting_click pass, exit loop');
+    //       waiting = false
+    //     }
+    //   }
+    // },
+    async gameloop(umi = false) {
       console.log('start gameloop')
 
       if (this.$store.state.game.started) {
-        await this.message('对战已经开始')
-        return
+        return await this.gameloop_message('对战已经开始')
       }
 
-      if(umi) {
-        this.run_command('GAME_SET_AGENT', { player: this.$store.state.player1, agent: null})
-        this.run_command('GAME_SET_CONFIG', { message: true })
+      if (umi) {
+        this.run_command('GAME_SET_AGENT', {
+          player: this.$store.state.player1,
+          agent: null
+        })
       }
+      this.run_command('GAME_SET_CONFIG', {
+        message: this.isMessage,
+        battelshow: true,
+      })
 
       let firstplayer = null
       await this.run_next('GAME_START')
-      await this.message('游戏开始', 2000)
+      await this.gameloop_message('游戏开始', 2000)
       await this.run_next('GAME_WHO_FIRST').then((who) => {
         firstplayer = who
       })
       await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
-      await this.message(`${this.firstPlayer.name} 先攻`)
+      await this.gameloop_message(`${this.firstPlayer.name} 先攻`)
 
       let loop = true
       do {
 
         await this.run_next('GAME_TURN_BEGIN')
-        await this.message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
-        await this.message('抽牌')
+        await this.gameloop_phaseinfo(`准备阶段`)
+        await this.gameloop_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
+        await this.gameloop_message('抽牌')
         await this.run_next('GAME_DRAW')
-        await this.message('战斗开始')
+        await this.gameloop_message('战斗开始')
         await this.run_next('BATTLE_START')
 
-        await this.message(`${this.currentPlayer.name} 宣告攻击精灵`)
+        await this.gameloop_phaseinfo(`战斗阶段`)
+        await this.gameloop_message(`${this.currentPlayer.name} 宣告攻击精灵`)
         await this.run_next('BATTLE_DECALRE_ATTACKER')
         await this.async_battleshow(1000)
 
-        await this.message(`指定攻击目标`)
+        await this.gameloop_message(`指定攻击目标`)
         await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
         await this.async_battleshow(1000)
 
-        await this.message(`${this.currentPlayer.name} 派遣支援精灵`)
+        await this.gameloop_message(`${this.currentPlayer.name} 派遣支援精灵`)
         await this.run_next('BATTLE_PLAY_SUPPORTER')
 
-        await this.message(`${this.opponentPlayer.name} 派遣支援精灵`)
+        await this.gameloop_message(`${this.opponentPlayer.name} 派遣支援精灵`)
         await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
-        await this.message(`效果：发动阶段`)
-        await this.run_next('BATTLE_EFFECT')
-        await this.message(`效果：清除阶段`)
-        await this.run_next('BATTLE_EFFECT_CLEAR')
-
+        await this.gameloop_message(`双方战斗准备完成`)
         await this.async_battleshow(0)
+
+        await this.gameloop_phaseinfo(`主效果阶段`)
+        await this.gameloop_message(`效果：发动阶段`)
+        await this.run_next('BATTLE_EFFECT')
+
+        await this.gameloop_phaseinfo(`回合结束阶段`)
+        await this.gameloop_message(`效果：清除阶段`)
+        await this.run_next('BATTLE_EFFECT_CLEAR')
 
         await this.run_next('BATTLE_END')
 
@@ -319,14 +442,21 @@ export default {
 
       if (this.gameover) {
         console.log(`game over, turn ${this.turnCount}`)
+        await this.gameloop_phaseinfo(`游戏结束`)
+        await this.gameloop_message(`游戏结束`)
+
         if (this.score.draw) {
           console.log(`game draw is true`)
+          await this.gameloop_message(`战斗平手`)
         } else {
           console.log(`game win ${this.score.win.id} ${this.score.win.name}`)
           console.log(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
+          await this.gameloop_message(`获胜 ${this.score.win.id} ${this.score.win.name}`)
         }
+        await this.scoreshow(0)
       }
     },
+
     // 单回合战斗测试
     async run_battle(testbattle) {
       await this.run_message('run_battle START battle')
@@ -346,7 +476,7 @@ export default {
       await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
       await this.run_next('BATTLE_EFFECT')
-      console.log('pass BATTLE_EFFECT')
+      // pass BATTLE_EFFECT_CLEAR
       // await this.run_next('BATTLE_EFFECT_CLEAR')
       await this.run_next('BATTLE_END')
       await this.run_message('run_battle END battle')
@@ -355,19 +485,25 @@ export default {
     async run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
 
-      if (this.$store.state.game.started) {
-        this.run_message('对战已经开始')
+      if(R.isNil(this.$store.state.player1.agent)) {
+        this.run_message('run_gameloop 无法使用UI agent')
         return
       }
 
-      let firstplayer = null
-      this.run_next('GAME_START')
-      this.run_message('游戏开始')
+      if (this.$store.state.game.started) {
+        this.run_message('对战已经开始，下一回合')
+        // return
+      }
+      else {
+        let firstplayer = null
+        this.run_next('GAME_START')
+        this.run_message('游戏开始')
 
-      this.run_next('GAME_WHO_FIRST')
-      firstplayer = this.$store.state.player1
-      this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
-      this.run_message(`${this.firstPlayer.name} 先攻`)
+        this.run_next('GAME_WHO_FIRST')
+        firstplayer = this.$store.state.player1
+        this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
+        this.run_message(`${this.firstPlayer.name} 先攻`)
+      }
 
       let maxturn = testturn > 0 ? testturn : this.config.maxturn
       // maxturn = 1
@@ -381,12 +517,12 @@ export default {
           break
 
         if (this.turnCount >= maxturn)
-          loop = false
+          break
 
       } while (!this.gameover && loop)
 
-      if (!loop)
-        console.log(`end of gameloop, turn ${this.turnCount}`)
+      // if (!loop)
+      //   console.log(`end of gameloop, turn ${this.turnCount}`)
 
       if (this.gameover) {
         this.run_message(`GAMEOVER: ${this.score.reason}`)
@@ -397,6 +533,10 @@ export default {
           this.run_message(`game win ${this.score.win.id} ${this.score.win.name}`)
           this.run_message(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
         }
+        await this.scoreshow(0)
+      }
+      else {
+        console.log(`end of gameloop, turn ${this.turnCount}`)
       }
     },
     async run_step() {
@@ -406,24 +546,14 @@ export default {
       this.run_message('抽牌')
       this.run_next('GAME_DRAW')
 
-      // promise then 非阻塞问题
-      // this.$store.dispatch('GAME_TURN_BEGIN').then(() => {
-      //   this.run_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
-      // }).then(() => {
-      //   this.run_message('抽牌')
-      //   this.$store.dispatch('GAME_DRAW')
-      // })
-
       this.run_message('战斗开始')
       this.run_next('BATTLE_START')
 
       this.run_message(`${this.currentPlayer.name} 宣告攻击精灵`)
       this.run_next('BATTLE_DECALRE_ATTACKER')
-      //await this.async_battleshow(1000)
 
       this.run_message(`指定攻击目标`)
       this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
-      // this.async_battleshow(1000)
 
       this.run_message(`${this.currentPlayer.name} 派遣支援精灵`)
       this.run_next('BATTLE_PLAY_SUPPORTER')
@@ -436,14 +566,7 @@ export default {
       this.run_message(`效果：清除阶段`)
       await this.run_next('BATTLE_EFFECT_CLEAR')
 
-      // await this.async_battleshow(0)
       await this.run_next('BATTLE_END')
-
-      // check game over block
-      // this.$store.dispatch('GAME_CHECK_GAMEOVER')
-      // if (this.gameover) {
-      //   break
-      // }
     },
     run_step_nextturn() {
       let result = true
@@ -457,7 +580,6 @@ export default {
 
       return result
     },
-
     gameTest() {
       // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
       // this.$store.commit('GAME_NEXT_PLAYER')
@@ -476,14 +598,27 @@ export default {
 }
 </script>
 
+<style>
+@import '../style/base.scss';
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* scoped 不含向下传递 */
+
+h2 {
+  color: blue;
+}
+
+
+/*
 h1,
 h2 {
   font-weight: bold;
-}
+}*/
 
-.gameboard {
+
+/*.gameboard {
   border: thin solid #0000ff;
   background-color: lightblue;
   padding: 15px;
@@ -494,8 +629,6 @@ h2 {
   display: flex;
   -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
-  /*height: 250px;*/
-  /*background-color: lightgrey;*/
 }
 
 .flex-item {
@@ -507,5 +640,5 @@ h2 {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-}
+}*/
 </style>

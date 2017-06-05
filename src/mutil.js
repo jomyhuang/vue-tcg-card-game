@@ -5,75 +5,64 @@ import _ from 'lodash'
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
 import effectDB from '@/components/SDWCardEffect.js'
-
-
-// export function rx(type, payload) {
-//   console.log('mutil.rx', this)
-//
-//   return this.store._actions[type] ? () => this.dispatch(type, payload) : () => this.commit(type, payload)
-// }
+// state init const
+import {
+  initstate,
+  initbattle,
+} from '@/store/index.js'
 
 export var $store = {}
+export var $mainapp
 
 export function testfn() {
   console.log('test func $store', $store)
   console.log('test func this', this)
 }
 
-// export function thiscard() {
-//   return $store.state.placeholder
-// }
-//
-// export function rxrun(type, payload) {
-//   // return store._actions[type] ? () => store.dispatch(type, payload) : () => store.commit(type, payload)
-//   return function () {
-//     const fn = $store._actions[type] ? $store.dispatch : $store.commit
-//     const card = thiscard()
-//     return fn.call(card, type, payload)
-//     // const cardfn = fn.bind(card)
-//     // return cardfn(type,payload)
-//   }
-// }
-//
-// export function pipec(...items) {
-//   // let pipearr = []
-//   // items.forEach((effect) => {
-//   //   const fn = effect.bind($store.placeholder)
-//   //   pipearr.push(fn)
-//   // })
-//   // return pipearr
-//   return items
-// }
-
-
+export var UIShow
 
 export default {
-  // store,
+  // store
   mixin: false,
   tap(fn) {
     console.log('mutil tap this func', this)
   },
+  tapUI() {
+    console.log('tapUI', UIShow)
+    return UIShow(1500)
+  },
+  setUI(fn) {
+    // console.log('setUI',fn);
+    UIShow = fn
+  },
   assert(...args) {
     return console.assert(...args)
+  },
+  clearMessage() {
+    if($mainapp.isTestmode) return
+
+    $mainapp.$Message.destroy()
+    // $mainapp.$Notice.destroy()
   },
   mixinEffect(payload) {
 
     let source = effectDB
 
     if (payload) {
-      if (payload._actions) {
-        $store = payload
+      if (payload.store) {
+        $store = payload.store
         console.log('mutil install $store', $store)
+        $mainapp = payload.mainapp
+        console.log('mutil install $mainapp', $mainapp)
       } else {
         source = payload
-        console.log('mixeffect other source')
+        console.log('mixeffect 其他效果库')
       }
     }
-    if (!$store._actions) {
-      console.error('设置store在mixeffect前')
-    }
+    this.assert($store._actions, '设置store在mixeffect前')
 
     if (this.mixin && source === effectDB) {
+      console.error('effectDB已经mixin')
       return
     }
 
@@ -255,7 +244,6 @@ export default {
     }, 0)(list)
 
     // console.log(`convertPower ${strpower} to ${power}`);
-
     return power
   },
   checkAnti(main, enemy) {
@@ -290,172 +278,188 @@ export default {
     return result
   },
   resetGameState(state) {
-    const init = {
-      storemsg: 'Hello Vuex Store',
-      // cardDB: {},
-      // page
-      pageFullList: [],
-      pageList: [],
-      pageKeyList: [],
-      pageCurrent: 1,
-      pagePerItems: 10,
-      pageTotalPage: 0,
-      // pageNextDisabled: false,
-      // pagePrevDisabled: false,
-      pageFilter: 'all',
 
-      // game app
-      currentPlayer: null,
-      opponentPlayer: null,
-      firstPlayer: null,
+    // const initstate_mutil = {
+    //   storemsg: 'Hello Vuex Store',
+    //   // cardDB: {},
+    //   // page
+    //   pageFullList: [],
+    //   pageList: [],
+    //   pageKeyList: [],
+    //   pageCurrent: 1,
+    //   pagePerItems: 10,
+    //   pageTotalPage: 0,
+    //   // pageNextDisabled: false,
+    //   // pagePrevDisabled: false,
+    //   pageFilter: 'all',
+    //
+    //   // game app
+    //   currentPlayer: null,
+    //   opponentPlayer: null,
+    //   firstPlayer: null,
+    //
+    //   // chain function
+    //   placeholder: null,
+    //   placelist: [],
+    //   placeplayer: null,
+    //   pickindex: -1,
+    //   test: {},
+    //   // ACT_SELECT_CARD_...
+    //   act_selection: {
+    //     list: [],
+    //     many: 0,
+    //     selectedAction: null,
+    //     selectedMuation: null,
+    //     thenAction: null,
+    //     selectedList: [],
+    //     agent: null,
+    //   },
+    //   // game/turn package
+    //   ramda: {},
+    //   game: {
+    //     started: false,
+    //     turnCount: 0,
+    //     over: false,
+    //     score: {
+    //       reason: '',
+    //       draw: false,
+    //       win: null,
+    //       lose: null,
+    //     },
+    //     config: {
+    //       message: false,
+    //       battelshow: false,
+    //       battleshow_pauseonly: false,
+    //       maxturn: 99,
+    //     },
+    //   },
+    //   turn: {},
+    //   effect: {},
+    //   HMI: {},
+    //
+    //   // re-state by  initbattle
+    //   battle: {
+    //     attacker: {
+    //       player: null,
+    //       main: null,
+    //       support: null,
+    //       hero: null,
+    //       power: [],
+    //       chain: [],
+    //     },
+    //     defenser: {
+    //       player: null,
+    //       main: null,
+    //       support: null,
+    //       hero: null,
+    //       power: [],
+    //       chain: [],
+    //     },
+    //     score: {
+    //       finish: false,
+    //       winside: null,
+    //       draw: false,
+    //       win: null,
+    //       lose: null,
+    //     },
+    //     chain: [],
+    //   },
+    //
+    //   // player list
+    //   players: [],
+    //   player1: {
+    //     id: 'playerId1',
+    //     hero: 'heroId1',
+    //     name: 'PLAYER-1',
+    //     cardPool: [],
+    //     deck: [],
+    //     zone: [],
+    //     hand: [],
+    //     graveyard: [],
+    //     base: [],
+    //     supporter: [],
+    //
+    //     secrets: [],
+    //     effects: [],
+    //     auras: [],
+    //     minions: [],
+    //     mana: 0,
+    //     maxMana: 10,
+    //     agent: null,
+    //   },
+    //   player2: {
+    //     id: 'playerId2',
+    //     hero: 'heroId2',
+    //     name: 'PLAYER-2',
+    //     cardPool: [],
+    //     deck: [],
+    //     zone: [],
+    //     hand: [],
+    //     graveyard: [],
+    //     base: [],
+    //     supporter: [],
+    //
+    //     secrets: [],
+    //     effects: [],
+    //     auras: [],
+    //     minions: [],
+    //     mana: 0,
+    //     maxMana: 10,
+    //     agent: null,
+    //   },
+    // }
 
-      // chain function
-      placeholder: null,
-      placelist: [],
-      placeplayer: null,
-      pickindex: -1,
-      placeindex: -1,
-
-      // game test
-      test: {},
-      ramda: {},
-
-      // ACT_SELECT_CARD_...
-      act_selection: {
-        list: [],
-        many: 0,
-        selectedAction: null,
-        selectedMuation: null,
-        thenAction: null,
-        selectedList: [],
-        agent: null,
-      },
-      // game/turn package
-      game: {
-        started: false,
-        turnCount: 0,
-        over: false,
-        score: {
-          reason: '',
-          draw: false,
-          win: null,
-          lose: null,
-        },
-        config: {
-          message: false,
-          battelshow: false,
-          battleshow_pauseonly: false,
-          maxturn: 99,
-        },
-        phase: 'INIT',
-      },
-      // context
-      turn: {},
-      effect: {},
-      HMI: {},
-
-      // battle package (move to default)
-      battle: {
-        attacker: {
-          player: null,
-          main: null,
-          support: null,
-          hero: null,
-          power: [],
-          chain: [],
-        },
-        defenser: {
-          player: null,
-          main: null,
-          support: null,
-          hero: null,
-          power: [],
-          chain: [],
-        },
-        score: {
-          finish: false,
-          winside: null,
-          draw: false,
-          win: null,
-          lose: null,
-        },
-        chain: [],
-      },
-      // player list
-      players: [],
-      player1: {
-        id: 'playerId1',
-        hero: 'heroId1',
-        name: 'PLAYER-1',
-        cardPool: [],
-        deck: [],
-        zone: [],
-        hand: [],
-        graveyard: [],
-        base: [],
-        supporter: [],
-
-        secrets: [],
-        effects: [],
-        auras: [],
-        minions: [],
-        mana: 0,
-        maxMana: 10,
-        agent: null,
-      },
-      player2: {
-        id: 'playerId2',
-        hero: 'heroId2',
-        name: 'PLAYER-2',
-        cardPool: [],
-        deck: [],
-        zone: [],
-        hand: [],
-        graveyard: [],
-        base: [],
-        supporter: [],
-
-        secrets: [],
-        effects: [],
-        auras: [],
-        minions: [],
-        mana: 0,
-        maxMana: 10,
-        agent: null,
-      },
+    // const init = initstate_mutil
+    // const init = initstate_mutil
+    const init = R.clone(initstate)
+    if(init.player1.deck.length>0) {
+      throw 'mutil.resetGameState init object is not default'
     }
+    // FIXME: 在测试环境中 replacestate失效
+    // console.log('resetGameState by repalceState')
+    // $store.replaceState(initstate)
+    // console.log(initstate)
 
     R.forEachObjIndexed((value, key) => {
       state[key] = value
     })(init)
+
+    if(state.player1.deck.length>0) {
+      throw 'mutil.resetGameState fail init object'
+    }
+
+    return init
   },
   battleInit(state) {
-    state.battle = {
-      attacker: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      defenser: {
-        player: null,
-        main: null,
-        support: null,
-        hero: null,
-        power: [],
-        chain: [],
-      },
-      score: {
-        finish: false,
-        winside: null,
-        draw: false,
-        win: null,
-        lose: null,
-      },
-      chain: [],
-    }
+    return initbattle
+    // const newbattle = R.clone(initbattle)
+    // return newbattle
+    // return {
+    //   attacker: {
+    //     player: null,
+    //     main: null,
+    //     support: null,
+    //     hero: null,
+    //     power: [],
+    //     chain: [],
+    //   },
+    //   defenser: {
+    //     player: null,
+    //     main: null,
+    //     support: null,
+    //     hero: null,
+    //     power: [],
+    //     chain: [],
+    //   },
+    //   score: {
+    //     finish: false,
+    //     winside: null,
+    //     draw: false,
+    //     win: null,
+    //     lose: null,
+    //   },
+    //   chain: [],
+    // }
   },
   makecard(cardid, player = {}, facedown = false) {
     // console.log('find card ', card, cardDB[card]);
@@ -567,21 +571,17 @@ export default {
             console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
-    }
-    else if (_.isFunction(selector)) { // function
+    } else if (_.isFunction(selector)) { // function
       // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
       console.log(`mutil.selectcards (type function) select`, list)
-    }
-    else if (R.is(Array, selector)) { // array
+    } else if (R.is(Array, selector)) { // array
       list = selector
       console.log(`mutil.selectcards (type array) select`, list)
-    }
-    else if (_is.isNil(selector)) { // undefined/Nil
+    } else if (_is.isNil(selector)) { // undefined/Nil
       list = placelist
       console.log(`mutil.selectcards (type Nil) select placelist`, list)
-    }
-    else {
+    } else {
       throw `mutil.selectcards (type unknown) select`
     }
 
@@ -589,12 +589,12 @@ export default {
 
     return list
   },
-  isPromise (val) {
+  isPromise(val) {
     return val && typeof val.then === 'function'
   },
   call(fn, thisobj, ...args) {
     let res
-    if( !_.isFunction(fn) ) {
+    if (!_.isFunction(fn)) {
       return fn
     }
     res = fn.apply(thisobj, args)
@@ -603,7 +603,7 @@ export default {
   // Trampoline functional
   tcall(fn, thisobj, ...args) {
     let res
-    if( !_.isFunction(fn) ) {
+    if (!_.isFunction(fn)) {
       return fn
     }
     res = fn.apply(thisobj, args)
@@ -614,16 +614,14 @@ export default {
   },
   packcall(fn, thisobj, ...args) {
     let res = []
-    if( R.is(Array,fn) ) {
+    if (R.is(Array, fn)) {
       res = fn
-    }
-    else if( _.isFunction(fn)) {
+    } else if (_.isFunction(fn)) {
       // res = fn.apply(thisobj, args)
       res = this.tcall(fn, thisobj, ...args)
-      res = R.is(Array,res) ? res : [res]
+      res = R.is(Array, res) ? res : [res]
       // res = R.flatten(res)
-    }
-    else {
+    } else {
       res = [fn]
     }
     return res
@@ -631,7 +629,7 @@ export default {
   packisNil(pack) {
     return R.isNil(pack) || R.isNil(R.head(pack))
   },
-  hasTag(tag,card=$store.state.placeholder) {
+  hasTag(tag, card = $store.state.placeholder) {
     return !R.isNil(card.play[tag])
   }
 }

@@ -68,21 +68,21 @@ export default {
 
     console.log('GAME_SET_CONFIG payload', payload)
   },
-  GAME_INIT(state, {
+  GAME_READY(state, {
     decklist = null,
     shuffle = true,
     agent = null,
   } = {}) {
 
-    state.storemsg = 'GAME INIT'
+    state.storemsg = 'GAME_READY'
 
     if (agent) {
-      console.log('GAME_INIT set agent from payload')
+      console.log('GAME_READY set agent from payload')
 
       state.player1.agent = agent[0]
       state.player2.agent = agent[1]
     } else {
-      console.log('GAME_INIT set agent - firstAgent')
+      console.log('GAME_READY set agent - firstAgent')
 
       state.player1.agent = firstAgent
       state.player2.agent = firstAgent
@@ -94,13 +94,13 @@ export default {
         [state.player1, decklist[0]],
         [state.player2, decklist[1]]
       ]
-      console.log('GAME_INIT setting deck from payload', decklist)
+      console.log('GAME_READY setting deck from payload', decklist)
     } else {
       list = [
         [state.player1, deck1],
         [state.player2, deck1]
       ]
-      console.log('GAME_INIT setting default/init deck');
+      console.log('GAME_READY setting default/init deck');
     }
 
     state.players = []
@@ -136,23 +136,18 @@ export default {
           player.deck.push(gamecard)
         } else {
           // throw init error
-          console.warn(`GAME_INIT: warning ${cardid} not found`)
+          console.warn(`GAME_READY: warning ${cardid} not found`)
         }
       })
 
       // underscore.js move to lodash.js
       if (shuffle) {
         player.deck = _.shuffle(player.deck)
-        console.log('GAME_INIT deck shuffle');
+        console.log('GAME_READY deck shuffle');
       } else {
-        console.log('GAME_INIT no shuffle')
+        console.log('GAME_READY no shuffle')
       }
-
-      // console.log(`cardPool lenth ${player.cardPool.length}`, player.cardPool)
-      // console.log(`deck lenth ${player.deck.length}`, player.deck)
     })
-
-    // console.log('commit INIT_GAME end')
   },
   GAME_PHASE(state,payload) {
     const phase = payload
