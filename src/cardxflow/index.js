@@ -48,7 +48,7 @@ export function cxpipe(...items) {
         }
       }).then((result) => {
         // console.log('exec act ok')
-        // pipe next
+        // pipe next, re-align current source
         mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
       })
       return current
