@@ -54,74 +54,6 @@ export default {
     const player = card.owner
     const opponent = mutil.opponent(player)
 
-    // INIT CONTEXT
-    // dispatch('EFFECT_CONTEXT_INIT', {
-    //   type: type,
-    //   phase: state.game.phase,
-    //   card: card,
-    //   player: player,
-    //   opponent: opponent
-    // })
-
-    const funcdispatch = (type, payload) => {
-      return () => dispatch(type, payload)
-    }
-
-    const funccommit = (type, payload) => {
-      return () => commit(type, payload)
-    }
-
-    const tap = () => {
-      return () => console.log('tap this', this)
-    }
-
-    const funcrx = (type, payload) => {
-      const store = mutil.store
-      return store._actions[type] ? funcdispatch(type, payload) : funccommit(type, payload)
-    }
-
-    const funcbuff = (power = 0, tag) => {
-      if (!R.isNil(type) && R.isNil(tag) && power > 0) {
-        tag = `${type} UP +${power}`
-      }
-      let buff = {
-        power: power,
-        type: type,
-        tag: tag,
-        // card: card,
-        source: card,
-      }
-      // card.power.push(buff)
-      commit('CARD_ADD_BUFF', buff)
-      return buff
-    }
-
-    const funcpipe = (...items) => {
-      // let pipearr = []
-      // items.forEach( (effect) => {
-      //   pipearr.push(effect)
-      // })
-      return items
-    }
-
-    let effectpack = {
-      store: mutil.store,
-      type: type,
-      phase: phase,
-      card: card,
-      player: player,
-      opponent: opponent,
-      commit: commit,
-      state: state,
-      dispatch: dispatch,
-      buff: funcbuff,
-      rxdispatch: funcdispatch,
-      rxcommit: funccommit,
-      rx: funcrx,
-      pipe: funcpipe,
-      tap: tap,
-    }
-
     // without condition check effect 不需要 tag check
     let condition
     const checklist = ['main']
@@ -144,168 +76,22 @@ export default {
     }
 
     let context = {
-      text: 'context',
+      text: 'effect context',
       type: type,
       phase: state.game.phase,
       card: card,
       player: player,
       opponent: opponent,
-      loop: true,
       state: state,
+      loop: true,
     }
 
-    let pipelist = mutil.packcall(effectfunc, context, effectpack)
+    // console.group()
+    console.log(`TIGGER_EFFECT => ${card.cardno} %c${type} effect action`, 'color:blue')
+    // console.log(effectfunc())
 
-    if (mutil.packisNil(pipelist)) {
-      console.log('TIGGER_EFFECT result is nil skip do effect pipe')
-      // resolve()
-      return true
-    }
-
-    // !!重要！！如果没有Array，则降维为合并成一个标准模式
-    if (!R.any(R.is(Array), pipelist)) {
-      pipelist = [pipelist]
-    }
-    console.group()
-    // $cx.message(`${card.cardno} ${card.name} 发动${type}效果`)
-    console.log(`=> ${card.cardno} %c${type} effect action`, 'color:blue')
-    mutil.assert(pipelist.length == 1, 'WARN! new async only exec array[0]')
-
-    let effectpipe = mutil.packcall(pipelist[0], context, effectpack)
-
-    // async map / promise all
-    // http://promise-nuggets.github.io/articles/15-map-in-series.html
-    // start with current being an "empty" already-fulfilled promise
-    let current = Promise.resolve()
-
-    let promlist = effectpipe.map(function (act) {
-      current = current.then(function () {
-        console.log('act-----------------')
-        if (_.isFunction(act)) {
-          let res = act.call(context, effectpack)
-          // console.log('context', context)
-          // 中断loop
-          // 直接在Promise内reject
-          return res
-        } else {
-          return console.log(act)
-        }
-      }).then(function (result) {
-        // console.log('exec act ok')
-      })
-      return current
-    })
-    // console.log('promlist',promlist)
-    return Promise.all(promlist)
-    // return Promise.all(effectpipe.map(function (act) {
-    //   current = current.then(function () {
-    //     console.log('act-----------------')
-    //     if (_.isFunction(act)) {
-    //       let res = act.call(card, effectpack)
-    //       // 中断loop
-    //       // 直接在Promise内reject
-    //       // if(!state.effect.loop) {
-    //         // TODO: 处理效果中断
-    //         // Promise.reject('效果中断')
-    //       // }
-    //       return res
-    //     } else {
-    //       return console.log(act)
-    //     }
-    //   }).then(function (result) {
-    //     // console.log('exec act ok')
-    //   })
-    //   return current
-    // }))
-    .then(function (results) {
-      console.log('-------OK---------')
-      // console.log('effect act all finish')
-      // console.log('context',context)
-      // mutil.clearMessage()
-      // console.groupEnd()
-    })
-    .catch((err) => {
-      console.log('%c-----catch------','color:red')
-      console.log('%ceffect 中断 promise all','color:red')
-      console.log('%c'+err,'color:red')
-      // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-      // console.log('context',context)
-      if(context.loop) {
-        throw 'ERROR IN EFFECT FUNCTION'
-      }
-      // mutil.clearMessage()
-      // console.groupEnd()
-      // if(state.effect.loop) {
-      //   throw 'ERROR IN EFFECT FUNCTION'
-      // }
-    }).then(function(results) {
-      // final task
-      // console.log('clear message')
-      mutil.clearMessage()
-      console.groupEnd()
-    })
-
-    // return new Promise(async function (resolve, reject) {
-    //
-    //   let pipecount = 0
-    //   for (let pipe of pipelist) {
-    //     pipecount++
-    //
-    //     // console.log(effectpipe)
-    //
-    //     // console.group()
-    //     // // await version foreach
-    //     // console.log(`${card.cardno} ${type} effect step ${effectpipe.length} actions`)
-    //
-    //     // 处理效果目标对象 owner, card...
-    //     // select card owner
-    //     // if (player !== state.currentPlayer) {
-    //     //   console.warn(`TIGGER_EFFECT ${card.name} 对方回合发动效果`)
-    //     // }
-    //
-    //     // 改成map不行，不在目前主线程 blocking
-    //     // promise hell!
-    //     // await new Promise(function(resolve, reject) {
-    //     //
-    //     //   effectpipe.map(async function (x) {
-    //     //     if (_.isFunction(x)) {
-    //     //       console.log(`effect pipe call start`, x)
-    //     //       await x.call(card,effectpack)
-    //     //       console.log('await pipe call finish next')
-    //     //     } else {
-    //     //       console.log(`effect pipe [object]`, x)
-    //     //     }
-    //     //   })
-    //     //   console.log('TIGGER_EFFECT map ok');
-    //     //   resolve()
-    //     // })
-    //
-    //     let count = 0
-    //     for (let act of effectpipe) {
-    //       count++
-    //
-    //       // console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe call`)
-    //       // 不能使用外部call
-    //       // XXXX await mutil.call(act, card, effectpack)
-    //
-    //       if (_.isFunction(act)) {
-    //         console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [function] call`)
-    //         let res = await act.call(card, effectpack)
-    //         // if( _.isFunction(res) ) {
-    //         //   res = await res.call(card,effectpack)
-    //         // }
-    //         console.log('await pipe call finish next',res)
-    //       } else {
-    //         console.log(`===> ${card.cardno} ${type} ${count}/${effectpipe.length} -> effect pipe [object] next`, act)
-    //       }
-    //     }
-    //     console.log('TIGGER_EFFECT result is effect step finish')
-    //     console.groupEnd()
-    //
-    //   }
-    //
-    //   resolve()
-    // })
+    return mutil.tcall(effectfunc,context,context)
+    // return effectfunc().call(context,context)
   },
   EFFECT_CHOICE({
     commit,

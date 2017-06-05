@@ -24,20 +24,118 @@ export function cxrun(type, payload) {
 }
 
 export function cxpipe(...items) {
-  return function ({
-    phase
-  }) {
+  return function () {
     const card = thiscard()
-    return [cxtap('cxpipe call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
+    const context = this
+    const fnlist = items
+
+    let current = Promise.resolve().then(() => {
+      console.group()
+      console.log('cxpipe call')
+      mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
+      // select current player/card
+      // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+    })
+    let promlist = fnlist.map((act) => {
+        current = current.then(() => {
+        console.log('pipe-----------------')
+        if (_.isFunction(act)) {
+          let res = mu.tcall(act, context, context)
+          // let res = act.call(context, context)
+          return res
+        } else {
+          return console.log(act)
+        }
+      }).then((result) => {
+        // console.log('exec act ok')
+        // pipe next
+        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+      })
+      return current
+    })
+    // console.log(promlist)
+
+    return Promise.all(promlist)
+    .then(function (res) {
+      console.log('-------OK---------')
+    })
+    .catch((err) => {
+      console.log('%c-----catch------','color:red')
+      console.log('%ccxpipe effect 中断 promise all','color:red')
+      console.log('%c'+err,'color:red')
+      // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+      // console.log('context',context)
+      if(context.loop) {
+        throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
+      }
+    }).then(function(res) {
+      // final task
+      mu.clearMessage()
+      console.groupEnd()
+    })
   }
 }
 
-export function cxengage(...items) {
+
+export function cxengage__(...items) {
   return function ({
     phase
   }) {
     const card = thiscard()
     return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
+  }
+}
+
+export function cxengage(...items) {
+  return function () {
+    const card = thiscard()
+    const context = this
+    const fnlist = items
+
+    let current = Promise.resolve().then(() => {
+      console.group()
+      console.log('cxengage call')
+      mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
+      // select current player/card
+      // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+    })
+    let promlist = fnlist.map((act) => {
+        current = current.then(() => {
+        console.log('act-----------------')
+        if (_.isFunction(act)) {
+          let res = mu.tcall(act, context, context)
+          // let res = act.call(context, context)
+          return res
+        } else {
+          return console.log(act)
+        }
+      }).then((result) => {
+        // console.log('exec act ok')
+      })
+      return current
+    })
+    // console.log(promlist)
+
+    return Promise.all(promlist)
+    .then(function (res) {
+      console.log('-------OK---------')
+      // console.log('effect act all finish')
+      // console.log('context',context)
+    })
+    .catch((err) => {
+      console.log('%c-----catch------','color:red')
+      console.log('%ceffect 中断 promise all','color:red')
+      console.log('%c'+err,'color:red')
+      // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+      // console.log('context',context)
+      if(context.loop) {
+        throw 'cxengage throw ERROR IN EFFECT FUNCTION'
+      }
+    }).then(function(res) {
+      // final task
+      mu.clearMessage()
+      console.groupEnd()
+    })
   }
 }
 
