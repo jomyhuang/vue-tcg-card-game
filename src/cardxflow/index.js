@@ -6,6 +6,7 @@ import mu from '@/mutil'
 
 export var $store = {}
 export var $mainapp
+export var $effectUI
 var dispatch
 var commit
 
@@ -200,6 +201,8 @@ export default {
       console.log('cardxflow install $store', $store)
       $mainapp = payload.mainapp
       console.log('cardxflow install $mainapp', $mainapp)
+      $effectUI = payload.effectUI
+      console.log('cardxflow install $effectUI', $effectUI)
     }
     mu.assert($store._actions, '请设置store')
 
@@ -251,4 +254,18 @@ export default {
       return Promise.reject(new Error('效果中断测试'))
     }
   },
+  openUI(auto=0) {
+    return function () {
+      return new Promise((resolve, reject) => {
+        console.log(this)
+        $effectUI.context = this
+        $effectUI.open(auto,resolve)
+      })
+    }
+  },
+  closeUI() {
+    return function () {
+      // $effctUI.close()
+    }
+  }
 }

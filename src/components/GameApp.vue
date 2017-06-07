@@ -59,11 +59,13 @@
       <Button @click="gameNewdeck()">NewDeck</Button>
       <Button @click="gameNewdeck(true)">NewDeck UI</Button>
       <Button @click="scoreshow()" shape="circle">Score Show</Button>
+      <Button @click="effectshow()" shape="circle">Effect Show</Button>
     </div>
   </Row>
   <comMessage ref="info"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
+  <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
 </div>
 </template>
 
@@ -73,6 +75,7 @@ import comHand from './comHand.vue'
 import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 import comScore from './comScore.vue'
+import comEffect from './comEffect.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
@@ -101,6 +104,7 @@ export default {
     comBattle,
     comMessage,
     comScore,
+    comEffect,
   },
   created() {},
   mounted() {
@@ -111,6 +115,7 @@ export default {
     this.$store.dispatch('GAME_INIT_STORE',
       { store: this.$store,
         mainapp: this,
+        effectUI: this.$refs.effectUI,
       })
     mutil.setUI(this.battleshow)
     // mutil.tapUI()
@@ -199,6 +204,9 @@ export default {
     },
     scoreshow(value=0,onclose) {
       return this.$refs.score.open(value,onclose)
+    },
+    effectshow(value=0,onclose) {
+      return this.$refs.effectUI.open(value,onclose)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
