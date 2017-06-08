@@ -171,7 +171,10 @@ if
 OK、增加effect context，用于测试、记录、信息
 OK、effect pipe 中断，logic check
 ==、play card -> zone, play 所在位置place location UI信息
+
 ==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
+=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态) 
+
 
 7、HERO/英雄系统
 

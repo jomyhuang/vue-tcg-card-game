@@ -81,8 +81,10 @@ import comMessage from './comMessage.vue'
 import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 
+import Rx from 'rxjs/Rx'
 import mutil from '@/mutil'
 import R from 'ramda'
+import $cx from '@/cardxflow'
 
 
 
@@ -589,17 +591,25 @@ export default {
       return result
     },
     gameTest() {
-      // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$refs.info.message('讯息测试～')
-      console.log('gameTest call')
 
-      this.$store.dispatch('M2', {
-        name: 'test name',
-        age: 10
+      console.log('RxJS practices')
+      var observable = Rx.Observable.create((observer) => {
+        observer.next(this.run_next('RAMDA_TEST'))
+        observer.next(2);
+        observer.next(3);
+        setTimeout(() => {
+          observer.next(4);
+          observer.complete();
+        }, 1000);
       })
-      // this.asyncRun()
+
+      console.log('just before subscribe');
+      observable.subscribe({
+        next: x => console.log('got value ' + x),
+        error: err => console.error('something wrong occurred: ' + err),
+        complete: () => console.log('done'),
+      })
+      console.log('just after subscribe');
     },
     // end of methods
   }
