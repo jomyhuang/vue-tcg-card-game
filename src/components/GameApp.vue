@@ -12,6 +12,7 @@
     <div class="gameboard">
       <h3>deck2</h3>
       <comDeck :player="$store.state.player2"></comDeck>
+      <span v-if="isTestmode" style="color:red">【测试中】</span>
     </div>
     </Col>
     <Col span="20">
@@ -36,9 +37,10 @@
     <div class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
+      <span v-if="isTestmode" style="color:red">【测试中】</span>
+      <BR/>
       <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
       <Button @click="playcard()">PLAY</Button>
-      <span v-if="isTestmode" style="color:red">测试模式</span>
     </div>
     </Col>
   </Row>
