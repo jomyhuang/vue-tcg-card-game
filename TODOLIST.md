@@ -173,7 +173,7 @@ OK、effect pipe 中断，logic check
 ==、play card -> zone, play 所在位置place location UI信息
 
 ==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
-=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态) 
+=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
 
 
 7、HERO/英雄系统
@@ -189,6 +189,7 @@ Effect FUNCTION -> Agent HMI -> GAMEVUE UI
 完成美化UI布局
 基础规则 playable
 完成效果交互（EFFECT_CHOICE）：
+= 增加BUFF UI效果
 = 抽一张牌
 = 弃一张手牌到XX牌推
 = 从XX牌堆回手一张牌

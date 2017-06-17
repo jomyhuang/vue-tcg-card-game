@@ -38,6 +38,7 @@
       <comDeck :player="$store.state.player1"></comDeck>
       <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
       <Button @click="playcard()">PLAY</Button>
+      <span v-if="isTestmode" style="color:red">测试模式</span>
     </div>
     </Col>
   </Row>
@@ -60,6 +61,8 @@
       <Button @click="gameNewdeck(true)">NewDeck UI</Button>
       <Button @click="scoreshow()" shape="circle">Score Show</Button>
       <Button @click="effectshow()" shape="circle">Effect Show</Button>
+      <BR/>
+      <!-- 测试模式 <i-switch v-model="isTest"/> -->
     </div>
   </Row>
   <comMessage ref="info"></comMessage>
@@ -96,7 +99,7 @@ export default {
       initial: false,
       isMessage: true,
       isAsyncMssage: false,
-      isTestmode: false,
+      // isTest: false,
     }
   },
   components: {
@@ -121,6 +124,10 @@ export default {
       })
     mutil.setUI(this.battleshow)
     // mutil.tapUI()
+
+    // 打开测试模式
+    mutil.setTestmode()
+    // console.log('test mode',this.isTestmode)
 
     this.$store.dispatch('GAME_READY')
   },
@@ -147,13 +154,24 @@ export default {
     config: function() {
       return this.$store.state.game.config
     },
+    isTestmode: function() {
+      return mutil.isTestmode
+    },
+  },
+  watch: {
+    // isTest(val, oldval) {
+    //   console.log('isTest watch', val)
+    //   mutil.setTestmode(val)
+    // },
   },
   methods: {
     testui() {
       console.log('TEST UI');
     },
     gameTestmode() {
-      this.isTestmode = true
+      // this.isTestmode = true
+      // this.$store.dispatch('GAME_TESTMODE')
+      mutil.setTestmode()
       console.log('TURN ON TEST MODE')
     },
     gameNewdeck(umi = false) {
@@ -201,7 +219,7 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value = 1000, onclose) {
+    battleshow(value = 1000,onclose) {
       return this.$refs.battle.open(value,onclose)
     },
     scoreshow(value=0,onclose) {

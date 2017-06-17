@@ -51,6 +51,7 @@ const state = {
   placeplayer: null,
   pickindex: -1,
   test: {},
+  testmode: false,
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],

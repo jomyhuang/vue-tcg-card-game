@@ -84,6 +84,7 @@ export default {
       opponent: opponent,
       state: state,
       loop: true,
+      UImode: false,
     }
 
     // console.group()

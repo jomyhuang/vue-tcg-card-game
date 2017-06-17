@@ -3,7 +3,7 @@
   <Modal ref="scoreDialog" v-model="show" width="800" @on-ok="ok" @on-cancel="cancel">
   <div v-if="context.card">
     <div slot="header" style="text-align:center">
-    <h3>效果发动 {{context.card.name}}</h3>
+    <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
     </div>
     <Row class="gameboard">
     </Row>
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+
+import mu from '@/mutil'
 
 export default {
   name: 'comEffect',
@@ -68,6 +70,9 @@ export default {
     cancel() {
     },
     open(auto = 0, onclose) {
+      if(mu.isTestmode) {
+        auto = 1
+      }
       this.autoClose = auto
       this.show = true
       this.onClose = onclose

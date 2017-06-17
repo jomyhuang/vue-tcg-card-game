@@ -30,6 +30,7 @@
 
 <script>
 import comCard from './comCard.vue'
+import mu from '@/mutil'
 
 export default {
   name: 'comBattle',
@@ -89,6 +90,10 @@ export default {
     cancel() {
     },
     open(auto = 0, onclose) {
+      if(mu.isTestmode) {
+        auto = 1
+      }
+
       this.autoClose = auto
       this.battleVisible = true
       this.onClose = onclose

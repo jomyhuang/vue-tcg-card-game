@@ -20,6 +20,7 @@ export function testfn() {
 }
 
 export var UIShow
+export var testmode = false
 
 export default {
   // store
@@ -43,6 +44,12 @@ export default {
 
     $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
+  },
+  setTestmode(mode=true) {
+    testmode = mode
+  },
+  isTestmode() {
+    return testmode
   },
   mixinEffect(payload) {
 

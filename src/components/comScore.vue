@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import mu from '@/mutil'
+
 export default {
   name: 'comScore',
   data() {
@@ -73,6 +75,10 @@ export default {
     cancel() {
     },
     open(auto = 0, onclose) {
+      if(mu.isTestmode) {
+        auto = 1
+      }
+
       this.autoClose = auto
       this.show = true
       this.onClose = onclose

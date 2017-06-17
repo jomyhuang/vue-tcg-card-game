@@ -77,16 +77,6 @@ export function cxpipe(...items) {
   }
 }
 
-
-// export function cxengage__(...items) {
-//   return function ({
-//     phase
-//   }) {
-//     const card = thiscard()
-//     return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
-//   }
-// }
-
 export function cxengage(...items) {
   return function () {
     const card = thiscard()
@@ -141,9 +131,7 @@ export function cxengage(...items) {
 }
 
 export function cxbuff(power = 0, tag) {
-  return function ({
-    phase
-  }) {
+  return function () {
     const card = thiscard()
     if (R.isNil(tag) && power > 0) {
       tag = `UP +${power}`
@@ -152,8 +140,6 @@ export function cxbuff(power = 0, tag) {
       power: power,
       tag: tag,
       source: card,
-      // type: type,
-      // card: card,
     }
     commit('ADD_BUFF', buff)
     return buff
@@ -256,7 +242,13 @@ export default {
   },
   openUI(auto=0) {
     return function () {
+      // if(mu.isTestmode) {
+      //   auto=1
+      //   // console.log('openUI testmode')
+      // }
+
       return new Promise((resolve, reject) => {
+        this.UImode = true
         console.log(this)
         $effectUI.context = this
         $effectUI.open(auto,resolve)
