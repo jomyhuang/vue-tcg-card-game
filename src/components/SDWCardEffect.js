@@ -1,4 +1,4 @@
-import mutil from '@/mutil'
+import mu from '@/mutil'
 import {
   cxrun,
   cxpipe,
@@ -37,8 +37,8 @@ export default {
       return $cx.engage(
         // $cx.run('SELECT_LIST', 'opp_zone'),
         // $cx.run('SELECT_FILTER', x => x.star >= 3),
-        // $cx.run('EFFECT_OPP_CHOICE', () => mutil.opponent(state.placeplayer)['hand']),
-        // $cx.run('EFFECT_CHOICE', () => mutil.opponent(state.placeplayer)['hand']),
+        // $cx.run('EFFECT_OPP_CHOICE', () => mu.opponent(state.placeplayer)['hand']),
+        // $cx.run('EFFECT_CHOICE', () => mu.opponent(state.placeplayer)['hand']),
         $cx.phaseinfo('选择一张牌，进入休息区'),
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),

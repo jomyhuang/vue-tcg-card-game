@@ -87,7 +87,7 @@ import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 
 import Rx from 'rxjs/Rx'
-import mutil from '@/mutil'
+import mu from '@/mutil'
 import R from 'ramda'
 import $cx from '@/cardxflow'
 
@@ -117,19 +117,22 @@ export default {
   mounted() {
     console.log('gameapp.vue mounted');
     // console.log('gameapp.vue mixinEffect effect');
-    // mutil.mixinEffect()
+    // mu.mixinEffect()
     console.log('gameapp.vue GAME initial')
     this.$store.dispatch('GAME_INIT_STORE',
       { store: this.$store,
         mainapp: this,
         effectUI: this.$refs.effectUI,
       })
-    mutil.setUI(this.battleshow)
-    // mutil.tapUI()
+    mu.setUI(this.battleshow)
+    // mu.tapUI()
 
     // 打开测试模式
-    mutil.setTestmode()
+    mu.setTestmode()
     // console.log('test mode',this.isTestmode)
+
+    // test 自定义插件
+    this.muvue()
 
     this.$store.dispatch('GAME_READY')
   },
@@ -157,13 +160,13 @@ export default {
       return this.$store.state.game.config
     },
     isTestmode: function() {
-      return mutil.isTestmode
+      return mu.isTestmode
     },
   },
   watch: {
     // isTest(val, oldval) {
     //   console.log('isTest watch', val)
-    //   mutil.setTestmode(val)
+    //   mu.setTestmode(val)
     // },
   },
   methods: {
@@ -173,7 +176,7 @@ export default {
     gameTestmode() {
       // this.isTestmode = true
       // this.$store.dispatch('GAME_TESTMODE')
-      mutil.setTestmode()
+      mu.setTestmode()
       console.log('TURN ON TEST MODE')
     },
     gameNewdeck(umi = false) {
@@ -194,10 +197,10 @@ export default {
       this.gameNewdeck()
 
       this.run_battle({
-        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001', this.$store.state.player1, true),
-        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001', this.$store.state.player1),
-        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002', this.$store.state.player2, true),
-        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002', this.$store.state.player2),
+        BATTLE_DECALRE_ATTACKER: mu.makecard('JW15-001', this.$store.state.player1, true),
+        BATTLE_PLAY_SUPPORTER: mu.makecard('JW15-001', this.$store.state.player1),
+        BATTLE_OPP_DECLARE_DEFENSER: mu.makecard('JW15-002', this.$store.state.player2, true),
+        BATTLE_OPP_PLAY_SUPPORTER: mu.makecard('JW15-002', this.$store.state.player2),
       })
     },
     gameReset(init) {
@@ -207,7 +210,7 @@ export default {
       //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
-      // mutil.resetGameState()
+      // mu.resetGameState()
       this.$store.dispatch('GAME_READY', init)
       this.UI_message('game Reset')
     },
@@ -526,12 +529,12 @@ export default {
       }
       else {
         let firstplayer = null
-        this.run_next('GAME_START')
+        await this.run_next('GAME_START')
         this.run_message('游戏开始')
 
-        this.run_next('GAME_WHO_FIRST')
+        await this.run_next('GAME_WHO_FIRST')
         firstplayer = this.$store.state.player1
-        this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
+        await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
         this.run_message(`${this.firstPlayer.name} 先攻`)
       }
 
@@ -571,25 +574,25 @@ export default {
     },
     async run_step() {
 
-      this.run_next('GAME_TURN_BEGIN')
+      await this.run_next('GAME_TURN_BEGIN')
       this.run_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
       this.run_message('抽牌')
-      this.run_next('GAME_DRAW')
+      await this.run_next('GAME_DRAW')
 
       this.run_message('战斗开始')
-      this.run_next('BATTLE_START')
+      await this.run_next('BATTLE_START')
 
       this.run_message(`${this.currentPlayer.name} 宣告攻击精灵`)
-      this.run_next('BATTLE_DECALRE_ATTACKER')
+      await this.run_next('BATTLE_DECALRE_ATTACKER')
 
       this.run_message(`指定攻击目标`)
-      this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
+      await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
 
       this.run_message(`${this.currentPlayer.name} 派遣支援精灵`)
-      this.run_next('BATTLE_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_PLAY_SUPPORTER')
 
       this.run_message(`${this.opponentPlayer.name} 派遣支援精灵`)
-      this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
       this.run_message(`效果：发动阶段`)
       await this.run_next('BATTLE_EFFECT')

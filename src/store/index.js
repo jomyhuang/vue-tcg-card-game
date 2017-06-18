@@ -18,7 +18,7 @@ import actions4 from './action-effect'
 import getters from './getters'
 
 import R from 'ramda'
-import mutil from '@/mutil'
+import mu from '@/mutil'
 
 Vue.use(Vuex)
 

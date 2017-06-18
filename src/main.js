@@ -12,6 +12,10 @@ import router from '@/router'
 
 import './allstyle.css'
 
+// 自定义全局插件
+import muvue from '@/muvue'
+Vue.use(muvue)
+
 // Vue.use(Vuex)
 import ElementUI from 'element-ui'
 // import 'element-ui/lib/theme-default/index.css'
