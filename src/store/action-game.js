@@ -22,6 +22,15 @@ export default {
   }, payload) {
     console.log('RAMDA_TEST action result')
   },
+  // GAME_TESTMODE({
+  //   commit,
+  //   state,
+  //   dispatch
+  // }, payload) {
+  //     commit('GAME_TESTMODE',payload)
+  //     console.log('action GAME_TESTMODE')
+  //
+  // },
   GAME_READY(store, payload) {
 
     // 从store中分离

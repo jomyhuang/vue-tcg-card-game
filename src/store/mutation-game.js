@@ -50,6 +50,10 @@ export default {
     state.storemsg = payload
   },
   // ---------------------------------------------------- GAME_XXX
+  // GAME_TESTMODE(state,payload=true) {
+  //   state.testmode = payload
+  //   console.log('commit GAME_TESTMODE ', payload)
+  // },
   GAME_RESET(state, payload) {
     mutil.resetGameState(state)
     console.log('commit GAME_RESET')

@@ -12,6 +12,7 @@
     <div class="gameboard">
       <h3>deck2</h3>
       <comDeck :player="$store.state.player2"></comDeck>
+      <span v-if="isTestmode" style="color:red">【测试中】</span>
     </div>
     </Col>
     <Col span="20">
@@ -36,6 +37,8 @@
     <div class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
+      <span v-if="isTestmode" style="color:red">【测试中】</span>
+      <BR/>
       <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
       <Button @click="playcard()">PLAY</Button>
     </div>
@@ -59,11 +62,15 @@
       <Button @click="gameNewdeck()">NewDeck</Button>
       <Button @click="gameNewdeck(true)">NewDeck UI</Button>
       <Button @click="scoreshow()" shape="circle">Score Show</Button>
+      <Button @click="effectshow()" shape="circle">Effect Show</Button>
+      <BR/>
+      <!-- 测试模式 <i-switch v-model="isTest"/> -->
     </div>
   </Row>
   <comMessage ref="info"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
+  <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
 </div>
 </template>
 
@@ -73,13 +80,16 @@ import comHand from './comHand.vue'
 import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 import comScore from './comScore.vue'
+import comEffect from './comEffect.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
 
-import mutil from '@/mutil'
+import Rx from 'rxjs/Rx'
+import mu from '@/mutil'
 import R from 'ramda'
+import $cx from '@/cardxflow'
 
 
 
@@ -91,7 +101,7 @@ export default {
       initial: false,
       isMessage: true,
       isAsyncMssage: false,
-      isTestmode: false,
+      // isTest: false,
     }
   },
   components: {
@@ -101,19 +111,28 @@ export default {
     comBattle,
     comMessage,
     comScore,
+    comEffect,
   },
   created() {},
   mounted() {
     console.log('gameapp.vue mounted');
     // console.log('gameapp.vue mixinEffect effect');
-    // mutil.mixinEffect()
+    // mu.mixinEffect()
     console.log('gameapp.vue GAME initial')
     this.$store.dispatch('GAME_INIT_STORE',
       { store: this.$store,
         mainapp: this,
+        effectUI: this.$refs.effectUI,
       })
-    mutil.setUI(this.battleshow)
-    // mutil.tapUI()
+    mu.setUI(this.battleshow)
+    // mu.tapUI()
+
+    // 打开测试模式
+    mu.setTestmode()
+    // console.log('test mode',this.isTestmode)
+
+    // test 自定义插件
+    this.muvue()
 
     this.$store.dispatch('GAME_READY')
   },
@@ -140,13 +159,24 @@ export default {
     config: function() {
       return this.$store.state.game.config
     },
+    isTestmode: function() {
+      return mu.isTestmode
+    },
+  },
+  watch: {
+    // isTest(val, oldval) {
+    //   console.log('isTest watch', val)
+    //   mu.setTestmode(val)
+    // },
   },
   methods: {
     testui() {
       console.log('TEST UI');
     },
     gameTestmode() {
-      this.isTestmode = true
+      // this.isTestmode = true
+      // this.$store.dispatch('GAME_TESTMODE')
+      mu.setTestmode()
       console.log('TURN ON TEST MODE')
     },
     gameNewdeck(umi = false) {
@@ -167,10 +197,10 @@ export default {
       this.gameNewdeck()
 
       this.run_battle({
-        BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001', this.$store.state.player1, true),
-        BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001', this.$store.state.player1),
-        BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002', this.$store.state.player2, true),
-        BATTLE_OPP_PLAY_SUPPORTER: mutil.makecard('JW15-002', this.$store.state.player2),
+        BATTLE_DECALRE_ATTACKER: mu.makecard('JW15-001', this.$store.state.player1, true),
+        BATTLE_PLAY_SUPPORTER: mu.makecard('JW15-001', this.$store.state.player1),
+        BATTLE_OPP_DECLARE_DEFENSER: mu.makecard('JW15-002', this.$store.state.player2, true),
+        BATTLE_OPP_PLAY_SUPPORTER: mu.makecard('JW15-002', this.$store.state.player2),
       })
     },
     gameReset(init) {
@@ -180,7 +210,7 @@ export default {
       //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
-      // mutil.resetGameState()
+      // mu.resetGameState()
       this.$store.dispatch('GAME_READY', init)
       this.UI_message('game Reset')
     },
@@ -194,11 +224,14 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value = 1000, onclose) {
+    battleshow(value = 1000,onclose) {
       return this.$refs.battle.open(value,onclose)
     },
     scoreshow(value=0,onclose) {
       return this.$refs.score.open(value,onclose)
+    },
+    effectshow(value=0,onclose) {
+      return this.$refs.effectUI.open(value,onclose)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
@@ -496,12 +529,12 @@ export default {
       }
       else {
         let firstplayer = null
-        this.run_next('GAME_START')
+        await this.run_next('GAME_START')
         this.run_message('游戏开始')
 
-        this.run_next('GAME_WHO_FIRST')
+        await this.run_next('GAME_WHO_FIRST')
         firstplayer = this.$store.state.player1
-        this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
+        await this.run_next('GAME_SET_FIRSTPLAYER', firstplayer)
         this.run_message(`${this.firstPlayer.name} 先攻`)
       }
 
@@ -541,25 +574,25 @@ export default {
     },
     async run_step() {
 
-      this.run_next('GAME_TURN_BEGIN')
+      await this.run_next('GAME_TURN_BEGIN')
       this.run_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
       this.run_message('抽牌')
-      this.run_next('GAME_DRAW')
+      await this.run_next('GAME_DRAW')
 
       this.run_message('战斗开始')
-      this.run_next('BATTLE_START')
+      await this.run_next('BATTLE_START')
 
       this.run_message(`${this.currentPlayer.name} 宣告攻击精灵`)
-      this.run_next('BATTLE_DECALRE_ATTACKER')
+      await this.run_next('BATTLE_DECALRE_ATTACKER')
 
       this.run_message(`指定攻击目标`)
-      this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
+      await this.run_next('BATTLE_OPP_DECLARE_DEFENSER')
 
       this.run_message(`${this.currentPlayer.name} 派遣支援精灵`)
-      this.run_next('BATTLE_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_PLAY_SUPPORTER')
 
       this.run_message(`${this.opponentPlayer.name} 派遣支援精灵`)
-      this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
+      await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
       this.run_message(`效果：发动阶段`)
       await this.run_next('BATTLE_EFFECT')
@@ -581,17 +614,25 @@ export default {
       return result
     },
     gameTest() {
-      // this.$store.commit('GAME_SET_CURRENTPLAYER', this.$store.state.player1)
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$store.commit('GAME_NEXT_PLAYER')
-      // this.$refs.info.message('讯息测试～')
-      console.log('gameTest call')
 
-      this.$store.dispatch('M2', {
-        name: 'test name',
-        age: 10
+      console.log('RxJS practices')
+      var observable = Rx.Observable.create((observer) => {
+        observer.next(this.run_next('RAMDA_TEST'))
+        observer.next(2);
+        observer.next(3);
+        setTimeout(() => {
+          observer.next(4);
+          observer.complete();
+        }, 1000);
       })
-      // this.asyncRun()
+
+      console.log('just before subscribe');
+      observable.subscribe({
+        next: x => console.log('got value ' + x),
+        error: err => console.error('something wrong occurred: ' + err),
+        complete: () => console.log('done'),
+      })
+      console.log('just after subscribe');
     },
     // end of methods
   }

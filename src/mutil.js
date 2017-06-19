@@ -24,6 +24,7 @@ export var UIShow
 export default {
   // store
   mixin: false,
+  testmode: false,
   tap(fn) {
     console.log('mutil tap this func', this)
   },
@@ -39,10 +40,17 @@ export default {
     return console.assert(...args)
   },
   clearMessage() {
-    if($mainapp.isTestmode) return
+    // if($mainapp.isTestmode) return
+    if(this.testmode) return
 
     $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
+  },
+  setTestmode(mode=true) {
+    this.testmode = mode
+  },
+  isTestmode() {
+    return this.testmode
   },
   mixinEffect(payload) {
 

@@ -6,6 +6,7 @@ import mu from '@/mutil'
 
 export var $store = {}
 export var $mainapp
+export var $effectUI
 var dispatch
 var commit
 
@@ -24,27 +25,113 @@ export function cxrun(type, payload) {
 }
 
 export function cxpipe(...items) {
-  return function ({
-    phase
-  }) {
+  return function () {
     const card = thiscard()
-    return [cxtap('cxpipe call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
+    const context = this
+    const fnlist = items
+
+    let current = Promise.resolve().then(() => {
+      console.group()
+      console.log('cxpipe call')
+      mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
+      // select current player/card
+      // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+    })
+    let promlist = fnlist.map((act) => {
+        current = current.then(() => {
+        console.log('pipe-----------------')
+        if (_.isFunction(act)) {
+          let res = mu.tcall(act, context, context)
+          // let res = act.call(context, context)
+          return res
+        } else {
+          return console.log(act)
+        }
+      }).then((result) => {
+        // console.log('exec act ok')
+        // pipe next, re-align current source
+        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+      })
+      return current
+    })
+    // console.log(promlist)
+
+    return Promise.all(promlist)
+    .then(function (res) {
+      console.log('-------OK---------')
+    })
+    .catch((err) => {
+      console.log('%c-----catch------','color:red')
+      console.log('%ccxpipe effect 中断 promise all','color:red')
+      console.log('%c'+err,'color:red')
+      // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+      // console.log('context',context)
+      if(context.loop) {
+        throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
+      }
+    }).then(function(res) {
+      // final task
+      mu.clearMessage()
+      console.groupEnd()
+    })
   }
 }
 
 export function cxengage(...items) {
-  return function ({
-    phase
-  }) {
+  return function () {
     const card = thiscard()
-    return [cxtap('cxengage call'), cxphaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)].concat(items)
+    const context = this
+    const fnlist = items
+
+    let current = Promise.resolve().then(() => {
+      console.group()
+      console.log('cxengage call')
+      mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
+      // select current player/card
+      // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+    })
+    let promlist = fnlist.map((act) => {
+        current = current.then(() => {
+        console.log('act-----------------')
+        if (_.isFunction(act)) {
+          let res = mu.tcall(act, context, context)
+          // let res = act.call(context, context)
+          return res
+        } else {
+          return console.log(act)
+        }
+      }).then((result) => {
+        // console.log('exec act ok')
+      })
+      return current
+    })
+    // console.log(promlist)
+
+    return Promise.all(promlist)
+    .then(function (res) {
+      console.log('-------OK---------')
+      // console.log('effect act all finish')
+      // console.log('context',context)
+    })
+    .catch((err) => {
+      console.log('%c-----catch------','color:red')
+      console.log('%ceffect 中断 promise all','color:red')
+      console.log('%c'+err,'color:red')
+      // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+      // console.log('context',context)
+      if(context.loop) {
+        throw 'cxengage throw ERROR IN EFFECT FUNCTION'
+      }
+    }).then(function(res) {
+      // final task
+      mu.clearMessage()
+      console.groupEnd()
+    })
   }
 }
 
 export function cxbuff(power = 0, tag) {
-  return function ({
-    phase
-  }) {
+  return function () {
     const card = thiscard()
     if (R.isNil(tag) && power > 0) {
       tag = `UP +${power}`
@@ -53,8 +140,6 @@ export function cxbuff(power = 0, tag) {
       power: power,
       tag: tag,
       source: card,
-      // type: type,
-      // card: card,
     }
     commit('ADD_BUFF', buff)
     return buff
@@ -102,6 +187,8 @@ export default {
       console.log('cardxflow install $store', $store)
       $mainapp = payload.mainapp
       console.log('cardxflow install $mainapp', $mainapp)
+      $effectUI = payload.effectUI
+      console.log('cardxflow install $effectUI', $effectUI)
     }
     mu.assert($store._actions, '请设置store')
 
@@ -153,4 +240,24 @@ export default {
       return Promise.reject(new Error('效果中断测试'))
     }
   },
+  openUI(auto=0) {
+    return function () {
+      // if(mu.isTestmode) {
+      //   auto=1
+      //   // console.log('openUI testmode')
+      // }
+
+      return new Promise((resolve, reject) => {
+        this.UImode = true
+        console.log(this)
+        $effectUI.context = this
+        $effectUI.open(auto,resolve)
+      })
+    }
+  },
+  closeUI() {
+    return function () {
+      // $effctUI.close()
+    }
+  }
 }

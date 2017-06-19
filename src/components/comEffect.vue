@@ -1,41 +1,37 @@
 <template>
-<div class="comScore">
+<div class="comEffect">
   <Modal ref="scoreDialog" v-model="show" width="800" @on-ok="ok" @on-cancel="cancel">
+  <div v-if="context.card">
     <div slot="header" style="text-align:center">
-    精灵战争战绩
+    <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
     </div>
     <Row class="gameboard">
-      <div v-if="gameover">
-        <div v-if="score.draw">
-          <h2>战斗平手</h2>
-        </div>
-        <div v-else>
-          <h2>获胜 #{{score.win.id}} {{score.win.name}}</h2>
-          <h3>回合数 {{this.$store.state.game.turnCount}}</h3>
-        </div>
-      </div>
-      <div v-else>
-        <h1>战斗进行中</h1>
-      </div>
     </Row>
+  </div>
+  <div v-else>
+    <div slot="header" style="text-align:center">
+    NO CONTEXT
+    </div>
+  </div>
   </Modal>
 </div>
 </template>
 
 <script>
+
 import mu from '@/mutil'
 
 export default {
-  name: 'comScore',
+  name: 'comEffect',
   data() {
     return {
-      msg: 'comScore',
+      msg: 'comEffect',
       show: false,
       autoClose: 0,
       onClose: null,
+      context: {},
     }
   },
-  // props: ['value'],
   props: {
     //   // v-model 必须要有 vaule prop
     value: {
@@ -70,7 +66,6 @@ export default {
   },
   methods: {
     ok() {
-      // console.log('comBattle OK press')
     },
     cancel() {
     },
@@ -78,7 +73,6 @@ export default {
       if(mu.isTestmode) {
         auto = 1
       }
-
       this.autoClose = auto
       this.show = true
       this.onClose = onclose

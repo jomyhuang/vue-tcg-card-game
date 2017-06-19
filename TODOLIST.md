@@ -114,22 +114,21 @@ phase/condition in card effect function:
 isAttacker: $cx.engage($cx.buff(500),$cx.buff(500,'special power!')),
 
 new format:
-isDefenser: $cx.engage(
-  [$cx.engage($cx.tap('do this tap message array1'))],
-  [$cx.engage($cx.buff(500), $cx.tap('effect array2'))]
+isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
+
+isAttacker: $cx.pipe(
+    $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
+    $cx.engage('do engage 2','do engage 2-1',$cx.run('EFFECT_CHOICE', 'hand'), $cx.message('END PIPE')),
 ),
 
-isAttacker(effectpack,payload) {
-  return $cx.pipe(
-    $cx.run('SELECT_LIST', 'opp_zone'),
-    $cx.run('SELECT_FILTER', x => x.star >= 3),
-    $cx.run('EFFECT_CHOICE'),
-    $cx.run('PICK_CARD'),
-    $cx.run('TO_GRAVEYARD'),
-  )
-}
+isAttacker: $cx.engage(
+                $cx.buff(500), $cx.buff(500, 'special power!'),
+                $cx.engage($cx.tap('sub effect 2-1'), $cx.tap('sub effect 2-1'))
+            )
 
-make
+
+
+make:
 pipliest (1 action) = [ [[acts11,acts12...]] ]
 pipelist (compose) = [ [acts11,acts12], [act21,act22,act23...] ]
 
@@ -137,6 +136,18 @@ engage(is.supporter).choice('opp_zone', not(card.faceup)).draw(1)
 engage(is.supporter).opp_choice('zone', not(card.faceup)).draw(1)
 engage(is.faceup).discard('opp_hand',1)
 phase(is.win).draw(1)
+
+
+think:
+make Effect + UI component
+=> context => component with
+
+//
+dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+await dispatch('TIGGER_EFFECT', 'isDefenser')
+
+
+
 
 
 4、更精炼的效果函数动作DSL表示方式：
@@ -148,8 +159,8 @@ phase(is.win).draw(1)
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理
 ==、支援增加的buff是在主战、还是支援精灵本身
-==、check 对手回合发动卡牌的效果的处理、检查
-==、效果自带的message展示系统
+OK、check 对手回合发动卡牌的效果的处理、检查
+OK、效果自带的message展示系统
 ==、effect tagging
 ==、回合结束，清除阶段，清除掉所有play效果标签
 add
@@ -157,9 +168,12 @@ clear
 check
 if
 
-==、增加effect context，用于测试、记录、信息
-==、effect pipe 中断，logic check
+OK、增加effect context，用于测试、记录、信息
+OK、effect pipe 中断，logic check
 ==、play card -> zone, play 所在位置place location UI信息
+
+==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
+=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
 
 
 7、HERO/英雄系统
@@ -167,6 +181,7 @@ if
 
 Effect FUNCTION -> Agent HMI -> GAMEVUE UI
                 -> STORE -----> COM -> GAMEVUE UI
+                ** -> UI component -> Message/interactive
 
 
 
@@ -174,6 +189,7 @@ Effect FUNCTION -> Agent HMI -> GAMEVUE UI
 完成美化UI布局
 基础规则 playable
 完成效果交互（EFFECT_CHOICE）：
+= 增加BUFF UI效果
 = 抽一张牌
 = 弃一张手牌到XX牌推
 = 从XX牌堆回手一张牌

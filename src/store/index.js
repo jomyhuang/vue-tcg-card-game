@@ -18,7 +18,7 @@ import actions4 from './action-effect'
 import getters from './getters'
 
 import R from 'ramda'
-import mutil from '@/mutil'
+import mu from '@/mutil'
 
 Vue.use(Vuex)
 
@@ -51,6 +51,7 @@ const state = {
   placeplayer: null,
   pickindex: -1,
   test: {},
+  testmode: false,
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
