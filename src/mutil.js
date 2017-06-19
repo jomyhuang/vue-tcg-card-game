@@ -24,7 +24,8 @@ export var UIShow
 export default {
   // store
   mixin: false,
-  testmode: false,
+  _isTestmode: false,
+  // testmode: false,
   tap(fn) {
     console.log('mutil tap this func', this)
   },
@@ -40,19 +41,20 @@ export default {
     return console.assert(...args)
   },
   clearMessage() {
-    if(this.isTestmode()) return
+    if(this.isTestmode) return
 
     $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
   },
   setTestmode(mode=true) {
     // manual test mode flag
-    this.testmode = mode
+    this.isTestmode = mode
+    return mode
   },
-  isTestmode() {
-    // manual test mode flag
-    return this.testmode || process.env.NODE_ENV === 'testing'
-  },
+  // isTestmode {
+  //   // manual test mode flag
+  //   return this.testmode || process.env.NODE_ENV === 'testing'
+  // },
   mixinEffect(payload) {
 
     let source = effectDB
@@ -76,7 +78,23 @@ export default {
     }
 
     // inital test mode
-    this.testmode = process.env.NODE_ENV === 'testing'
+    this._isTestmode = process.env.NODE_ENV === 'testing'
+
+    // isTestmode property
+    Object.defineProperty(this,'isTestmode', {
+      // value: false,
+      get: function() {
+        // console.log('isTestmode property get')
+        return this._isTestmode || process.env.NODE_ENV === 'testing'
+      },
+      set: function(val) {
+        // console.log('isTestmode property set')
+        this._isTestmode = val
+      },
+      // writable: true,
+      enumerable: true,
+      configurable: true,
+    })
 
     const combine = (value, key) => {
       console.log('minxin ' + key + ':' + value)

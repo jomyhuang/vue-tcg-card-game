@@ -12,7 +12,7 @@
     <div class="gameboard">
       <h3>deck2</h3>
       <comDeck :player="$store.state.player2"></comDeck>
-      <span v-if="isTestmode" style="color:red">【测试中】</span>
+      <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
     </div>
     </Col>
     <Col span="20">
@@ -37,7 +37,7 @@
     <div class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
-      <span v-if="isTestmode" style="color:red">【测试中】</span>
+      <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
       <BR/>
       <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
       <Button @click="playcard()">PLAY</Button>
@@ -128,9 +128,9 @@ export default {
     // mu.tapUI()
 
     // 打开测试模式
-    // mu.setTestmode()
-    // console.log('mu.isTestmode()',mu.isTestmode())
-    // mu.isTestmode()
+    // mu.settestmode
+    // console.log('mu.isTestmode',mu.isTestmode)
+    // mu.isTestmode
     // console.log('test mode',this.config.test)
     // console.log('NODE_ENV',process.env.NODE_ENV)
     // Vue.config.test = process.env.NODE_ENV === 'testing'
@@ -165,9 +165,6 @@ export default {
     config: function() {
       return this.$store.state.game.config
     },
-    isTestmode: function() {
-      return mu.isTestmode()
-    },
   },
   watch: {
     isTest(val, oldval) {
@@ -179,12 +176,12 @@ export default {
     testui() {
       console.log('TEST UI');
     },
-    gameTestmode() {
-      // this.isTestmode = true
-      // this.$store.dispatch('GAME_TESTMODE')
-      console.log('TURN ON TEST MODE')
-      return mu.setTestmode()
-    },
+    // gameTestmode() {
+    //   // mu.isTestmode = true
+    //   // this.$store.dispatch('GAME_TESTMODE')
+    //   console.log('TURN ON TEST MODE')
+    //   return setTestmode()
+    // },
     gameNewdeck(umi = false) {
       this.gameReset({
         decklist: [testdeck1, testdeck2],
@@ -268,7 +265,7 @@ export default {
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
 
-      if(this.isTestmode) return
+      if(mu.isTestmode) return
 
       return new Promise((resolve, reject) => {
           this.$Message.info({
@@ -298,7 +295,7 @@ export default {
       //   })
       // }
       // return true
-      if(this.isTestmode) return
+      if(mu.isTestmode) return
 
       if (this.config.message) {
         return new Promise((resolve, reject) => {
@@ -323,7 +320,7 @@ export default {
       return this.__notice(msg)
     },
     gameloop_phaseinfo(msg) {
-      if(!this.isTestmode) {
+      if(!mu.isTestmode) {
         // 停留信息延迟，但有新信息来就移除前面信息
         this.$Message.destroy()
       }
@@ -346,7 +343,7 @@ export default {
     },
     async_battleshow(value = 1000) {
       if (!this.config.battelshow) return
-      if(this.isTestmode) return
+      if(mu.isTestmode) return
 
       // TIPS: 取消使用loop check，使用传入 resolve -> watch -> callback resolve()
       return new Promise((resolve, reject) => {

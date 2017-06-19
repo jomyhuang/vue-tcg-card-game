@@ -247,7 +247,7 @@ export default {
   },
   openUI(auto=0) {
     return function () {
-      // if(mu.isTestmode()) {
+      // if(mu.isTestmode) {
       //   auto=1
       //   // console.log('openUI testmode')
       // }
