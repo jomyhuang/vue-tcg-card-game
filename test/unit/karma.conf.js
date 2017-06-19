@@ -11,13 +11,25 @@ module.exports = function (config) {
     // 1. install corresponding karma launcher
     //    http://karma-runner.github.io/0.13/config/browsers.html
     // 2. add it to the `browsers` array below.
-    browsers: ['Chrome'],
+    // browsers: ['Chrome'],
+    browsers: ['Chrome_Beta_Headless'],
+    customLaunchers: {
+      Chrome_Beta_Headless: {
+        base: 'Chrome',
+        flags: [
+          '--headless',
+          '--disable-gpu',
+          '--remote-debugging-port=9222'
+        ]
+      },
+    },
     // browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
-    // reporters: ['spec', 'coverage'],
     reporters: ['mocha'],
+    // reporters: ['spec', 'coverage'],
     // reporters: ['mocha','log-reporter'],
     // reporters: ['spec'],
+    // reporters: ['progress'],
     files: [
       '../../node_modules/babel-polyfill/dist/polyfill.js',
       './index.js'
@@ -30,23 +42,20 @@ module.exports = function (config) {
       noInfo: true
     },
 
-    // captureTimeout: 60000,
-    // browserDisconnectTimeout : 10000,
-    // browserDisconnectTolerance : 1,
-    // browserNoActivityTimeout : 100000,
-
     // enable / disable colors in the output (reporters and logs)
     colors: true,
     singleRun: true,
+    autoWatch: false,
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     // logLevel: config.LOG_INFO,
     browserConsoleLogOptions: {
-      level: 'log',
+      level: 'debug',
       format: '%b %T: %m',
       // terminal: true,
       terminal: false,
+      path: '/users/jomyhuang/downloads/test.log',
     },
 
     logReporter: {
