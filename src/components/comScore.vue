@@ -75,7 +75,7 @@ export default {
     cancel() {
     },
     open(auto = 0, onclose) {
-      if(mu.isTestmode) {
+      if(mu.isTestmode()) {
         auto = 1
       }
 

@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import R from 'ramda'
 import _ from 'lodash'
 
@@ -190,13 +191,17 @@ export default {
       $effectUI = payload.effectUI
       console.log('cardxflow install $effectUI', $effectUI)
     }
-    mu.assert($store._actions, '请设置store')
+    mu.assert($store._actions, '请设置vuex store')
 
     dispatch = $store.dispatch
     commit = $store.commit
 
     mu.mixinEffect(payload)
     console.log('cardflow link mutil')
+
+    // Vue.config.debug = process.env.DEBUG_MODE
+    // Vue.config.test = process.env.NODE_ENV === 'development'
+    // Vue.config.test = process.env.NODE_ENV === 'testing'
 
     this.init = true
     console.log('cardflow installed')
@@ -242,7 +247,7 @@ export default {
   },
   openUI(auto=0) {
     return function () {
-      // if(mu.isTestmode) {
+      // if(mu.isTestmode()) {
       //   auto=1
       //   // console.log('openUI testmode')
       // }

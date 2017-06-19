@@ -40,17 +40,18 @@ export default {
     return console.assert(...args)
   },
   clearMessage() {
-    // if($mainapp.isTestmode) return
-    if(this.testmode) return
+    if(this.isTestmode()) return
 
     $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
   },
   setTestmode(mode=true) {
+    // manual test mode flag
     this.testmode = mode
   },
   isTestmode() {
-    return this.testmode
+    // manual test mode flag
+    return this.testmode || process.env.NODE_ENV === 'testing'
   },
   mixinEffect(payload) {
 
@@ -73,6 +74,9 @@ export default {
       console.error('effectDB已经mixin')
       return
     }
+
+    // inital test mode
+    this.testmode = process.env.NODE_ENV === 'testing'
 
     const combine = (value, key) => {
       console.log('minxin ' + key + ':' + value)

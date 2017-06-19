@@ -56,7 +56,8 @@ describe('GameAPP', () => {
     // console.log(vm.$el);
     // createVM how to call?
     // vm.gameReset({decklist:[testdeck1,testdeck2]})
-    vm.gameTestmode()
+    // vm.gameTestmode()
+    expect(process.env.NODE_ENV).to.equal('testing')
     vm.gameReset()
 
     await vm.run_gameloop(1)
@@ -67,7 +68,7 @@ describe('GameAPP', () => {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
-    vm.gameTestmode()
+    // vm.gameTestmode()
     vm.gameReset({decklist:[testdeck1,testdeck2]})
     await vm.run_gameloop()
     expect(state.game.over).to.equal(true)
@@ -83,7 +84,7 @@ describe('GameAPP', () => {
     // set timeout
     this.timeout(5000)
 
-    vm.gameTestmode()
+    // vm.gameTestmode()
     vm.gameReset()
 
     await vm.gameloop()
@@ -99,7 +100,7 @@ describe('GameAPP', () => {
 
     // vm.gameReset
     // set agent
-    vm.gameTestmode()
+    // vm.gameTestmode()
     vm.gameNewdeck()
     await vm.run_battle( {
       // attacker: {

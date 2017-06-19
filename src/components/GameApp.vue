@@ -64,7 +64,7 @@
       <Button @click="scoreshow()" shape="circle">Score Show</Button>
       <Button @click="effectshow()" shape="circle">Effect Show</Button>
       <BR/>
-      <!-- 测试模式 <i-switch v-model="isTest"/> -->
+      模拟测试模式 <i-switch v-model="isTest"/>
     </div>
   </Row>
   <comMessage ref="info"></comMessage>
@@ -101,7 +101,7 @@ export default {
       initial: false,
       isMessage: true,
       isAsyncMssage: false,
-      // isTest: false,
+      isTest: false,
     }
   },
   components: {
@@ -128,8 +128,14 @@ export default {
     // mu.tapUI()
 
     // 打开测试模式
-    mu.setTestmode()
-    // console.log('test mode',this.isTestmode)
+    // mu.setTestmode()
+    // console.log('mu.isTestmode()',mu.isTestmode())
+    // mu.isTestmode()
+    // console.log('test mode',this.config.test)
+    // console.log('NODE_ENV',process.env.NODE_ENV)
+    // Vue.config.test = process.env.NODE_ENV === 'testing'
+    // console.log('Vue.config.test', Vue.config.test)
+
 
     // test 自定义插件
     this.muvue()
@@ -160,14 +166,14 @@ export default {
       return this.$store.state.game.config
     },
     isTestmode: function() {
-      return mu.isTestmode
+      return mu.isTestmode()
     },
   },
   watch: {
-    // isTest(val, oldval) {
-    //   console.log('isTest watch', val)
-    //   mu.setTestmode(val)
-    // },
+    isTest(val, oldval) {
+      console.log('isTest 启动手动模拟测试模式', val)
+      mu.setTestmode(val)
+    },
   },
   methods: {
     testui() {
@@ -176,8 +182,8 @@ export default {
     gameTestmode() {
       // this.isTestmode = true
       // this.$store.dispatch('GAME_TESTMODE')
-      mu.setTestmode()
       console.log('TURN ON TEST MODE')
+      return mu.setTestmode()
     },
     gameNewdeck(umi = false) {
       this.gameReset({
