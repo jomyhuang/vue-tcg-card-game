@@ -43,10 +43,10 @@ export default {
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
-        $cx.openUI(),
+        // $cx.openUI(),
         // $cx.tap( ()=> console.log('JOMY') ),
         // $cx.message('do this tap message main action'),
-        $cx.iftest(),
+        // $cx.iftest(),
         // 'string message',
       )
     },

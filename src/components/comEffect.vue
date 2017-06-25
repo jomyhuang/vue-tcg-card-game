@@ -1,6 +1,7 @@
 <template>
 <div class="comEffect">
-  <Modal ref="scoreDialog" v-model="show" width="800" @on-ok="ok" @on-cancel="cancel">
+  <el-dialog ref="dialog" v-model="show" size="large">
+  <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
   <div v-if="context.card">
     <div slot="header" style="text-align:center">
     <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
@@ -13,7 +14,7 @@
     NO CONTEXT
     </div>
   </div>
-  </Modal>
+  </el-dialog>
 </div>
 </template>
 
@@ -34,22 +35,22 @@ export default {
   },
   props: {
     //   // v-model 必须要有 vaule prop
-    value: {
-      type: Object,
-      default: () => {},
-    },
+    // value: {
+    //   type: Object,
+    //   default: () => {},
+    // },
   },
   watch: {
-    show(val, oldval) {
-      // console.log( 'v-model vaule changed :', val, oldval )
-      if(!val) {
-        if(this.onClose) {
-          console.log('callback on close')
-          this.onClose.call(this)
-          this.onClose = null
-        }
-      }
-    },
+    // show(val, oldval) {
+    //   // console.log( 'v-model vaule changed :', val, oldval )
+    //   if(!val) {
+    //     if(this.onClose) {
+    //       console.log('callback on close')
+    //       this.onClose.call(this)
+    //       this.onClose = null
+    //     }
+    //   }
+    // },
   },
   components: {
   },
@@ -69,20 +70,37 @@ export default {
     },
     cancel() {
     },
-    open(auto=0, onclose) {
-      if(mu.isTestmode) {
-        auto = 1
+    _opendialog() {
+      console.log('open dialog event special')
+    },
+    _closedialog() {
+      console.log('close dialog event')
+      if(this.onClose) {
+        console.log('emit callback onclose')
+        this.onClose.call(this)
+        this.onClose = null
       }
-      this.autoClose = auto
-      this.show = true
+    },
+    open(auto=0, onclose) {
+      this.autoClose = mu.isTestmode ? 1 : auto
       this.onClose = onclose
+      this.show = true
+
+      // <el-xxx ... @open="func">
+      // bind "open" event by code
+      this.$refs.dialog.$on('open', this._opendialog)
+      this.$refs.dialog.$on('close', this._closedialog)
+      // this.$refs.dialog.$on('close', this.onClose)
 
       if(this.autoClose) {
         setTimeout(() => {
           this.show = false
-        },this.autoClose)
+        }, this.autoClose)
       }
-    }
+    },
+    close() {
+      this.show = false
+    },
   }
 }
 </script>
