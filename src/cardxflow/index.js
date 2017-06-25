@@ -29,7 +29,7 @@ export function cxpipe(...items) {
   return function () {
     const card = thiscard()
     const context = this
-    const fnlist = items
+    const fnlist = R.flatten(items)
 
     let current = Promise.resolve().then(() => {
       console.group()
@@ -82,7 +82,7 @@ export function cxengage(...items) {
   return function () {
     const card = thiscard()
     const context = this
-    const fnlist = items
+    const fnlist = R.flatten(items)
 
     let current = Promise.resolve().then(() => {
       console.group()
@@ -246,7 +246,7 @@ export default {
     }
   },
   openUI(auto=0) {
-    return function () {
+    return [ this.phaseinfo('open UI message'), function () {
       // if(mu.isTestmode) {
       //   auto=1
       //   // console.log('openUI testmode')
@@ -258,7 +258,7 @@ export default {
         $effectUI.context = this
         $effectUI.open(auto,resolve)
       })
-    }
+    } ]
   },
   closeUI() {
     return function () {

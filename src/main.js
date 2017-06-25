@@ -4,7 +4,7 @@ import Vue from 'vue'
 // import Vuex from 'vuex'
 
 
-import VTooltip from 'v-tooltip'
+// import VTooltip from 'v-tooltip'
 
 import App from './App'
 import store from '@/store'
@@ -17,8 +17,10 @@ import muvue from '@/muvue'
 Vue.use(muvue)
 
 // Vue.use(Vuex)
+
+// use ElementUI
 import ElementUI from 'element-ui'
-// import 'element-ui/lib/theme-default/index.css'
+import 'element-ui/lib/theme-default/index.css'
 Vue.use(ElementUI)
 
 // use iView
