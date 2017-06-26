@@ -55,7 +55,8 @@ module.exports = function (config) {
       format: '%b %T: %m',
       // terminal: true,
       terminal: false,
-      path: '/users/jomyhuang/downloads/test.log',
+      // node 8 更新后输出 log，发生 warning
+      // path: '/users/jomyhuang/downloads/test.log',
     },
 
     logReporter: {
