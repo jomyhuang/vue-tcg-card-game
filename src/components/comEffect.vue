@@ -1,25 +1,35 @@
 <template>
 <div class="comEffect">
-  <el-dialog ref="dialog" v-model="show" size="large">
-  <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
-  <div v-if="context.card">
-    <div slot="header" style="text-align:center">
-    <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
+  <el-dialog ref="dialog" v-model="show" size="large" :close-on-click-modal="closemodal">
+    <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
+    <div v-if="context.card">
+      <div slot="header" style="text-align:center">
+        <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
+      </div>
+      <Row class="gameboard">
+        <transition name="bounceDown">
+          <div v-if="buffshow">
+            <h2>SHOW BUFF EFFECT</h2>
+            <h4>{{buffshow.source.name}} +POWER {{buffshow.power}}</h4>
+            <h5>{{buffshow.tag}}</h5>
+          </div>
+        </transition>
+      </Row>
     </div>
-    <Row class="gameboard">
-    </Row>
-  </div>
-  <div v-else>
-    <div slot="header" style="text-align:center">
-    NO CONTEXT
+    <div v-else>
+      <div slot="header" style="text-align:center">
+        NO CONTEXT
+      </div>
     </div>
-  </div>
+    <span slot="footer" class="dialog-footer" v-if="closeable">
+      <b>waiting click to continue</b>
+      <el-button type="primary" @click="show = false">确 定</el-button>
+    </span>
   </el-dialog>
 </div>
 </template>
 
 <script>
-
 import mu from '@/mutil'
 
 export default {
@@ -30,7 +40,11 @@ export default {
       show: false,
       autoClose: 0,
       onClose: null,
+      onActFinish: null,
       context: {},
+      buffshow: null,
+      closemodal: false,
+      closeable: false,
     }
   },
   props: {
@@ -52,8 +66,7 @@ export default {
     //   }
     // },
   },
-  components: {
-  },
+  components: {},
   created() {},
   mounted() {},
   beforeDestroy() {},
@@ -66,16 +79,14 @@ export default {
     },
   },
   methods: {
-    ok() {
-    },
-    cancel() {
-    },
+    ok() {},
+    cancel() {},
     _opendialog() {
       console.log('open dialog event special')
     },
     _closedialog() {
       console.log('close dialog event')
-      if(this.onClose) {
+      if (this.onClose) {
         console.log('emit callback onclose')
         this.onClose.call(this)
         this.onClose = null
@@ -84,7 +95,7 @@ export default {
     open(auto=0, onclose) {
       this.autoClose = mu.isTestmode ? 1 : auto
       this.onClose = onclose
-      this.show = true
+      this.closemodal = false
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
@@ -92,7 +103,9 @@ export default {
       this.$refs.dialog.$on('close', this._closedialog)
       // this.$refs.dialog.$on('close', this.onClose)
 
-      if(this.autoClose) {
+      this.show = true
+
+      if (this.autoClose) {
         setTimeout(() => {
           this.show = false
         }, this.autoClose)
@@ -100,6 +113,37 @@ export default {
     },
     close() {
       this.show = false
+    },
+    waitclose(onclose) {
+      this.closemodal = true
+      this.onClose = onclose
+      this.closeable = true
+
+      if (!this.show) {
+        onclose.call(this)
+        return
+      }
+      if (mu.isTestmode) {
+        setTimeout(() => {
+          this.show = false
+          this.closeable = false
+        }, 100)
+      }
+    },
+    showbuff(buff, onfinish) {
+      const duration = 1500
+      this.buffshow = buff
+
+      if (!this.show || mu.isTestmode) {
+        onfinish.call(this)
+        return
+      }
+      if (onfinish) {
+        setTimeout(() => {
+          this.buffshow = null
+          onfinish.call(this)
+        }, duration)
+      }
     },
   }
 }

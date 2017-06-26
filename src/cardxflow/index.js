@@ -13,17 +13,16 @@ var commit
 
 // export quick function
 //
-// function thiscard() {
-//   return $store.state.placeholder
-// }
+function thiscard() {
+  return $store.state.placeholder
+}
 
-// export function cxrun(type, payload) {
-//   return function () {
-//     const fn = $store._actions[type] ? $store.dispatch : $store.commit
-//     const card = thiscard()
-//     return fn.call(card, type, payload)
-//   }
-// }
+function cxrun(type, payload) {
+  const fn = $store._actions[type] ? $store.dispatch : $store.commit
+  const card = thiscard()
+  return fn.call(card, type, payload)
+}
+
 //
 // export function cxpipe(...items) {
 //   return function () {
@@ -206,18 +205,19 @@ export default {
     this.init = true
     console.log('cardflow installed')
   },
-  thiscard() {
-    // console.log('cx.thiscard ($store.state.placeholder)')
-    return $store.state.placeholder
-  },
-  source() {
-    // console.log('cx.source ($store.state.placeholder)')
-    return $store.state.placeholder
-  },
+  // thiscard() {
+  //   // console.log('cx.thiscard ($store.state.placeholder)')
+  //   return $store.state.placeholder
+  // },
+  // source() {
+  //   // console.log('cx.source ($store.state.placeholder)')
+  //   return $store.state.placeholder
+  // },
   run(type, payload) {
     return function () {
+      const context = this
       const fn = $store._actions[type] ? $store.dispatch : $store.commit
-      const card = this.cx.thiscard()
+      const card = context.card
       return fn.call(card, type, payload)
     }
   },
@@ -226,16 +226,17 @@ export default {
       const context = this
       const cx = context.cx
       const card = context.card
-      let fnlist = items
+      let fnlist = R.flatten(items)
+
       let current = Promise.resolve().then(() => {
         console.group()
         console.log('cxpipe start')
-        mu.tcall(cx.phaseinfo,context,`${card.cardno} ${card.name} 发动${this.type}效果`)
+        mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
         // select current player/card
         // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
       })
       let promlist = fnlist.map((act) => {
-          current = current.then(() => {
+        current = current.then(() => {
           console.log('pipe-----------------')
           if (_.isFunction(act)) {
             let res = mu.tcall(act, context, context)
@@ -245,30 +246,30 @@ export default {
           }
         }).then((result) => {
           // pipe next, re-align current source
-          mu.tcall(cx.run,context,'EFFECT_SOURCE',card)
+          mu.tcall(cx.run, context, 'EFFECT_SOURCE', card)
         })
         return current
       })
       // console.log(promlist)
 
       return Promise.all(promlist)
-      .then(function (res) {
-        console.log('-pipe OK---------')
-      })
-      .catch((err) => {
-        console.log('%c-pipe catch------','color:red')
-        console.log('%ccxpipe effect 中断 promise all','color:red')
-        console.log('%c'+err,'color:red')
-        // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-        // console.log('context',context)
-        if(context.loop) {
-          throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
-        }
-      }).then(function(res) {
-        // final task
-        mu.clearMessage()
-        console.groupEnd()
-      })
+        .then(function (res) {
+          console.log('-pipe OK---------')
+        })
+        .catch((err) => {
+          console.log('%c-pipe catch------', 'color:red')
+          console.log('%ccxpipe effect 中断 promise all', 'color:red')
+          console.log('%c' + err, 'color:red')
+          // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+          // console.log('context',context)
+          if (context.loop) {
+            throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
+          }
+        }).then(function (res) {
+          // final task
+          mu.clearMessage()
+          console.groupEnd()
+        })
     }
   },
   engage(...items) {
@@ -276,22 +277,23 @@ export default {
       const context = this
       const cx = context.cx
       const card = context.card
-      let fnlist = items
+      let fnlist = R.flatten(items)
+      // let fnlist = items
 
       // compose chain list
-      fnlist = [ cx.openUI() ].concat(fnlist)
-      fnlist = fnlist.concat( [ cx.closeUI() ])
+      fnlist = [cx.openUI()].concat(fnlist)
+      fnlist = fnlist.concat([cx.closeUI()])
       fnlist = R.flatten(fnlist)
 
       let current = Promise.resolve().then(() => {
         console.group()
         console.log('cxengage start')
-        mu.tcall(cx.phaseinfo,context,`${card.cardno} ${card.name} 发动${this.type}效果`)
+        mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
         // select current player/card
         // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
       })
       let promlist = fnlist.map((act) => {
-          current = current.then(() => {
+        current = current.then(() => {
           console.log('act-----------------')
           if (_.isFunction(act)) {
             let res = mu.tcall(act, context, context)
@@ -308,24 +310,24 @@ export default {
       // console.log(promlist);
 
       return Promise.all(promlist)
-      .then(function (res) {
-        console.log('-engage OK---------')
-        // console.log('context',context)
-      })
-      .catch((err) => {
-        console.log('%c-engage catch------','color:red')
-        console.log('%ceffect 中断 promise all','color:red')
-        console.log('%c'+err,'color:red')
-        // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-        // console.log('context',context)
-        if(context.loop) {
-          throw 'cxengage throw ERROR IN EFFECT FUNCTION'
-        }
-      }).then(function(res) {
-        // final task
-        mu.clearMessage()
-        console.groupEnd()
-      })
+        .then(function (res) {
+          console.log('-engage OK---------')
+          // console.log('context',context)
+        })
+        .catch((err) => {
+          console.log('%c-engage catch------', 'color:red')
+          console.log('%ceffect 中断 promise all', 'color:red')
+          console.log('%c' + err, 'color:red')
+          // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+          // console.log('context',context)
+          if (context.loop) {
+            throw 'cxengage throw ERROR IN EFFECT FUNCTION'
+          }
+        }).then(function (res) {
+          // final task
+          mu.clearMessage()
+          console.groupEnd()
+        })
     }
   },
   buff(power, tag) {
@@ -333,21 +335,27 @@ export default {
       const context = this
       const cx = context.cx
       const card = context.card
-      if (R.isNil(tag) && power > 0) {
-        tag = `UP +${power}`
-      }
-      let buff = {
-        power: power,
-        tag: tag,
-        source: card,
-      }
-      commit('ADD_BUFF', buff)
-      return buff
+      return new Promise(function (resolve, reject) {
+        if (R.isNil(tag) && power > 0) {
+          tag = `UP +${power}`
+        }
+        let buff = {
+          power: power,
+          tag: tag,
+          source: card,
+        }
+        console.log(`cx.buff ${card.name} +${power}`)
+        commit('ADD_BUFF', buff)
+        // resolve()
+        $effectUI.showbuff(buff,resolve)
+      })
     }
   },
   tap(fn) {
     return function () {
-        return _.isFunction(fn) ? console.log(`tap function `, fn.call(this,thiscard())) : console.log(`tap %c${fn}`, 'color:blue')
+      const context = this
+      const card = context.card
+      return _.isFunction(fn) ? console.log(`tap function `, fn.call(this, card)) : console.log(`tap %c${fn}`, 'color:blue')
     }
   },
   message(message) {
@@ -369,29 +377,30 @@ export default {
       return Promise.reject(new Error('效果中断测试'))
     }
   },
-  openUI(auto=0) {
-    return [ this.phaseinfo('open UI message'), function () {
+  openUI(auto = 0) {
+    return [this.phaseinfo('open UI message'), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
-        mu.tcall(cx.phaseinfo,this,'open UI message')
+        mu.tcall(cx.phaseinfo, this, 'open UI message')
         context.UImode = true
         $effectUI.context = this
-        $effectUI.open(auto,resolve)
-        // $effectUI.open(0)
-        // resolve()
+        // $effectUI.open(auto, resolve)
+        $effectUI.open()
+        resolve()
       })
-    } ]
+    }]
   },
   closeUI() {
-    return [ this.phaseinfo('close UI message'), function () {
+    return [this.phaseinfo('close UI message'), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
-        $effectUI.close()
         context.UImode = false
-        resolve()
+        // $effectUI.close()
+        // resolve()
+        $effectUI.waitclose(resolve)
       })
-    } ]
+    }]
   },
 }
