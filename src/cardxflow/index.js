@@ -13,17 +13,17 @@ var commit
 
 // export quick function
 //
-function thiscard() {
-  return $store.state.placeholder
-}
+// function thiscard() {
+//   return $store.state.placeholder
+// }
 
-export function cxrun(type, payload) {
-  return function () {
-    const fn = $store._actions[type] ? $store.dispatch : $store.commit
-    const card = thiscard()
-    return fn.call(card, type, payload)
-  }
-}
+// export function cxrun(type, payload) {
+//   return function () {
+//     const fn = $store._actions[type] ? $store.dispatch : $store.commit
+//     const card = thiscard()
+//     return fn.call(card, type, payload)
+//   }
+// }
 //
 // export function cxpipe(...items) {
 //   return function () {
@@ -206,30 +206,30 @@ export default {
     this.init = true
     console.log('cardflow installed')
   },
-  // thiscard() {
-  //   // console.log('thiscard',thiscard());
-  //   return $store.state.placeholder
-  // },
-  // source() {
-  //   return $store.state.placeholder
-  // },
+  thiscard() {
+    // console.log('cx.thiscard ($store.state.placeholder)')
+    return $store.state.placeholder
+  },
+  source() {
+    // console.log('cx.source ($store.state.placeholder)')
+    return $store.state.placeholder
+  },
   run(type, payload) {
     return function () {
       const fn = $store._actions[type] ? $store.dispatch : $store.commit
-      const card = thiscard()
+      const card = this.cx.thiscard()
       return fn.call(card, type, payload)
     }
   },
   pipe(...items) {
-    const cx = this
     return function () {
-      const card = thiscard()
       const context = this
+      const cx = context.cx
+      const card = context.card
       let fnlist = items
-
       let current = Promise.resolve().then(() => {
         console.group()
-        console.log('cxpipe call')
+        console.log('cxpipe start')
         mu.tcall(cx.phaseinfo,context,`${card.cardno} ${card.name} 发动${this.type}效果`)
         // select current player/card
         // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
@@ -239,15 +239,13 @@ export default {
           console.log('pipe-----------------')
           if (_.isFunction(act)) {
             let res = mu.tcall(act, context, context)
-            // let res = act.call(context, context)
             return res
           } else {
             return console.log(act)
           }
         }).then((result) => {
-          // console.log('exec act ok')
           // pipe next, re-align current source
-          mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+          mu.tcall(cx.run,context,'EFFECT_SOURCE',card)
         })
         return current
       })
@@ -255,10 +253,10 @@ export default {
 
       return Promise.all(promlist)
       .then(function (res) {
-        console.log('-------OK---------')
+        console.log('-pipe OK---------')
       })
       .catch((err) => {
-        console.log('%c-----catch------','color:red')
+        console.log('%c-pipe catch------','color:red')
         console.log('%ccxpipe effect 中断 promise all','color:red')
         console.log('%c'+err,'color:red')
         // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
@@ -274,25 +272,23 @@ export default {
     }
   },
   engage(...items) {
-    const cx = this
-
     return function () {
-      const card = thiscard()
       const context = this
+      const cx = context.cx
+      const card = context.card
       let fnlist = items
-      // let UI = cx.openUI()
+
+      // compose chain list
       fnlist = [ cx.openUI() ].concat(fnlist)
       fnlist = fnlist.concat( [ cx.closeUI() ])
       fnlist = R.flatten(fnlist)
-      // console.log(fnlist);
 
       let current = Promise.resolve().then(() => {
         console.group()
-        console.log('cxengage call')
+        console.log('cxengage start')
         mu.tcall(cx.phaseinfo,context,`${card.cardno} ${card.name} 发动${this.type}效果`)
         // select current player/card
         // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
-        // mu.tcall(cx.openUI,context,0)
       })
       let promlist = fnlist.map((act) => {
           current = current.then(() => {
@@ -309,19 +305,15 @@ export default {
         })
         return current
       })
-      // console.log(cx)
-      // promlist = [ cx.openUI() ].concat(promlist)
-      // promlist = promlist.concat( [ cx.closeUI() ] )
       // console.log(promlist);
 
       return Promise.all(promlist)
       .then(function (res) {
-        console.log('-------OK---------')
-        // console.log('effect act all finish')
+        console.log('-engage OK---------')
         // console.log('context',context)
       })
       .catch((err) => {
-        console.log('%c-----catch------','color:red')
+        console.log('%c-engage catch------','color:red')
         console.log('%ceffect 中断 promise all','color:red')
         console.log('%c'+err,'color:red')
         // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
@@ -338,7 +330,9 @@ export default {
   },
   buff(power, tag) {
     return function () {
-      const card = thiscard()
+      const context = this
+      const cx = context.cx
+      const card = context.card
       if (R.isNil(tag) && power > 0) {
         tag = `UP +${power}`
       }
@@ -368,14 +362,6 @@ export default {
       return $mainapp.gameloop_phaseinfo(message)
     }
   },
-  // openUI(auto) {
-  //   return cxopenUI(auto)
-  // },
-  // closeUI() {
-  //   return cxcloseUI()
-  // },
-
-  // function
   iftest(message) {
     return function () {
       this.reason = '效果中断测试'
@@ -384,13 +370,12 @@ export default {
     }
   },
   openUI(auto=0) {
-    const cx = this
-
-    return [ cx.phaseinfo('open UI message'), function () {
+    return [ this.phaseinfo('open UI message'), function () {
+      const context = this
+      const cx = context.cx
       return new Promise((resolve, reject) => {
         mu.tcall(cx.phaseinfo,this,'open UI message')
-        this.UImode = true
-        // console.log(this)
+        context.UImode = true
         $effectUI.context = this
         $effectUI.open(auto,resolve)
         // $effectUI.open(0)
@@ -398,28 +383,13 @@ export default {
       })
     } ]
   },
-  // openUI(auto=0) {
-  //   const cx = this
-  //
-  //   return function () {
-  //     // return [ cx.phaseinfo('open UI message'), new Promise((resolve, reject) => {
-  //     return new Promise((resolve, reject) => {
-  //       mu.tcall(cx.phaseinfo,this,'open UI message')
-  //       this.UImode = true
-  //       // console.log(this)
-  //       $effectUI.context = this
-  //       $effectUI.open(auto,resolve)
-  //       // $effectUI.open(0)
-  //       // resolve()
-  //     })
-  //   }
-  // },
   closeUI() {
-    const cx = this
-    return [ cx.phaseinfo('close UI message'), function () {
+    return [ this.phaseinfo('close UI message'), function () {
+      const context = this
+      const cx = context.cx
       return new Promise((resolve, reject) => {
         $effectUI.close()
-        this.UImode = false
+        context.UImode = false
         resolve()
       })
     } ]

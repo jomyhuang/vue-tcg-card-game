@@ -10,7 +10,7 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
-// import $cx from '@/cardxflow'
+import $cx from '@/cardxflow'
 
 
 export default {
@@ -85,6 +85,7 @@ export default {
       state: state,
       loop: true,
       UImode: false,
+      cx: $cx,
     }
 
     // console.group()
