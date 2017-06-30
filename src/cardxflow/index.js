@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import R from 'ramda'
 import _ from 'lodash'
+import Rx from 'rxjs/Rx'
+
 
 import mu from '@/mutil'
 
@@ -272,6 +274,16 @@ export default {
         })
     }
   },
+  GUIengage(...items) {
+    let fnlist = items
+
+    // compose chain list
+    fnlist = [this._openGUI()].concat(fnlist)
+    fnlist = fnlist.concat([this._closeGUI()])
+    // fnlist = R.flatten(fnlist)
+    // console.log(fnlist)
+    return this.engage(fnlist)
+  },
   engage(...items) {
     return function () {
       const context = this
@@ -281,9 +293,10 @@ export default {
       // let fnlist = items
 
       // compose chain list
-      fnlist = [cx.openUI()].concat(fnlist)
-      fnlist = fnlist.concat([cx.closeUI()])
-      fnlist = R.flatten(fnlist)
+      // fnlist = [cx.openUI()].concat(fnlist)
+      // fnlist = fnlist.concat([cx.closeUI()])
+      // fnlist = R.flatten(fnlist)
+      // console.log(fnlist)
 
       let current = Promise.resolve().then(() => {
         console.group()
@@ -377,12 +390,12 @@ export default {
       return Promise.reject(new Error('效果中断测试'))
     }
   },
-  openUI(auto = 0) {
-    return [this.phaseinfo('open UI message'), function () {
+  _openGUI(auto = 0) {
+    return [this.phaseinfo('open GUI message'), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
-        mu.tcall(cx.phaseinfo, this, 'open UI message')
+        mu.tcall(cx.phaseinfo, this, 'open GUI message')
         context.UImode = true
         $effectUI.context = this
         // $effectUI.open(auto, resolve)
@@ -391,8 +404,8 @@ export default {
       })
     }]
   },
-  closeUI() {
-    return [this.phaseinfo('close UI message'), function () {
+  _closeGUI() {
+    return [this.phaseinfo('close GUI message'), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
@@ -402,5 +415,57 @@ export default {
         $effectUI.waitclose(resolve)
       })
     }]
+  },
+  openUI(auto = 0) {
+    return function () {
+      const context = this
+      const cx = context.cx
+      return new Promise((resolve, reject) => {
+        mu.tcall(cx.phaseinfo, this, 'open UI message')
+        // context.UImode = true
+        $effectUI.context = this
+        // act state
+        $effectUI.open(auto, resolve)
+      })
+    }
+  },
+  closeUI() {
+    return function () {
+      const context = this
+      const cx = context.cx
+      return new Promise((resolve, reject) => {
+        // context.UImode = false
+        $effectUI.close()
+        resolve()
+      })
+    }
+  },
+  RXbuff(power, tag) {
+    return function () {
+      const context = this
+      const cx = context.cx
+      const card = context.card
+      return new Promise((resolve, reject) => {
+        if (R.isNil(tag) && power > 0) {
+          tag = `UP +${power}`
+        }
+        let buff = {
+          power: power,
+          tag: tag,
+          source: card,
+        }
+        console.log(`cx.buff ${card.name} +${power}`)
+        commit('ADD_BUFF', buff)
+        // resolve()
+        // $effectUI.showbuff(buff,resolve)
+        Rx.Observable.fromPromise(123)
+        .flatMap(function(result) {
+          console.log('rx next1')
+        })
+        .subscribe(function onNext(result) {
+          console.log('rx finish')
+        })
+      })
+    }
   },
 }

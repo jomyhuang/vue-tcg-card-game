@@ -16,8 +16,8 @@ export default {
     },
     // isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
     isAttacker: $cx.pipe(
-        $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
-        $cx.engage('do engage 2','do engage 2-1',$cx.run('EFFECT_CHOICE', 'hand'), $cx.message('END PIPE')),
+        $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
+        $cx.GUIengage('do engage 2','do engage 2-1',$cx.run('EFFECT_CHOICE', 'hand'), $cx.message('END PIPE')),
     ),
     // isDefenser: $cx.engage(
     //   [$cx.tap('do this tap message array1')],
@@ -34,7 +34,8 @@ export default {
     //   dispatch('DRAW', 1)
     // },
     main() {
-      return $cx.engage(
+      return $cx.GUIengage(
+      // return $cx.engage(
         // $cx.run('SELECT_LIST', 'opp_zone'),
         // $cx.run('SELECT_FILTER', x => x.star >= 3),
         // $cx.run('EFFECT_OPP_CHOICE', () => mu.opponent(state.placeplayer)['hand']),
@@ -43,6 +44,7 @@ export default {
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+        // $cx.RXbuff(1000),
         // $cx.openUI(),
         // $cx.tap( ()=> console.log('JOMY') ),
         // $cx.message('do this tap message main action'),

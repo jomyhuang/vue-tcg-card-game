@@ -146,13 +146,41 @@ make Effect + UI component
 dispatch('EFFECT_SOURCE', state.battle.defenser.main)
 await dispatch('TIGGER_EFFECT', 'isDefenser')
 
+// 科里化 -> promise all list -> compose
+
+ef (parm1..)(context)
+ef_discard (1, toBase)(context: source, target)
+
+source:
+  card -> owner player
+selector? ( fn -> selector(who, scope, num of pick, filter) ):
+  who ->
+  scope ->
+  filter ->
+  list -> scope.filter
+  selector -> HMI: effect_choice, opp_effect_choice /  FN: pickup(by filter), random
+  num ->
+  zero? ->
+
+-> target:
+  target card/card list (targets) -> owner player
+
+process:
+  targets.map(action) -> dispatch/commit
+  targets.reducer(action) -> dispatch/commit
+
+// card list modifier { (deck, hand, zone, base, graveyard) }
+// card value modifier -> attack(basic, power) + sum of buff
+// player/card tag modifier (add, remove)
+// --> tigger effect animate
+
 
 
 
 
 4、更精炼的效果函数动作DSL表示方式：
 ？check 使用marco 语言
-
+? CojureScript
 
 
 // TODO LIST
