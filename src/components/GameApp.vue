@@ -234,6 +234,7 @@ export default {
       return this.$refs.score.open(value,onclose)
     },
     effectshow(value=0,onclose) {
+      this.$refs.effectUI._setstage('choice')
       return this.$refs.effectUI.open(value,onclose)
     },
     playcard() {

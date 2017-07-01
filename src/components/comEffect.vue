@@ -17,6 +17,16 @@
           </transition>
         </Row>
       </div>
+      <div v-show="stage ==='choice'">
+        <Row class="gameboard">
+          <h2>CHOICE</h2>
+          <!-- <el-carousel :interval="4000" type="card" height="200px">
+              <el-carousel-item v-for="item in 6" :key="item">
+                  <h3>{{ item }}</h3>
+              </el-carousel-item>
+          </el-carousel> -->
+        </Row>
+      </div>
     </div>
     <div v-else>
       <div slot="header" style="text-align:center">
@@ -69,7 +79,9 @@ export default {
     //   }
     // },
   },
-  components: {},
+  components: {
+
+  },
   created() {},
   mounted() {},
   beforeDestroy() {},
@@ -153,11 +165,14 @@ export default {
         setTimeout(fnclose, duration)
       }
       else {
-        // FIXME: duration = 0, 手动结束
+        // FIXME: duration = 0, 手动结束 ／ UImode 没有关闭
       }
     },
     showbuff(buff, onfinish) {
       return this.showstage('showbuff', buff, onfinish)
+    },
+    showchoice(data, onfinish) {
+      return this.showstage('choice', {}, onfinish, 3000)
     },
     // showbuff(buff, onfinish) {
     //   const duration = 1500

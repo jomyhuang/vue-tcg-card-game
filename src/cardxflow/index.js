@@ -364,6 +364,17 @@ export default {
       })
     }
   },
+  choice() {
+    return function() {
+      const context = this
+      const cx = context.cx
+      const card = context.card
+      return new Promise(function(resolve, reject) {
+        console.log('cx.choice');
+        $effectUI.showchoice({},resolve)
+      })
+    }
+  },
   tap(fn) {
     return function () {
       const context = this
