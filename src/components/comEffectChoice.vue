@@ -1,47 +1,35 @@
 <template>
-<div class="comEffect">
-  <el-dialog ref="dialog" v-model="show" size="large" :close-on-click-modal="closemodal">
-    <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
-    <div v-if="context.card">
-      <div slot="header" style="text-align:center">
-        <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
+<div class="comEffectChoice">
+  <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
+    <div>
+      <div slot="header" style="text-align:center" v-if="context.card">
+        <h3>选择 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
-      <!-- <div v-show="stage"> -->
-        <div v-if="stage=='start'">
-          <transition name="bounceDown">
-            <div>
-              <h1>效果启动</h1>
-            </div>
-          </transition>
-        </div>
-        <div v-else-if="stage=='showbuff'">
-          <Row class="gameboard">
-            <transition name="bounceDown">
-              <div v-if="stagedata">
-                <h2>SHOW BUFF EFFECT</h2>
-                <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
-                <h5>{{stagedata.tag}}</h5>
+      <div v-if="stage=='start'">
+        <transition name="bounceDown">
+          <div>
+            <h1>选择启动</h1>
+          </div>
+        </transition>
+      </div>
+      <div v-else-if="stage=='choice'">
+        <Row class="gameboard">
+          <h2>CHOICE</h2>
+          <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
+            <el-carousel-item v-for="item in player.deck" :key="item" style="align: center">
+              <div @click="testclick(item)">
+                <comCard :card="item"></comCard>
               </div>
-            </transition>
-          </Row>
-        </div>
-        <div v-else-if="stage=='choice'">
-          <Row class="gameboard">
-            <h2>CHOICE</h2>
-            <el-carousel :interval="4000" type="card" height="200px">
-              <el-carousel-item v-for="item in 6" :key="item">
-                <h3 @click="testclick(item)">{{ item }}</h3>
-              </el-carousel-item>
-            </el-carousel>
-          </Row>
-        </div>
-      <!-- </div> -->
+            </el-carousel-item>
+          </el-carousel>
+        </Row>
+      </div>
     </div>
-    <div v-else>
+    <!-- <div v-else>
       <div slot="header" style="text-align:center">
         NO CONTEXT
       </div>
-    </div>
+    </div> -->
     <span slot="footer" class="dialog-footer" v-if="closeable">
       <b>waiting click to continue</b>
       <el-button type="primary" @click="show = false">确 定</el-button>
@@ -52,28 +40,34 @@
 
 <script>
 import mu from '@/mutil'
+import comCard from './comCard.vue'
+
 
 export default {
-  name: 'comEffect',
+  name: 'comEffectChoice',
   data() {
     return {
-      msg: 'comEffect',
+      msg: 'comEffectChoice',
       show: false,
       autoClose: 0,
       onClose: null,
-      context: {},
       closemodal: false,
       closeable: false,
 
-      stage: null,
+      context: {},
+      stage: 'choice',
       stagedata: null,
     }
   },
   props: {
-    //  v-model 必须要有 vaule prop
+    // v-model 必须要有 vaule prop
     value: {
       type: Object,
       default: () => {},
+    },
+    player: {
+      type: Object,
+      default: () => [],
     },
   },
   watch: {
@@ -89,7 +83,7 @@ export default {
     // },
   },
   components: {
-
+    comCard,
   },
   created() {},
   mounted() {},
@@ -108,11 +102,14 @@ export default {
     testclick(item) {
       console.log('click', item);
     },
+    change(index) {
+      console.log('change', index);
+    },
     _opendialog() {
       // console.log('open dialog event special')
     },
     _closedialog() {
-      console.log('close dialog event')
+      // console.log('close dialog event')
       this.closeable = false
       this._setstage()
       this.stagedata = null
@@ -177,37 +174,25 @@ export default {
 
       return this.open(duration, fnclose)
     },
-    showstart(data, onfinish) {
-      return this.showstage('start', data, onfinish)
-    },
-    showbuff(buff, onfinish) {
-      return this.showstage('showbuff', buff, onfinish)
-    },
-    showchoice(data, onfinish) {
-      return this.showstage('choice', {}, onfinish, 0)
-    },
-    // showbuff(buff, onfinish) {
-    //   const duration = 1500
-    //   this.buffshow = buff
-    //   this._setstage('showbuff')
-    //
-    //   if (!this.show || mu.isTestmode) {
-    //     onfinish.call(this)
-    //     return
-    //   }
-    //   // IDEA: RxJS?
-    //   if (onfinish) {
-    //     setTimeout(() => {
-    //       this.buffshow = null
-    //       this._setstage()
-    //       onfinish.call(this)
-    //     }, duration)
-    //   }
-    // },
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.el-carousel__item h3 {
+  color: #475669;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 200px;
+  margin: 0;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #99a9bf;
+}
+
+.el-carousel__item:nth-child(2n+1) {
+  background-color: #d3dce6;
+}
 </style>

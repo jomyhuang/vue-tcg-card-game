@@ -10,6 +10,7 @@ import mu from '@/mutil'
 export var $store = {}
 export var $mainapp
 export var $effectUI
+export var $effectChoiceUI
 var dispatch
 var commit
 
@@ -24,149 +25,6 @@ function cxrun(type, payload) {
   const card = thiscard()
   return fn.call(card, type, payload)
 }
-
-//
-// export function cxpipe(...items) {
-//   return function () {
-//     const card = thiscard()
-//     const context = this
-//     const fnlist = R.flatten(items)
-//
-//     let current = Promise.resolve().then(() => {
-//       console.group()
-//       console.log('cxpipe call')
-//       mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
-//       // select current player/card
-//       // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
-//     })
-//     let promlist = fnlist.map((act) => {
-//         current = current.then(() => {
-//         console.log('pipe-----------------')
-//         if (_.isFunction(act)) {
-//           let res = mu.tcall(act, context, context)
-//           // let res = act.call(context, context)
-//           return res
-//         } else {
-//           return console.log(act)
-//         }
-//       }).then((result) => {
-//         // console.log('exec act ok')
-//         // pipe next, re-align current source
-//         mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
-//       })
-//       return current
-//     })
-//     // console.log(promlist)
-//
-//     return Promise.all(promlist)
-//     .then(function (res) {
-//       console.log('-------OK---------')
-//     })
-//     .catch((err) => {
-//       console.log('%c-----catch------','color:red')
-//       console.log('%ccxpipe effect 中断 promise all','color:red')
-//       console.log('%c'+err,'color:red')
-//       // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-//       // console.log('context',context)
-//       if(context.loop) {
-//         throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
-//       }
-//     }).then(function(res) {
-//       // final task
-//       mu.clearMessage()
-//       console.groupEnd()
-//     })
-//   }
-// }
-//
-// export function cxengage(...items) {
-//   return function () {
-//     const card = thiscard()
-//     const context = this
-//     const fnlist = R.flatten(items)
-//
-//     let current = Promise.resolve().then(() => {
-//       console.group()
-//       console.log('cxengage call')
-//       mu.tcall(cxphaseinfo,context,`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
-//       // select current player/card
-//       // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
-//     })
-//     let promlist = fnlist.map((act) => {
-//         current = current.then(() => {
-//         console.log('act-----------------')
-//         if (_.isFunction(act)) {
-//           let res = mu.tcall(act, context, context)
-//           // let res = act.call(context, context)
-//           return res
-//         } else {
-//           return console.log(act)
-//         }
-//       }).then((result) => {
-//         // console.log('exec act ok')
-//       })
-//       return current
-//     })
-//     // console.log(promlist)
-//
-//     return Promise.all(promlist)
-//     .then(function (res) {
-//       console.log('-------OK---------')
-//       // console.log('effect act all finish')
-//       // console.log('context',context)
-//     })
-//     .catch((err) => {
-//       console.log('%c-----catch------','color:red')
-//       console.log('%ceffect 中断 promise all','color:red')
-//       console.log('%c'+err,'color:red')
-//       // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-//       // console.log('context',context)
-//       if(context.loop) {
-//         throw 'cxengage throw ERROR IN EFFECT FUNCTION'
-//       }
-//     }).then(function(res) {
-//       // final task
-//       mu.clearMessage()
-//       console.groupEnd()
-//     })
-//   }
-// }
-//
-// export function cxbuff(power = 0, tag) {
-//   return function () {
-//     const card = thiscard()
-//     if (R.isNil(tag) && power > 0) {
-//       tag = `UP +${power}`
-//     }
-//     let buff = {
-//       power: power,
-//       tag: tag,
-//       source: card,
-//     }
-//     commit('ADD_BUFF', buff)
-//     return buff
-//   }
-// }
-//
-// export function cxtap(fn) {
-//   return function () {
-//       return _.isFunction(fn) ? console.log(`tap function `, fn.call(this,thiscard())) : console.log(`tap %c${fn}`, 'color:blue')
-//   }
-// }
-//
-// export function cxmessage(message) {
-//   return function () {
-//     this.text = message
-//     return $mainapp.gameloop_message(message)
-//   }
-// }
-//
-// export function cxphaseinfo(message) {
-//   return function () {
-//     this.text = message
-//     return $mainapp.gameloop_phaseinfo(message)
-//   }
-// }
 
 // effect function 定义：
 // 1、point free，单参
@@ -191,6 +49,8 @@ export default {
       console.log('cardxflow install $mainapp', $mainapp)
       $effectUI = payload.effectUI
       console.log('cardxflow install $effectUI', $effectUI)
+      $effectChoiceUI = payload.effectChoiceUI
+      console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
     }
     mu.assert($store._actions, '请设置vuex store')
 
@@ -405,7 +265,7 @@ export default {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
-        // context.UImode = true
+        context.UImode = true
         $effectUI.context = this
         // $effectUI.open(auto, resolve)
         $effectUI.showstart(context,resolve)

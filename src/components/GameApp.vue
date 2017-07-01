@@ -63,6 +63,7 @@
       <Button @click="gameNewdeck(true)">NewDeck UI</Button>
       <Button @click="scoreshow()" shape="circle">Score Show</Button>
       <Button @click="effectshow()" shape="circle">Effect Show</Button>
+      <Button @click="effectchoiceshow()" shape="circle">Effect Choice Show</Button>
       <BR/>
       模拟测试模式 <i-switch v-model="isTest"/>
     </div>
@@ -71,6 +72,7 @@
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
   <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
+  <comEffectChoice ref="effectChoiceUI" v-model="$store.state.battle" :player="$store.state.player1"></comEffectChoice>
 </div>
 </template>
 
@@ -81,6 +83,7 @@ import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 import comScore from './comScore.vue'
 import comEffect from './comEffect.vue'
+import comEffectChoice from './comEffectChoice.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
@@ -112,6 +115,7 @@ export default {
     comMessage,
     comScore,
     comEffect,
+    comEffectChoice,
   },
   created() {},
   mounted() {
@@ -123,6 +127,7 @@ export default {
       { store: this.$store,
         mainapp: this,
         effectUI: this.$refs.effectUI,
+        effectChoiceUI: this.$refs.effectChoiceUI,
       })
     mu.setUI(this.battleshow)
     // mu.tapUI()
@@ -234,8 +239,10 @@ export default {
       return this.$refs.score.open(value,onclose)
     },
     effectshow(value=0,onclose) {
-      this.$refs.effectUI._setstage('choice')
       return this.$refs.effectUI.open(value,onclose)
+    },
+    effectchoiceshow(value=0,onclose) {
+      return this.$refs.effectChoiceUI.open(0,onclose)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )

@@ -149,13 +149,13 @@ export default {
       if (state.act_selection.message)
         console.log(state.act_selection.message)
 
-      let doselect = true
+      // let doselect = true
       if (R.length(state.act_selection.list) <= 0) {
         console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
         // 没列表直接结束离开
-        commit('_ACT_FINISH')
-        resolve()
-        doselect = false
+        // commit('_ACT_FINISH')
+        resolve(null)
+        // doselect = false
         return
       }
 
@@ -212,20 +212,27 @@ export default {
         selectcard = R.head(state.act_selection.selectedList)
       }
 
+      // commit('_ACT_FINISH')
+      //
+      // // commit('SELECT_PLAYER', state.act_selection.player)
+      // // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
+      // mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
+      // // commit('SELECT_CARD', selectcard)
+      //
+      // // call thenAction
+      // mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      // // if (state.act_selection.thenAction) {
+      // //   state.act_selection.thenAction(state, selectcard)
+      // // }
+
+      resolve(selectcard)
+
+    }).then( (selectcard) => {
       commit('_ACT_FINISH')
-
-      // commit('SELECT_PLAYER', state.act_selection.player)
-      // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
       mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
-      // commit('SELECT_CARD', selectcard)
-
-      // call thenAction
-      mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
-      // if (state.act_selection.thenAction) {
-      //   state.act_selection.thenAction(state, selectcard)
-      // }
-
-      resolve()
+      if(selectcard) {
+        mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      }
     })
   },
   PLAY_CARD({
