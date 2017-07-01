@@ -9,10 +9,10 @@
       <div v-show="stage ==='showbuff'">
         <Row class="gameboard">
           <transition name="bounceDown">
-            <div v-if="buffshow">
+            <div v-if="showdata">
               <h2>SHOW BUFF EFFECT</h2>
-              <h4>{{buffshow.source.name}} +POWER {{buffshow.power}}</h4>
-              <h5>{{buffshow.tag}}</h5>
+              <h4>{{showdata.source.name}} +POWER {{showdata.power}}</h4>
+              <h5>{{showdata.tag}}</h5>
             </div>
           </transition>
         </Row>
@@ -42,12 +42,12 @@ export default {
       show: false,
       autoClose: 0,
       onClose: null,
-      onActFinish: null,
       context: {},
-      buffshow: null,
       closemodal: false,
       closeable: false,
+
       stage: 'none',
+      showdata: null,
     }
   },
   props: {
@@ -131,30 +131,33 @@ export default {
         onclose.call(this)
         return
       }
-      // if (mu.isTestmode) {
-      //   setTimeout(() => {
-      //     this.show = false
-      //   }, 100)
-      // }
     },
-    showstage(stage, onfinish, duration=1500) {
+    showstage(stage, showdata, onfinish, duration=1500) {
+      this.showdata = showdata
       this._setstage(stage)
 
       if (!this.show || mu.isTestmode) {
         onfinish.call(this)
         return
       }
-      // IDEA: RxJS?
-      if (onfinish) {
-        setTimeout(() => {
-          this._setstage()
+      const fnclose = () => {
+        this._setstage()
+        // clear data
+        this.showdata = null
+        if(onfinish)
           onfinish.call(this)
-        }, duration)
+      }
+
+      // IDEA: RxJS?
+      if(duration) {
+        setTimeout(fnclose, duration)
+      }
+      else {
+        // FIXME: duration = 0, 手动结束
       }
     },
     showbuff(buff, onfinish) {
-      this.buffshow = buff
-      this.showstage('showbuff',onfinish)
+      return this.showstage('showbuff', buff, onfinish)
     },
     // showbuff(buff, onfinish) {
     //   const duration = 1500
