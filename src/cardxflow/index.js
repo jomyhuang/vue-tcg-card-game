@@ -278,9 +278,8 @@ export default {
     let fnlist = items
 
     // compose chain list
-    fnlist = [this._openGUI()].concat(fnlist)
-    fnlist = fnlist.concat([this._closeGUI()])
-    // fnlist = R.flatten(fnlist)
+    fnlist = [this._startGUI()].concat(fnlist)
+    // fnlist = fnlist.concat([this._closeGUI()])
     // console.log(fnlist)
     return this.engage(fnlist)
   },
@@ -370,7 +369,6 @@ export default {
       const cx = context.cx
       const card = context.card
       return new Promise(function(resolve, reject) {
-        console.log('cx.choice');
         $effectUI.showchoice({},resolve)
       })
     }
@@ -401,56 +399,70 @@ export default {
       return Promise.reject(new Error('效果中断测试'))
     }
   },
-  _openGUI(auto = 0) {
-    return [this.phaseinfo('open GUI message'), function () {
+  _startGUI(auto = 0) {
+    // console.log('startGUI',this)
+    return [this.phaseinfo('效果开始'), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
-        mu.tcall(cx.phaseinfo, this, 'open GUI message')
-        context.UImode = true
-        $effectUI.context = this
-        // $effectUI.open(auto, resolve)
-        $effectUI.open()
-        resolve()
-      })
-    }]
-  },
-  _closeGUI() {
-    return [this.phaseinfo('close GUI message'), function () {
-      const context = this
-      const cx = context.cx
-      return new Promise((resolve, reject) => {
-        context.UImode = false
-        // $effectUI.close()
-        // resolve()
-        $effectUI.waitclose(resolve)
-      })
-    }]
-  },
-  openUI(auto = 0) {
-    return function () {
-      const context = this
-      const cx = context.cx
-      return new Promise((resolve, reject) => {
-        mu.tcall(cx.phaseinfo, this, 'open UI message')
         // context.UImode = true
         $effectUI.context = this
-        // act state
-        $effectUI.open(auto, resolve)
+        // $effectUI.open(auto, resolve)
+        $effectUI.showstart(context,resolve)
+        // resolve()
       })
-    }
+    }]
   },
-  closeUI() {
-    return function () {
-      const context = this
-      const cx = context.cx
-      return new Promise((resolve, reject) => {
-        // context.UImode = false
-        $effectUI.close()
-        resolve()
-      })
-    }
-  },
+  // _openGUI(auto = 0) {
+  //   return [this.phaseinfo('open GUI message'), function () {
+  //     const context = this
+  //     const cx = context.cx
+  //     return new Promise((resolve, reject) => {
+  //       mu.tcall(cx.phaseinfo, this, 'open GUI message')
+  //       context.UImode = true
+  //       $effectUI.context = this
+  //       // $effectUI.open(auto, resolve)
+  //       $effectUI.open()
+  //       resolve()
+  //     })
+  //   }]
+  // },
+  // _closeGUI() {
+  //   return [this.phaseinfo('close GUI message'), function () {
+  //     const context = this
+  //     const cx = context.cx
+  //     return new Promise((resolve, reject) => {
+  //       context.UImode = false
+  //       // $effectUI.close()
+  //       // resolve()
+  //       $effectUI.waitclose(resolve)
+  //     })
+  //   }]
+  // },
+  // openUI(auto = 0) {
+  //   return function () {
+  //     const context = this
+  //     const cx = context.cx
+  //     return new Promise((resolve, reject) => {
+  //       mu.tcall(cx.phaseinfo, this, 'open UI message')
+  //       // context.UImode = true
+  //       $effectUI.context = this
+  //       // act state
+  //       $effectUI.open(auto, resolve)
+  //     })
+  //   }
+  // },
+  // closeUI() {
+  //   return function () {
+  //     const context = this
+  //     const cx = context.cx
+  //     return new Promise((resolve, reject) => {
+  //       // context.UImode = false
+  //       $effectUI.close()
+  //       resolve()
+  //     })
+  //   }
+  // },
   RXbuff(power, tag) {
     return function () {
       const context = this

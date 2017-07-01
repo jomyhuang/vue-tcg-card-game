@@ -6,27 +6,36 @@
       <div slot="header" style="text-align:center">
         <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
-      <div v-show="stage ==='showbuff'">
-        <Row class="gameboard">
+      <!-- <div v-show="stage"> -->
+        <div v-if="stage=='start'">
           <transition name="bounceDown">
-            <div v-if="showdata">
-              <h2>SHOW BUFF EFFECT</h2>
-              <h4>{{showdata.source.name}} +POWER {{showdata.power}}</h4>
-              <h5>{{showdata.tag}}</h5>
+            <div>
+              <h1>效果启动</h1>
             </div>
           </transition>
-        </Row>
-      </div>
-      <div v-show="stage ==='choice'">
-        <Row class="gameboard">
-          <h2>CHOICE</h2>
-          <!-- <el-carousel :interval="4000" type="card" height="200px">
+        </div>
+        <div v-else-if="stage=='showbuff'">
+          <Row class="gameboard">
+            <transition name="bounceDown">
+              <div v-if="stagedata">
+                <h2>SHOW BUFF EFFECT</h2>
+                <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
+                <h5>{{stagedata.tag}}</h5>
+              </div>
+            </transition>
+          </Row>
+        </div>
+        <div v-else-if="stage=='choice'">
+          <Row class="gameboard">
+            <h2>CHOICE</h2>
+            <el-carousel :interval="4000" type="card" height="200px">
               <el-carousel-item v-for="item in 6" :key="item">
-                  <h3>{{ item }}</h3>
+                <h3 @click="testclick(item)">{{ item }}</h3>
               </el-carousel-item>
-          </el-carousel> -->
-        </Row>
-      </div>
+            </el-carousel>
+          </Row>
+        </div>
+      <!-- </div> -->
     </div>
     <div v-else>
       <div slot="header" style="text-align:center">
@@ -56,8 +65,8 @@ export default {
       closemodal: false,
       closeable: false,
 
-      stage: 'none',
-      showdata: null,
+      stage: null,
+      stagedata: null,
     }
   },
   props: {
@@ -96,26 +105,32 @@ export default {
   methods: {
     ok() {},
     cancel() {},
+    testclick(item) {
+      console.log('click', item);
+    },
     _opendialog() {
-      console.log('open dialog event special')
+      // console.log('open dialog event special')
     },
     _closedialog() {
       console.log('close dialog event')
       this.closeable = false
+      this._setstage()
+      this.stagedata = null
+
       if (this.onClose) {
-        console.log('emit callback onclose')
+        // console.log('emit callback onclose')
         this.onClose.call(this)
         this.onClose = null
       }
     },
-    _setstage(stage = 'none') {
+    _setstage(stage = null) {
       this.stage = stage
     },
     open(auto = 0, onclose) {
       this.autoClose = mu.isTestmode ? 1 : auto
       this.onClose = onclose
       this.closemodal = false
-      // this.closeable = true
+      this.closeable = auto ? false : true
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
@@ -144,35 +159,32 @@ export default {
         return
       }
     },
-    showstage(stage, showdata, onfinish, duration=1500) {
-      this.showdata = showdata
+    showstage(stage, data, onfinish, duration = 1500) {
+      this.stagedata = data
       this._setstage(stage)
 
-      if (!this.show || mu.isTestmode) {
+      if (mu.isTestmode) {
         onfinish.call(this)
         return
       }
       const fnclose = () => {
         this._setstage()
         // clear data
-        this.showdata = null
-        if(onfinish)
+        this.stagedata = null
+        if (onfinish)
           onfinish.call(this)
       }
 
-      // IDEA: RxJS?
-      if(duration) {
-        setTimeout(fnclose, duration)
-      }
-      else {
-        // FIXME: duration = 0, 手动结束 ／ UImode 没有关闭
-      }
+      return this.open(duration, fnclose)
+    },
+    showstart(data, onfinish) {
+      return this.showstage('start', data, onfinish)
     },
     showbuff(buff, onfinish) {
       return this.showstage('showbuff', buff, onfinish)
     },
     showchoice(data, onfinish) {
-      return this.showstage('choice', {}, onfinish, 3000)
+      return this.showstage('choice', {}, onfinish, 0)
     },
     // showbuff(buff, onfinish) {
     //   const duration = 1500

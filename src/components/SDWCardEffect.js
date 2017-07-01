@@ -44,6 +44,7 @@ export default {
         $cx.run('EFFECT_CHOICE', 'opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+        $cx.choice(),
         // $cx.RXbuff(1000),
         // $cx.openUI(),
         // $cx.tap( ()=> console.log('JOMY') ),
