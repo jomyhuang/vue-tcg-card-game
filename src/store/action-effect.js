@@ -105,6 +105,7 @@ export default {
         list: payload
       }
     }
+
     // if (R.is(String, payload) || R.is(Array, payload) ) {
     //   // console.log('EFFECT_CHOICE is string')
     //   payload = {
@@ -133,6 +134,11 @@ export default {
       // many: 2,
     })(payload)
 
+    if(R.is(String, R.prop('list',payload))) {
+      payload = R.assoc('message', payload.player.id + ' 从【'+R.prop('list',payload)+'】选择')(payload)
+      console.log(payload.message);
+    }
+
     console.log('EFFECT_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
@@ -159,6 +165,10 @@ export default {
         card.name = card.name + '[OEF]'
       },
     })(payload)
+
+    if(R.is(String, R.prop('list',payload))) {
+      payload = R.assoc('message', payload.player.id + ' 从【'+R.prop('list',payload)+'】选择')(payload)
+    }
 
     // return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( ()=> {
     //   console.log('EFFECT_OPP_CHOICE finish return select currentPlayer')

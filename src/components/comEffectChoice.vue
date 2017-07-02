@@ -2,8 +2,8 @@
 <div class="comEffectChoice">
   <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
     <div>
-      <div slot="header" style="text-align:center" v-if="context.card">
-        <h3>选择 {{context.card.name}} 发动{{context.type}}效果</h3>
+      <div style="text-align:center" v-if="context">
+        <h3>发动{{context.type}}效果 {{message}}</h3>
       </div>
       <!-- <transition name="bounceDown">
         <div v-if="stage=='start'">
@@ -54,11 +54,13 @@ export default {
       closemodal: false,
       closeable: false,
 
-      context: {},
-      list: [],
       stage: 'choice',
       stagedata: null,
       index: null,
+      context: null,
+      list: [],
+      message: null,
+      source: null,
     }
   },
   props: {
@@ -107,6 +109,10 @@ export default {
       }
     },
     clickok() {
+      if(this.list.length == 0) {
+        this.close()
+        return
+      }
       this.selectcard(null,this.list[this.index])
     },
     change(index) {
@@ -121,8 +127,7 @@ export default {
       this.closeable = false
       this._setstage()
       this.stagedata = null
-      this.context = {}
-      this.list = []
+      this._setcontext()
 
       if (this.onClose) {
         // console.log('emit callback onclose')
@@ -133,14 +138,27 @@ export default {
     _setstage(stage = null) {
       this.stage = stage
     },
+    _setcontext(context=null) {
+      if(context) {
+        this.context = context
+        this.list = context.list
+        this.message = context.message
+        // this.source = context.card
+      }
+      else {
+        this.context = null
+        this.list = []
+        this.source = null
+        this.message = null
+      }
+    },
     open(context = null, onclose) {
       this.autoClose = mu.isTestmode ? 1 : 0
       this.onClose = onclose
       this.closemodal = false
       this.closeable = true
 
-      this.context = this.$store.state.act_selection
-      this.list = this.context.list
+      this._setcontext(this.$store.state.act_selection)
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
