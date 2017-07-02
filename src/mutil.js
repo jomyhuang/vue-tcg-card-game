@@ -13,6 +13,9 @@ import {
 
 export var $store = {}
 export var $mainapp
+export var $effectUI
+export var $effectChoiceUI
+
 
 export function testfn() {
   console.log('test func $store', $store)
@@ -65,6 +68,10 @@ export default {
         console.log('mutil install $store', $store)
         $mainapp = payload.mainapp
         console.log('mutil install $mainapp', $mainapp)
+        $effectUI = payload.effectUI
+        console.log('mutil install $effectUI', $effectUI)
+        $effectChoiceUI = payload.effectChoiceUI
+        console.log('mutil install $effectChoiceUI', $effectChoiceUI)
       } else {
         source = payload
         console.log('mixeffect 其他效果库')
@@ -640,7 +647,7 @@ export default {
     // if(!this.isPromise(res)) {
     //   res = Promise.resolve(res)
     // }
-    return this.call(res, thisobj, ...args)
+    return this.tcall(res, thisobj, ...args)
   },
   packcall(fn, thisobj, ...args) {
     let res = []

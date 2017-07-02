@@ -7,34 +7,31 @@
         <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
       <!-- <div v-show="stage"> -->
-        <div v-if="stage=='start'">
-          <transition name="bounceDown">
-            <div>
-              <h1>效果启动</h1>
-            </div>
-          </transition>
+      <transition name="bounceRight" mode="in-out">
+        <div v-if="isstage('start')">
+            <h1>效果启动</h1>
         </div>
-        <div v-else-if="stage=='showbuff'">
-          <Row class="gameboard">
-            <transition name="bounceDown">
-              <div v-if="stagedata">
-                <h2>SHOW BUFF EFFECT</h2>
-                <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
-                <h5>{{stagedata.tag}}</h5>
-              </div>
-            </transition>
-          </Row>
-        </div>
-        <div v-else-if="stage=='choice'">
-          <Row class="gameboard">
-            <h2>CHOICE</h2>
-            <el-carousel :interval="4000" type="card" height="200px">
-              <el-carousel-item v-for="item in 6" :key="item">
-                <h3 @click="testclick(item)">{{ item }}</h3>
-              </el-carousel-item>
-            </el-carousel>
-          </Row>
-        </div>
+      </transition>
+
+      <Row class="gameboard">
+        <transition name="bounceDown">
+          <div v-if="isstage('showbuff')">
+            <h2>SHOW BUFF EFFECT</h2>
+            <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
+            <h5>{{stagedata.tag}}</h5>
+          </div>
+        </transition>
+      </Row>
+      <div v-if="stage=='choice'">
+        <Row class="gameboard">
+          <h2>CHOICE</h2>
+          <el-carousel :interval="4000" type="card" height="200px">
+            <el-carousel-item v-for="item in 6" :key="item">
+              <h3 @click="testclick(item)">{{ item }}</h3>
+            </el-carousel-item>
+          </el-carousel>
+        </Row>
+      </div>
       <!-- </div> -->
     </div>
     <div v-else>
@@ -107,6 +104,9 @@ export default {
     cancel() {},
     testclick(item) {
       console.log('click', item);
+    },
+    isstage(val) {
+      return this.stage === val
     },
     _opendialog() {
       // console.log('open dialog event special')

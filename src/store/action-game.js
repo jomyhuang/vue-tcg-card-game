@@ -104,6 +104,7 @@ export default {
     commit('SELECT_CARD', null)
     console.log('action SET_FACEUP')
   },
+  //----------------------------------- CHOICE/SELECT
   ACT_SELECTED_CARD({
     dispatch,
     commit,
@@ -115,8 +116,8 @@ export default {
     commit('SELECT_CARD', card)
     commit('ACT_SET_SELECTED', card)
 
-    mutil.call(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
-    // // dispatch selected action
+    mutil.tcall(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
+    mutil.tcall(R.prop('onselect',state.act_selection), this, state, state.placeholder)
     // if (state.act_selection.selectedAction) {
     //   state.act_selection.selectedAction(state, card)
     // }
@@ -137,6 +138,14 @@ export default {
     }
 
     return new Promise(async function (resolve, reject) {
+
+      payload = R.assoc('onselect', (state,card) => {
+        // console.log('onselect click')
+        if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+          resolve(card)
+        }
+      } )(payload)
+
       // 注意：使用箭头函数不能是 async
       commit('_ACT_SELECTION_INIT', payload)
 
@@ -154,9 +163,9 @@ export default {
         console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
         // 没列表直接结束离开
         // commit('_ACT_FINISH')
-        resolve(null)
         // doselect = false
-        return
+        resolve(null)
+        return false
       }
 
       // let xLens = R.lensProp('init')
@@ -183,33 +192,34 @@ export default {
         // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
         // move from _WAIT_ACT_SYNC_SELECT_UI
         // IDEA: FIXME: 修改resolve callback方式blocking，取消while loop，如何监控store值改变？？
-        const waitfunc = () => {
-          return new Promise(function (resolve, reject) {
-            setTimeout(() => {
-              if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-                resolve()
-              } else {
-                reject()
-              }
-            }, 1000)
-          })
-        }
+        // const waitfunc = () => {
+        //   return new Promise(function (resolve, reject) {
+        //     setTimeout(() => {
+        //       if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+        //         resolve()
+        //       } else {
+        //         reject()
+        //       }
+        //     }, 1000)
+        //   })
+        // }
 
         let message = R.prop('message',state.act_selection)
         let type = R.prop('type',state.act_selection)
         console.log(`_WAIT [UI] START BLOCKING ${type} ${message}`)
-        let waiting = true
-        while (waiting) {
-          await waitfunc().then((resolve) => {
-            waiting = false
-          }, (err) => {
-            // run again
-          })
-        }
-        // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
-        console.log(`_WAIT [UI] OK ${message}`)
 
-        selectcard = R.head(state.act_selection.selectedList)
+        // let waiting = true
+        // while (waiting) {
+        //   await waitfunc().then((resolve) => {
+        //     waiting = false
+        //   }, (err) => {
+        //     // run again
+        //   })
+        // }
+        // // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
+        // console.log(`_WAIT [UI] OK ${message}`)
+        //
+        // selectcard = R.head(state.act_selection.selectedList)
       }
 
       // commit('_ACT_FINISH')
@@ -225,7 +235,8 @@ export default {
       // //   state.act_selection.thenAction(state, selectcard)
       // // }
 
-      resolve(selectcard)
+      if(selectcard)
+        resolve(selectcard)
 
     }).then( (selectcard) => {
       commit('_ACT_FINISH')

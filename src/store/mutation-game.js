@@ -282,45 +282,6 @@ export default {
       }
     }
 
-    // console.log('SELECT_LIST this=',this);
-    // if (R.is(String, list)) {
-    //   const opt = R.split('_',list)
-    //   if(opt.length>1 && opt[0]==='opp') {
-    //     // 处理选择对手的牌库
-    //     let oppplayer = mutil.opponent(state.placeplayer)
-    //
-    //     if(state.placeholder) {
-    //       if(state.placeholder.owner != state.currentPlayer) {
-    //         console.warn('在发动玩家owner select list 效果')
-    //         // // throw '在对方回合发动选择效果'
-    //         // oppplayer = state.currentPlayer
-    //       }
-    //     }
-    //     // TODO FIX: 调整玩家“相对对象”的改变，不能直接使用 currentPlayer, opponentPlayer
-    //     // let oppplayer = mstate.opponentPlayer
-    //     // if(state.placeholder) {
-    //     //   if(state.placeholder.owner != state.currentPlayer) {
-    //     //     console.warn('在对方回合发动玩家owner选择效果')
-    //     //     // throw '在对方回合发动选择效果'
-    //     //     oppplayer = state.currentPlayer
-    //     //   }
-    //     // }
-    //
-    //     list = oppplayer[opt[1]]
-    //     console.log('commit SELECT_LIST opponent select',list)
-    //   }
-    //   else if (_.isFunction(list)){
-    //     console.log(`commit SELECT_LIST function select call`)
-    //     list = list.call(state)
-    //     console.log(`commit SELECT_LIST function select`,list)
-    //   }
-    //   else {
-    //     list = state.placeplayer[list]
-    //     console.log(`commit SELECT_LIST placeplayer ${state.placeplayer.id} select`,list)
-    //   }
-    // }
-    // state.placelist = list
-
     state.placelist = mutil.selectcards(list)
 
     if (state.placelist.length > 0)
@@ -349,6 +310,8 @@ export default {
       card: undefined,
       agent: undefined,
       selector: undefined,
+      onselect: null,
+      choiceUI: null,
     })(payload)
 
     if (!R.has('player', state.act_selection)) {
@@ -356,11 +319,6 @@ export default {
       throw 'ACT_SELECTION must assign player'
       return false
     }
-
-    // if (_.startsWith(state.act_selection.list, 'opp_')) {
-    //   throw 'ASYNC_ACT_SELECT_CARD_START do not support opp_xxx string list'
-    //   return false
-    // }
 
     const player = state.act_selection.player
 
@@ -370,23 +328,6 @@ export default {
 
     // 处理变更placeplayer
     state.placeplayer = player
-
-    // 处理变更placelist
-    // let list = state.act_selection.list
-    // if (R.is(String, list)) {
-    //   if (R.equals(list, 'placelist')) {
-    //     console.log(`_ACT_SELECTION_INIT list string use placelist`)
-    //     list = state.placelist
-    //   } else {
-    //     console.log(`_ACT_SELECTION_INIT list string use ${list}`)
-    //     list = state.placeplayer[list]
-    //   }
-    //   console.log(`_ACT_SELECTION_INIT list string select`, list)
-    // } else if (_.isFunction(list)) {
-    //   console.log(`_ACT_SELECTION_INIT list function select call`)
-    //   list = list.call(state)
-    //   console.log(`_ACT_SELECTION_INIT list function select`, list)
-    // }
 
     // 保留 selector
     if (R.is(String, state.act_selection.list)) {
@@ -425,7 +366,6 @@ export default {
 
     // 处理更新selected list
     state.act_selection.selectedList = state.act_selection.list.filter((card) => card.selected)
-
     state.act_selection.card = flag ? state.placeholder : undefined
   },
   // ACT_UNSELECTION_ALL(state) {

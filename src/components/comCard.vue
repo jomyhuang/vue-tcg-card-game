@@ -6,7 +6,7 @@
         <Button type="text" icon="checkmark-round" @click.stop.prevent="selectcard($event)">
           <span v-if="card.selected">UNSELECT</span>
           <span v-else="card.selected">SELECT</span>
-      </Button>
+        </Button>
       </div>
       <div v-if="card.facedown">
         <div>精灵战争</div>
