@@ -136,7 +136,7 @@ export default {
 
     if(R.is(String, R.prop('list',payload))) {
       payload = R.assoc('message', payload.player.id + ' 从【'+R.prop('list',payload)+'】选择')(payload)
-      console.log(payload.message);
+      // console.log(payload.message);
     }
 
     console.log('EFFECT_CHOICE do ', payload)
