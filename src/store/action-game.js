@@ -180,17 +180,17 @@ export default {
       // if (doselect) {
       const agent = state.act_selection.agent
       const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
-      let selectcard
+      // let selectcard
 
-      // if(choiceUI) {
-      //   console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
-      //   choiceUI.open(0,resolve)
-      //   return
-      // }
+      if(choiceUI) {
+        console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+        choiceUI.open(0,resolve)
+        return
+      }
 
       if (agent) {
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-        selectcard = agent.SELECT_CARD(state, payload)
+        let selectcard = agent.SELECT_CARD(state, payload)
         dispatch('ACT_SELECTED_CARD', selectcard)
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
         // FIXME: agent 在测试模式下选择没有 actselection.list, selectedlist
