@@ -7,6 +7,7 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
+
 import firstAgent from '@/components/agent-first'
 
 export default {
@@ -36,17 +37,16 @@ export default {
   },
   EFFECT_SET(state, payload) {
 
-    if(R.isEmpty(payload)) {
+    if (R.isEmpty(payload)) {
       state.effect = null
       state.effect = {}
-    }
-    else {
+    } else {
       state.effect = R.merge(state.effect)(payload)
     }
 
     console.log('commit EFFECT_SET payload', payload)
   },
-  STORE_MESSAGE(state,payload) {
+  STORE_MESSAGE(state, payload) {
     state.storemsg = payload
   },
   // ---------------------------------------------------- GAME_XXX
@@ -153,7 +153,7 @@ export default {
       }
     })
   },
-  GAME_PHASE(state,payload) {
+  GAME_PHASE(state, payload) {
     const phase = payload
     state.game.phase = phase
 
@@ -311,7 +311,8 @@ export default {
       agent: undefined,
       selector: undefined,
       onselect: null,
-      choiceUI: null,
+      // choiceUI Vue Component 不能放入state中
+      choiceUI: false,
     })(payload)
 
     if (!R.has('player', state.act_selection)) {
@@ -357,7 +358,7 @@ export default {
     let flag = !state.placeholder.selected
     state.placeholder.selected = flag
 
-    mutil.call(R.prop('selectedMuation',state.act_selection), this, state, state.placeholder)
+    mutil.call(R.prop('selectedMuation', state.act_selection), this, state, state.placeholder)
     // if (state.act_selection.selectedMuation) {
     //   // 处理muation callback
     //   // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
@@ -528,7 +529,7 @@ export default {
     const card = state.placeholder
     const buff = payload
     card.power.push(buff)
-    console.log(`commit ADD_BUFF ${state.placeholder.name}`,buff)
+    console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
   },
   ADD_TAG(state, payload) {
     if (!state.placeholder) {
@@ -537,13 +538,12 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String,tag)) {
-      card.play = R.assoc(tag,true)(card.play)
+    if (R.is(String, tag)) {
+      card.play = R.assoc(tag, true)(card.play)
+    } else {
+      card.play = R.merge(tag, card.play)
     }
-    else {
-      card.play = R.merge(tag,card.play)
-    }
-    console.log(`commit ADD_TAG ${state.placeholder.name}`,card.play)
+    console.log(`commit ADD_TAG ${state.placeholder.name}`, card.play)
   },
   REMOVE_TAG(state, payload) {
     if (!state.placeholder) {
@@ -552,13 +552,12 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String,tag)) {
+    if (R.is(String, tag)) {
       card.play = R.dissoc(tag)(card.play)
-    }
-    else {
+    } else {
       console.error('REMOVE_TAG payload must is string')
     }
-    console.log(`commit REMOVE_TAG ${state.placeholder.name}`,card.play)
+    console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
   },
   CLEAR_TAG(state, payload) {
     if (!state.placeholder) {

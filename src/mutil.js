@@ -54,6 +54,9 @@ export default {
     this.isTestmode = mode
     return mode
   },
+  getChoiceUI(UI) {
+    return UI ? $effectChoiceUI : null
+  },
   // isTestmode {
   //   // manual test mode flag
   //   return this.testmode || process.env.NODE_ENV === 'testing'

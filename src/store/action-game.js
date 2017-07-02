@@ -179,7 +179,14 @@ export default {
       // } else {
       // if (doselect) {
       const agent = state.act_selection.agent
+      const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
       let selectcard
+
+      // if(choiceUI) {
+      //   console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+      //   choiceUI.open(0,resolve)
+      //   return
+      // }
 
       if (agent) {
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
@@ -187,8 +194,20 @@ export default {
         dispatch('ACT_SELECTED_CARD', selectcard)
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
         // FIXME: agent 在测试模式下选择没有 actselection.list, selectedlist
+        resolve(selectcard)
       } else {
-        console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+
+        if(choiceUI) {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+          choiceUI.open(0,resolve)
+        }
+        else {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+        }
+        let message = R.prop('message',state.act_selection)
+        let type = R.prop('type',state.act_selection)
+        console.log(`_WAIT ${type} ${message}`)
+
         // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
         // move from _WAIT_ACT_SYNC_SELECT_UI
         // IDEA: FIXME: 修改resolve callback方式blocking，取消while loop，如何监控store值改变？？
@@ -204,9 +223,6 @@ export default {
         //   })
         // }
 
-        let message = R.prop('message',state.act_selection)
-        let type = R.prop('type',state.act_selection)
-        console.log(`_WAIT [UI] START BLOCKING ${type} ${message}`)
 
         // let waiting = true
         // while (waiting) {
@@ -235,14 +251,17 @@ export default {
       // //   state.act_selection.thenAction(state, selectcard)
       // // }
 
-      if(selectcard)
-        resolve(selectcard)
 
     }).then( (selectcard) => {
       commit('_ACT_FINISH')
       mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
       if(selectcard) {
         mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      }
+
+      const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
+      if(choiceUI) {
+        choiceUI.close()
       }
     })
   },

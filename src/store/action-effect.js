@@ -11,8 +11,6 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 import $cx from '@/cardxflow'
-import { $effectChoiceUI } from '@/mutil'
-
 
 export default {
   EFFECT_CONTEXT_INIT({
@@ -131,7 +129,8 @@ export default {
         state.storemsg = `EFFECT_CHOICE ${state.placeplayer.id} select ${card.name}`
         card.name = card.name + '[EF]'
       },
-      ChoiceUI: $effectChoiceUI,
+      choiceUI: true,
+      // many: 2,
     })(payload)
 
     console.log('EFFECT_CHOICE do ', payload)

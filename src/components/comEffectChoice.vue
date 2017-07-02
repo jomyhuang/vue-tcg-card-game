@@ -5,34 +5,34 @@
       <div slot="header" style="text-align:center" v-if="context.card">
         <h3>选择 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
-      <div v-if="stage=='start'">
-        <transition name="bounceDown">
-          <div>
-            <h1>选择启动</h1>
-          </div>
-        </transition>
-      </div>
-      <div v-else-if="stage=='choice'">
-        <Row class="gameboard">
-          <h2>CHOICE</h2>
-          <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
-            <el-carousel-item v-for="item in player.deck" :key="item" style="align: center">
-              <div @click="testclick(item)">
-                <comCard :card="item"></comCard>
-              </div>
-            </el-carousel-item>
-          </el-carousel>
-        </Row>
-      </div>
+      <!-- <transition name="bounceDown">
+        <div v-if="stage=='start'">
+            <div>
+              <h1>选择启动</h1>
+            </div>
+        </div>
+      </transition> -->
+      <!-- <div v-if="stage=='choice'"> -->
+      <Row class="gameboard">
+        <h2>CHOICE</h2>
+        <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
+          <el-carousel-item v-for="item in list" :key="item" style="align: center">
+            <div @click.stop.prevent="selectcard($event,item)">
+              <comCard :card="item"></comCard>
+            </div>
+          </el-carousel-item>
+        </el-carousel>
+      </Row>
+      <!-- </div> -->
     </div>
     <!-- <div v-else>
       <div slot="header" style="text-align:center">
         NO CONTEXT
       </div>
     </div> -->
-    <span slot="footer" class="dialog-footer" v-if="closeable">
-      <b>waiting click to continue</b>
-      <el-button type="primary" @click="show = false">确 定</el-button>
+    <span slot="footer" class="dialog-footer">
+      <b>选择卡牌</b>
+      <el-button type="primary" @click="clickok">确 定</el-button>
     </span>
   </el-dialog>
 </div>
@@ -55,8 +55,10 @@ export default {
       closeable: false,
 
       context: {},
+      list: [],
       stage: 'choice',
       stagedata: null,
+      index: null,
     }
   },
   props: {
@@ -89,21 +91,27 @@ export default {
   mounted() {},
   beforeDestroy() {},
   computed: {
-    score() {
-      return this.$store.state.game.score
-    },
-    gameover() {
-      return this.$store.state.game.over
-    },
+    // score() {
+    //   return this.$store.state.game.score
+    // },
   },
   methods: {
     ok() {},
     cancel() {},
-    testclick(item) {
-      console.log('click', item);
+    selectcard(event,card) {
+      if (card.selectable) {
+        console.log('comEffectChoice selectcard manual', card)
+        this.$store.dispatch('ACT_SELECTED_CARD', card)
+      } else {
+        console.log('card no choice')
+      }
+    },
+    clickok() {
+      this.selectcard(null,this.list[this.index])
     },
     change(index) {
-      console.log('change', index);
+      // console.log('change', index);
+      this.index = index
     },
     _opendialog() {
       // console.log('open dialog event special')
@@ -113,6 +121,8 @@ export default {
       this.closeable = false
       this._setstage()
       this.stagedata = null
+      this.context = {}
+      this.list = []
 
       if (this.onClose) {
         // console.log('emit callback onclose')
@@ -123,17 +133,19 @@ export default {
     _setstage(stage = null) {
       this.stage = stage
     },
-    open(auto = 0, onclose) {
-      this.autoClose = mu.isTestmode ? 1 : auto
+    open(context = null, onclose) {
+      this.autoClose = mu.isTestmode ? 1 : 0
       this.onClose = onclose
       this.closemodal = false
-      this.closeable = auto ? false : true
+      this.closeable = true
+
+      this.context = this.$store.state.act_selection
+      this.list = this.context.list
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
       this.$refs.dialog.$on('open', this._opendialog)
       this.$refs.dialog.$on('close', this._closedialog)
-      // this.$refs.dialog.$on('close', this.onClose)
 
       this.show = true
 
@@ -146,34 +158,24 @@ export default {
     close() {
       this.show = false
     },
-    waitclose(onclose) {
-      this.closemodal = true
-      this.onClose = onclose
-      this.closeable = true
-
-      if (!this.show || mu.isTestmode) {
-        onclose.call(this)
-        return
-      }
-    },
-    showstage(stage, data, onfinish, duration = 1500) {
-      this.stagedata = data
-      this._setstage(stage)
-
-      if (mu.isTestmode) {
-        onfinish.call(this)
-        return
-      }
-      const fnclose = () => {
-        this._setstage()
-        // clear data
-        this.stagedata = null
-        if (onfinish)
-          onfinish.call(this)
-      }
-
-      return this.open(duration, fnclose)
-    },
+    // showstage(stage, data, onfinish, duration = 1500) {
+    //   this.stagedata = data
+    //   this._setstage(stage)
+    //
+    //   if (mu.isTestmode) {
+    //     onfinish.call(this)
+    //     return
+    //   }
+    //   const fnclose = () => {
+    //     this._setstage()
+    //     // clear data
+    //     this.stagedata = null
+    //     if (onfinish)
+    //       onfinish.call(this)
+    //   }
+    //
+    //   return this.open(duration, fnclose)
+    // },
   }
 }
 </script>
