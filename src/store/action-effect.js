@@ -78,6 +78,7 @@ export default {
       text: 'effect context',
       type: type,
       phase: state.game.phase,
+      source: card,
       card: card,
       player: player,
       opponent: opponent,
@@ -128,14 +129,15 @@ export default {
       player: state.placeplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_CHOICE ${state.placeplayer.id} select ${card.name}`
-        card.name = card.name + '[EF]'
+        card.name = card.name + '[效果指定]'
       },
       choiceUI: true,
+      source: R.prop('source',$cx.context),
       // many: 2,
     })(payload)
 
     if(R.is(String, R.prop('list',payload))) {
-      payload = R.assoc('message', payload.player.id + ' 从【'+R.prop('list',payload)+'】选择')(payload)
+      payload = R.assoc('message', payload.player.id + '从【'+R.prop('list',payload)+'】选择')(payload)
       // console.log(payload.message);
     }
 
@@ -162,12 +164,14 @@ export default {
       player: oppplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_OPP_CHOICE ${oppplayer} select ${card.name}`
-        card.name = card.name + '[OEF]'
+        card.name = card.name + '[OPP效果指定]'
       },
+      // choiceUI: true,
+      source: R.prop('source',$cx.context),
     })(payload)
 
     if(R.is(String, R.prop('list',payload))) {
-      payload = R.assoc('message', payload.player.id + ' 从【'+R.prop('list',payload)+'】选择')(payload)
+      payload = R.assoc('message', payload.player.id + ' 对方从【'+R.prop('list',payload)+'】选择')(payload)
     }
 
     // return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( ()=> {

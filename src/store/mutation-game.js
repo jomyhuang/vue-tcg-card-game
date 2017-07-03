@@ -313,6 +313,7 @@ export default {
       onselect: null,
       // choiceUI Vue Component 不能放入state中
       choiceUI: false,
+      source: null,
     })(payload)
 
     if (!R.has('player', state.act_selection)) {

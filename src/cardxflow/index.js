@@ -35,6 +35,8 @@ function cxrun(type, payload) {
 
 export default {
   init: false,
+  context: null,
+  active: false,
 
   install(payload) {
     if (this.init) {
@@ -80,7 +82,20 @@ export default {
       const context = this
       const fn = $store._actions[type] ? $store.dispatch : $store.commit
       const card = context.card
-      return fn.call(card, type, payload)
+      return mu.tcall(fn, context, type, payload)
+      // return fn.call(card, type, payload)
+    }
+  },
+  _setcontext(context=null) {
+    if(context) {
+      this.context = context
+      this.active = true
+      console.log('$cx.setcontext set')
+    }
+    else {
+      this.context = null
+      this.active = false
+      console.log('$cx.setcontext clear')
     }
   },
   pipe(...items) {
@@ -88,6 +103,8 @@ export default {
       const context = this
       const cx = context.cx
       const card = context.card
+      cx._setcontext(context)
+
       let fnlist = R.flatten(items)
 
       let current = Promise.resolve().then(() => {
@@ -131,6 +148,7 @@ export default {
           // final task
           mu.clearMessage()
           console.groupEnd()
+          cx._setcontext()
         })
     }
   },
@@ -148,6 +166,8 @@ export default {
       const context = this
       const cx = context.cx
       const card = context.card
+      cx._setcontext(context)
+
       let fnlist = R.flatten(items)
       // let fnlist = items
 
@@ -199,6 +219,7 @@ export default {
           // final task
           mu.clearMessage()
           console.groupEnd()
+          cx._setcontext()
         })
     }
   },

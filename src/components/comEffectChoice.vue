@@ -2,7 +2,8 @@
 <div class="comEffectChoice">
   <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
     <div>
-      <div style="text-align:center" v-if="context">
+      <div slot="header" style="text-align:center" v-if="context">
+        <h3 v-if="source">{{source.name}}</h3>
         <h3>发动{{context.type}}效果 {{message}}</h3>
       </div>
       <!-- <transition name="bounceDown">
@@ -14,9 +15,9 @@
       </transition> -->
       <!-- <div v-if="stage=='choice'"> -->
       <Row class="gameboard">
-        <h2>CHOICE</h2>
+        <h3>选择</h3>
         <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
-          <el-carousel-item v-for="item in list" :key="item" style="align: center">
+          <el-carousel-item v-for="item in list" :key="item">
             <div @click.stop.prevent="selectcard($event,item)">
               <comCard :card="item"></comCard>
             </div>
@@ -41,6 +42,9 @@
 <script>
 import mu from '@/mutil'
 import comCard from './comCard.vue'
+import $cx from '@/cardxflow'
+import R from 'ramda'
+
 
 
 export default {
@@ -140,10 +144,13 @@ export default {
     },
     _setcontext(context=null) {
       if(context) {
+        // context is act_selection
+        // this.context = $cx.context
         this.context = context
-        this.list = context.list
-        this.message = context.message
-        // this.source = context.card
+        this.list = R.prop('list',context)
+        this.message = R.prop('message',context)
+        this.source = R.prop('source',context)
+        // console.log('source',this.source);
       }
       else {
         this.context = null
@@ -159,6 +166,7 @@ export default {
       this.closeable = true
 
       this._setcontext(this.$store.state.act_selection)
+      // console.log('$cx.context', $cx.context)
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
