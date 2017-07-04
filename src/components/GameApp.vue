@@ -626,24 +626,28 @@ export default {
     },
     gameTest() {
 
-      console.log('RxJS practices')
-      var observable = Rx.Observable.create((observer) => {
-        observer.next(this.run_next('RAMDA_TEST'))
-        observer.next(2);
-        observer.next(3);
-        setTimeout(() => {
-          observer.next(4);
-          observer.complete();
-        }, 1000);
-      })
+      console.log('call emit');
+      this.$emit('testemit',this)
+      // this.$boardcast('test',this)
 
-      console.log('just before subscribe');
-      observable.subscribe({
-        next: x => console.log('got value ' + x),
-        error: err => console.error('something wrong occurred: ' + err),
-        complete: () => console.log('done'),
-      })
-      console.log('just after subscribe');
+      // console.log('RxJS practices')
+      // var observable = Rx.Observable.create((observer) => {
+      //   observer.next(this.run_next('RAMDA_TEST'))
+      //   observer.next(2);
+      //   observer.next(3);
+      //   setTimeout(() => {
+      //     observer.next(4);
+      //     observer.complete();
+      //   }, 1000);
+      // })
+      //
+      // console.log('just before subscribe');
+      // observable.subscribe({
+      //   next: x => console.log('got value ' + x),
+      //   error: err => console.error('something wrong occurred: ' + err),
+      //   complete: () => console.log('done'),
+      // })
+      // console.log('just after subscribe');
     },
     // end of methods
   }
