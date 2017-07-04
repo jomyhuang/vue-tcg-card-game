@@ -7,7 +7,7 @@
         <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
       <!-- <div v-show="stage"> -->
-      <transition name="bounceRight" mode="in-out">
+      <transition name="bounceLeft" mode="in-out">
         <div v-if="isstage('start')">
             <h1>效果启动</h1>
         </div>

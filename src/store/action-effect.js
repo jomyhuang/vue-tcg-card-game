@@ -101,9 +101,9 @@ export default {
     dispatch
   }, payload) {
 
-    if (!R.isNil(payload)) {
+    if (R.is(String,payload)) {
       payload = {
-        list: payload
+        selector: payload
       }
     }
 
@@ -124,7 +124,6 @@ export default {
 
     payload = R.merge({
       phase: 'EFFECT_CHOICE',
-      message: 'EFFECT_CHOICE',
       // player: state.currentPlayer,
       player: state.placeplayer,
       selectedMuation: (state, card) => {
@@ -136,12 +135,12 @@ export default {
       // many: 2,
     })(payload)
 
-    if(R.is(String, R.prop('list',payload))) {
-      payload = R.assoc('message', payload.player.id + '从【'+R.prop('list',payload)+'】选择')(payload)
-      // console.log(payload.message);
-    }
+    // if(R.is(String, R.prop('list',payload))) {
+    //   payload = R.assoc('message', payload.player.id + '从【'+R.prop('list',payload)+'】选择')(payload)
+    //   // console.log(payload.message);
+    // }
 
-    console.log('EFFECT_CHOICE do ', payload)
+    // console.log('EFFECT_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
   EFFECT_OPP_CHOICE({
@@ -150,9 +149,9 @@ export default {
     dispatch
   }, payload) {
 
-    if (!R.isNil(payload)) {
+    if (R.is(String,payload)) {
       payload = {
-        list: payload
+        selector: payload
       }
     }
 
@@ -160,7 +159,6 @@ export default {
 
     payload = R.merge({
       phase: 'EFFECT_OPP_CHOICE',
-      message: 'EFFECT_OPP_CHOICE',
       player: oppplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_OPP_CHOICE ${oppplayer} select ${card.name}`
@@ -170,9 +168,9 @@ export default {
       source: R.prop('source',$cx.context),
     })(payload)
 
-    if(R.is(String, R.prop('list',payload))) {
-      payload = R.assoc('message', payload.player.id + ' 对方从【'+R.prop('list',payload)+'】选择')(payload)
-    }
+    // if(R.is(String, R.prop('list',payload))) {
+    //   payload = R.assoc('message', payload.player.id + ' 对方从【'+R.prop('list',payload)+'】选择')(payload)
+    // }
 
     // return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( ()=> {
     //   console.log('EFFECT_OPP_CHOICE finish return select currentPlayer')

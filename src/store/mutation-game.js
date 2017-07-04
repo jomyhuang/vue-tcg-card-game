@@ -302,69 +302,84 @@ export default {
   _ACT_SELECTION_INIT(state, payload = {}) {
 
     state.act_selection = R.merge({
-      list: () => state.placelist,
+      list: undefined,
+      selector: () => state.placelist,
+      filter: () => true,
+
       many: 1,
-      selectedList: [],
+      agent: undefined,
+      player: null,
       finish: false,
       type: 'ACT_SELECTION',
+      phase: null,
+      source: null,
+      message: null,
+
+      selectedList: [],
       card: undefined,
-      agent: undefined,
-      selector: undefined,
-      onselect: null,
       // choiceUI Vue Component 不能放入state中
       choiceUI: false,
-      source: null,
+      onselect: null,
+      onmark: (card) => {
+        card.selected = false
+        card.selectable = true
+      },
+      onunmark: (card) => {
+        card.selectable = false
+      },
+      selectedMuation: null,
+      // oncommit: null,
     })(payload)
 
-    if (!R.has('player', state.act_selection)) {
+    if (R.isNil('player', state.act_selection)) {
       console.error('ACT_SELECTION must assign player')
       throw 'ACT_SELECTION must assign player'
       return false
     }
 
-    const player = state.act_selection.player
-
-    if (!state.act_selection.agent) {
-      state.act_selection = R.assoc('agent', player.agent)(state.act_selection)
+    // 复写list在 selector
+    // if (R.is(String, state.act_selection.list)) {
+    if(state.act_selection.list) {
+      state.act_selection.selector = state.act_selection.list
+      state.act_selection.list = null
     }
 
+    const player = state.act_selection.player
     // 处理变更placeplayer
     state.placeplayer = player
 
-    // 保留 selector
-    if (R.is(String, state.act_selection.list)) {
-      state.act_selection.selector = state.act_selection.list
+    const pile = R.is(String, state.act_selection.selector) ?  state.act_selection.selector : undefined
+    const isopp = player === state.currentPlayer ? '' : '对手'
+    const iseffect = state.act_selection.source ? '效果' : '对战'
+    // TODO: 如何判读是对手选择
+
+    if(!state.act_selection.agent) {
+      state.act_selection = R.assoc('agent', player.agent)(state.act_selection)
     }
-    // 处理变更placelist
-    let list = mutil.selectcards(state.act_selection.list)
-    state.placelist = list
+    if(!state.act_selection.message && pile) {
+      state.act_selection = R.assoc('message', iseffect + ':' + isopp + player.id + '从【' + pile + '】选择')(state.act_selection)
+      // console.log('_ACT_SELECTION_INIT message', state.act_selection.message )
+    }
+
+    // 处理selector => filter => list => placelist
+    let list = mutil.selectcards(state.act_selection.selector)
+    list = R.filter(state.act_selection.filter, list)
     state.act_selection.list = list
+    state.placelist = list
     // placelist end
 
-    state.placelist.forEach((card) => {
-      card.selected = false
-      card.selectable = true
-    })
+    state.placelist.forEach(state.act_selection.onmark)
   },
   ACT_SET_SELECTED(state) {
     if (!state.placeholder) {
       console.error('commit ACT_SET_SELECTED ERROR no placeholder card')
       return
     }
-    // if (state.placeholder !== card) {
-    //   console.error('commit ACT_SET_SELECTED ERROR card != placeholder card')
-    //   return
-    // }
 
     let flag = !state.placeholder.selected
     state.placeholder.selected = flag
 
     mutil.call(R.prop('selectedMuation', state.act_selection), this, state, state.placeholder)
-    // if (state.act_selection.selectedMuation) {
-    //   // 处理muation callback
-    //   // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
-    //   state.act_selection.selectedMuation(state, state.placeholder)
-    // }
 
     // 处理更新selected list
     state.act_selection.selectedList = state.act_selection.list.filter((card) => card.selected)
@@ -377,9 +392,10 @@ export default {
   //   // console.log('commit ACT_UNSELECTION')
   // },
   _ACT_FINISH(state, payload) {
-    state.placelist.forEach((card) => {
-      card.selectable = false
-    })
+    state.placelist.forEach(state.act_selection.onunmark)
+    // state.placelist.forEach((card) => {
+    //   card.selectable = false
+    // })
     state.act_selection.finish = true
     console.log('commit ACT_FINISH')
   },

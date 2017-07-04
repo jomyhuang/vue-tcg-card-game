@@ -155,8 +155,8 @@ export default {
         return false
       }
 
-      if (state.act_selection.message)
-        console.log(state.act_selection.message)
+      // if (state.act_selection.message)
+      //   console.log(`message: ${state.act_selection.message}`)
 
       // let doselect = true
       if (R.length(state.act_selection.list) <= 0) {
@@ -180,16 +180,20 @@ export default {
       // if (doselect) {
       const agent = state.act_selection.agent
       const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
+      const message = R.prop('message',state.act_selection)
+      const type = R.prop('type',state.act_selection)
+
       // let selectcard
 
-      if(choiceUI) {
-        console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
-        choiceUI.open(0,resolve)
-        return
-      }
+      // if(choiceUI) {
+      //   console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+      //   choiceUI.open(0,resolve)
+      //   return
+      // }
 
       if (agent) {
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
+        console.log(`_AGENT ${type} ${message}`)
         let selectcard = agent.SELECT_CARD(state, payload)
         dispatch('ACT_SELECTED_CARD', selectcard)
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
@@ -204,8 +208,6 @@ export default {
         else {
           console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
         }
-        let message = R.prop('message',state.act_selection)
-        let type = R.prop('type',state.act_selection)
         console.log(`_WAIT ${type} ${message}`)
 
         // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
@@ -263,6 +265,7 @@ export default {
       if(choiceUI) {
         choiceUI.close()
       }
+      return selectcard
     })
   },
   PLAY_CARD({

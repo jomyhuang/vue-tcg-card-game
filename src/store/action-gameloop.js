@@ -148,7 +148,7 @@ export default {
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_DECALRE_ATTACKER',
-      list: 'zone',
+      selector: 'zone',
       // player: state.currentPlayer,
       // many: 1,
       selectedMuation: (state, card) => {
@@ -156,22 +156,34 @@ export default {
         card.name = card.name + '[A]'
         // card.play = R.assoc('isAttacker', true)(card.play)
       },
-      selectedAction: (state, card) => {
-        commit('BATTLE_SET', {
-          attacker: {
-            main: card,
-          }
-        })
-        commit('ADD_TAG', 'isAttacker')
-        commit('SET_FACEUP')
-      },
-      thenAction: (state) => {
-        commit('SELECT_PLAYER', state.currentPlayer)
-        commit('SELECT_CARD', state.battle.attacker.main)
-        dispatch('TIGGER_EFFECT', 'faceup')
-        // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
-        // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
-      },
+      // selectedAction: (state, card) => {
+      //   commit('BATTLE_SET', {
+      //     attacker: {
+      //       main: card,
+      //     }
+      //   })
+      //   commit('ADD_TAG', 'isAttacker')
+      //   commit('SET_FACEUP')
+      // },
+      // thenAction: (state) => {
+      //   commit('SELECT_PLAYER', state.currentPlayer)
+      //   commit('SELECT_CARD', state.battle.attacker.main)
+      //   dispatch('TIGGER_EFFECT', 'faceup')
+      //   // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
+      //   // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
+      // },
+    }).then( (card) => {
+      commit('BATTLE_SET', {
+        attacker: {
+          main: card,
+        }
+      })
+      commit('ADD_TAG', 'isAttacker')
+      commit('SET_FACEUP')
+
+      commit('SELECT_PLAYER', state.currentPlayer)
+      commit('SELECT_CARD', state.battle.attacker.main)
+      dispatch('TIGGER_EFFECT', 'faceup')
     })
   },
   BATTLE_OPP_DECLARE_DEFENSER({
@@ -184,29 +196,43 @@ export default {
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_OPP_DECLARE_DEFENSER',
-      list: 'opp_zone',
+      selector: 'opp_zone',
       // player: state.currentPlayer,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[D]'
         // card.play = R.assoc('isDefenser', true)(card.play)
       },
-      selectedAction: (state, card) => {
-        commit('BATTLE_SET', {
-          defenser: {
-            main: card,
-          }
-        })
-        commit('ADD_TAG', 'isDefenser')
-        commit('SET_FACEUP')
-      },
-      thenAction: (state) => {
-        commit('SELECT_PLAYER', state.opponentPlayer)
-        commit('SELECT_CARD', state.battle.defenser.main)
-        dispatch('TIGGER_EFFECT', 'faceup')
-        commit('SELECT_PLAYER', state.currentPlayer)
-        // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
-      },
+      // selectedAction: (state, card) => {
+      //   commit('BATTLE_SET', {
+      //     defenser: {
+      //       main: card,
+      //     }
+      //   })
+      //   commit('ADD_TAG', 'isDefenser')
+      //   commit('SET_FACEUP')
+      // },
+      // thenAction: (state) => {
+      //   commit('SELECT_PLAYER', state.opponentPlayer)
+      //   commit('SELECT_CARD', state.battle.defenser.main)
+      //   dispatch('TIGGER_EFFECT', 'faceup')
+      //   commit('SELECT_PLAYER', state.currentPlayer)
+      //   // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
+      // },
+    }).then( (card) => {
+      commit('BATTLE_SET', {
+        defenser: {
+          main: card,
+        }
+      })
+      commit('ADD_TAG', 'isDefenser')
+      commit('SET_FACEUP')
+
+      commit('SELECT_PLAYER', state.opponentPlayer)
+      commit('SELECT_CARD', state.battle.defenser.main)
+      dispatch('TIGGER_EFFECT', 'faceup')
+      commit('SELECT_PLAYER', state.currentPlayer)
+      // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
     })
   },
   BATTLE_PLAY_SUPPORTER({
@@ -218,25 +244,35 @@ export default {
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_PLAY_SUPPORTER',
-      list: 'hand',
+      selector: 'hand',
       // player: state.currentPlayer,
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
         // card.play = R.assoc('isSupporter', true)(card.play)
       },
-      selectedAction: (state, card) => {
-        commit('BATTLE_SET', {
-          attacker: {
-            support: card,
-          }
-        })
-        commit('ADD_TAG', 'isSupporter')
-      },
-      thenAction: (state, card) => {
-        commit('PICK_CARD', state.battle.attacker.support)
-        commit('TO_SUPPORTER')
-      },
+      // selectedAction: (state, card) => {
+      //   commit('BATTLE_SET', {
+      //     attacker: {
+      //       support: card,
+      //     }
+      //   })
+      //   commit('ADD_TAG', 'isSupporter')
+      // },
+      // thenAction: (state, card) => {
+      //   commit('PICK_CARD', state.battle.attacker.support)
+      //   commit('TO_SUPPORTER')
+      // },
+    }).then( (card) => {
+      commit('BATTLE_SET', {
+        attacker: {
+          support: card,
+        }
+      })
+      commit('ADD_TAG', 'isSupporter')
+
+      commit('PICK_CARD', state.battle.attacker.support)
+      commit('TO_SUPPORTER')
     })
   },
   BATTLE_OPP_PLAY_SUPPORTER({
@@ -248,24 +284,34 @@ export default {
 
     return dispatch('OPP_PLAY_CARD', {
       phase: 'BATTLE_OPP_PLAY_SUPPORTER',
-      list: 'hand',
+      selector: 'hand',
       selectedMuation: (state, card) => {
         state.storemsg = `select ${card.name}`
         card.name = card.name + '[S]'
         // card.play = R.assoc('isSupporter', true)(card.play)
       },
-      selectedAction: (state, card) => {
-        commit('BATTLE_SET', {
-          defenser: {
-            support: card,
-          }
-        })
-        commit('ADD_TAG', 'isSupporter')
-      },
-      thenAction: (state, card) => {
-        commit('PICK_CARD', state.battle.defenser.support)
-        commit('TO_SUPPORTER')
-      },
+      // selectedAction: (state, card) => {
+      //   commit('BATTLE_SET', {
+      //     defenser: {
+      //       support: card,
+      //     }
+      //   })
+      //   commit('ADD_TAG', 'isSupporter')
+      // },
+      // thenAction: (state, card) => {
+      //   commit('PICK_CARD', state.battle.defenser.support)
+      //   commit('TO_SUPPORTER')
+      // },
+    }).then( (card) => {
+      commit('BATTLE_SET', {
+        defenser: {
+          support: card,
+        }
+      })
+      commit('ADD_TAG', 'isSupporter')
+
+      commit('PICK_CARD', state.battle.defenser.support)
+      commit('TO_SUPPORTER')
     })
   },
   BATTLE_EFFECT({
