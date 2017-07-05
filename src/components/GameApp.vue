@@ -68,7 +68,7 @@
       模拟测试模式 <i-switch v-model="isTest"/>
     </div>
   </Row>
-  <comMessage ref="info"></comMessage>
+  <comMessage ref="messageUI"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
   <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
@@ -268,7 +268,7 @@ export default {
       //   console.log('hello promise')
       // })
     },
-    __message(msg,duration=1.5) {
+    __message(msg,duration=1500,fullmessage=false) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
@@ -276,18 +276,30 @@ export default {
       if(mu.isTestmode) return
 
       return new Promise((resolve, reject) => {
-          this.$Message.info({
-                    content: msg,
-                    duration: duration,
-                    // onClose: () => resolve()
+
+        // const fullmessage = false
+        if(fullmessage) {
+          this.$refs.messageUI.showstart(msg,resolve)
+        }
+        else {
+          this.$message.closeAll()
+          this.$message({
+              type: 'info',
+              message: msg,
+              duration: duration,
+              onClose: this.isAsyncMssage ? resolve : null,
           })
-          if(this.isAsyncMssage) {
-            // pause time
-            setTimeout(()=>resolve(),1500)
-          }
-          else {
+          if(!this.isAsyncMssage) {
             resolve()
           }
+          // if(this.isAsyncMssage) {
+          //   // pause time
+          //   setTimeout(()=>resolve(),1500)
+          // }
+          // else {
+          //   resolve()
+          // }
+        }
       })
     },
     __notice(msg,duration=1.5) {
@@ -296,13 +308,6 @@ export default {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
-      // if(this.config.message) {
-      //   return new Promise((resolve, reject) => {
-      //       const res = this.$Message.info({ content: this.msg, duration: 2000 })
-      //       resolve()
-      //   })
-      // }
-      // return true
       if(mu.isTestmode) return
 
       if (this.config.message) {
@@ -332,10 +337,10 @@ export default {
         // 停留信息延迟，但有新信息来就移除前面信息
         this.$Message.destroy()
       }
-      return this.__message(msg, 10)
+      return this.__message(msg)
     },
     gameloop_message(msg) {
-      return this.__notice(msg, 1.5)
+      return this.__notice(msg)
     },
     run_next(newphase, payload) {
       console.log(`next %c${newphase}`, 'color:blue')

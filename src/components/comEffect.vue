@@ -186,24 +186,6 @@ export default {
     showchoice(data, onfinish) {
       return this.showstage('choice', {}, onfinish, 0)
     },
-    // showbuff(buff, onfinish) {
-    //   const duration = 1500
-    //   this.buffshow = buff
-    //   this._setstage('showbuff')
-    //
-    //   if (!this.show || mu.isTestmode) {
-    //     onfinish.call(this)
-    //     return
-    //   }
-    //   // IDEA: RxJS?
-    //   if (onfinish) {
-    //     setTimeout(() => {
-    //       this.buffshow = null
-    //       this._setstage()
-    //       onfinish.call(this)
-    //     }, duration)
-    //   }
-    // },
   }
 }
 </script>
