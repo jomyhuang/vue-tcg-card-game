@@ -302,7 +302,7 @@ export default {
         }
       })
     },
-    __notice(msg,duration=1.5) {
+    __notice(msg,duration=1500) {
       // return promise from component
       // return this.$refs.info.async_message(msg)
       this.msg = msg
@@ -312,14 +312,16 @@ export default {
 
       if (this.config.message) {
         return new Promise((resolve, reject) => {
-          this.$Notice.open({
-            title: msg,
+          this.$notify({
+            // title: msg,
+            message: msg,
             duration: duration,
-            // onClose: this.isAsyncMssage ? () => resolve() : () => undefined
+            type: 'info',
+            onClose: this.isAsyncMssage ? resolve : null,
           })
-          // if(!this.isAsyncMssage) {
-          resolve()
-          // }
+          if(!this.isAsyncMssage) {
+            resolve()
+          }
         })
       }
       return true

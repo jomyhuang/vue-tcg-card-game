@@ -48,6 +48,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import mu from '@/mutil'
 
 export default {
@@ -75,13 +76,9 @@ export default {
   },
   watch: {
     // show(val, oldval) {
-    //   // console.log( 'v-model vaule changed :', val, oldval )
     //   if(!val) {
-    //     if(this.onClose) {
-    //       console.log('callback on close')
-    //       this.onClose.call(this)
-    //       this.onClose = null
-    //     }
+    //     this._setstage()
+    //     this.stagedata = null
     //   }
     // },
   },

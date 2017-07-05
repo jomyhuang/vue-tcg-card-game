@@ -349,8 +349,8 @@ export default {
     state.placeplayer = player
 
     const pile = R.is(String, state.act_selection.selector) ?  state.act_selection.selector : undefined
-    const isopp = player === state.currentPlayer ? '' : '对手'
-    const iseffect = state.act_selection.source ? '效果' : '对战'
+    const isopp = player.id === state.currentPlayer.id ? '' : '对手'
+    const iseffect = state.act_selection.source ? '效果:' : '对战:'
     // TODO: 如何判读是对手选择
 
     if(!state.act_selection.agent) {

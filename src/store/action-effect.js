@@ -176,7 +176,7 @@ export default {
     //   console.log('EFFECT_OPP_CHOICE finish return select currentPlayer')
     //   commit('SELECT_PLAYER',state.currentPlayer)
     // })
-    console.log('EFFECT_OPP_CHOICE do ', payload)
+    // console.log('EFFECT_OPP_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
 }
