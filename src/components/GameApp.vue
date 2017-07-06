@@ -49,19 +49,19 @@
       <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
       <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
-      <el-button @click="gameloop(true)">GAME LOOP UI</el-button>
-      <el-button @click="run_gameloop()">QUICK RUN</el-button>
-      <el-button @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
+      <el-button type="primary" @click="gameloop(true)">GAME LOOP UI</el-button>
+      <el-button type="primary" @click="run_gameloop()">QUICK RUN</el-button>
+      <el-button type="primary" @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
       <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
       <BR/> 显示讯息
-      <i-switch v-model="isMessage" /> 异步讯息
-      <i-switch v-model="isAsyncMssage" />
+      <el-switch v-model="isMessage" /> 异步讯息
+      <el-switch v-model="isAsyncMssage" />
       <el-button @click="gameTest()">TEST</el-button>
       <el-button @click="gameReset()">RESET</el-button>
       <el-button @click="gameNewdeck()">NewDeck</el-button>
       <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
       <BR/> 模拟测试模式
-      <!-- <i-switch v-model="isTest" /> -->
+      <el-switch v-model="isTest" />
       <el-button @click="battleshow(0)">Battle Show</el-button>
       <el-button @click="scoreshow()">Score Show</el-button>
       <el-button @click="effectshow()">Effect Show</el-button>

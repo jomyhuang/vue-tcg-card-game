@@ -4,12 +4,11 @@ import Vue from 'vue'
 // import Vuex from 'vuex'
 
 
-// import VTooltip from 'v-tooltip'
-
 import App from './App'
 import store from '@/store'
 import router from '@/router'
 
+import '../theme/reset.css'
 import './allstyle.css'
 
 // 自定义全局插件
@@ -19,8 +18,8 @@ Vue.use(muvue)
 // Vue.use(Vuex)
 
 // use ElementUI
+import '../theme/index.css'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-default/index.css'
 Vue.use(ElementUI)
 
 // use iView
