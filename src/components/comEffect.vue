@@ -9,11 +9,11 @@
       <!-- <div v-show="stage"> -->
       <transition name="bounceLeft" mode="in-out">
         <div v-if="isstage('start')">
-            <h1>效果启动</h1>
+          <h1>效果启动</h1>
         </div>
       </transition>
 
-      <Row class="gameboard">
+      <el-row type="flex" class="gameboard">
         <transition name="bounceDown">
           <div v-if="isstage('showbuff')">
             <h2>SHOW BUFF EFFECT</h2>
@@ -21,16 +21,16 @@
             <h5>{{stagedata.tag}}</h5>
           </div>
         </transition>
-      </Row>
+      </el-row>
       <div v-if="stage=='choice'">
-        <Row class="gameboard">
+        <el-row type="flex" class="gameboard">
           <h2>CHOICE</h2>
           <el-carousel :interval="4000" type="card" height="200px">
             <el-carousel-item v-for="item in 6" :key="item">
               <h3 @click="testclick(item)">{{ item }}</h3>
             </el-carousel-item>
           </el-carousel>
-        </Row>
+        </el-row>
       </div>
       <!-- </div> -->
     </div>

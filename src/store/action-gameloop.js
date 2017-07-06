@@ -391,6 +391,28 @@ export default {
         commit('TO_GRAVEYARD')
         commit('PICK_CARD', lose.support)
         commit('TO_GRAVEYARD')
+
+        // clear scoreboard
+        if(win.main.cardno===battle.attacker.main.cardno) {
+          //  进攻方获胜
+          console.log('进攻方获胜')
+          commit('BATTLE_SET', {
+            defenser: {
+              main: null,
+              support: null,
+            }
+          })
+        }
+        else {
+          //  防守方获胜
+          console.log('防守方获胜')
+          commit('BATTLE_SET', {
+            attacker: {
+              main: null,
+              support: null,
+            }
+          })
+        }
       }
 
       console.log(`BATTLE_EFFECT_CLEAR clear play tag`)
@@ -398,7 +420,7 @@ export default {
       R.map((x) => {
         commit('SELECT_CARD',x)
         commit('CLEAR_TAG')
-      }, cards )
+      }, cards)
 
       console.log(`BATTLE_EFFECT_CLEAR end`)
       resolve()

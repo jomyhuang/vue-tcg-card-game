@@ -58,6 +58,7 @@ export default {
     // if(R.has('defenser')(payload)) {
     //   R.forEachObjIndexed(settingDefenser)(payload.defenser)
     state.battle.defenser = R.merge(state.battle.defenser)(payload.defenser)
+    state.battle.score = R.merge(state.battle.score)(payload.score)
     // }
 
     state.battle.attacker.player = state.currentPlayer

@@ -14,7 +14,7 @@
         </div>
       </transition> -->
       <!-- <div v-if="stage=='choice'"> -->
-      <Row class="gameboard">
+      <el-row class="gameboard">
         <h3>选择</h3>
         <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
           <el-carousel-item v-for="item in list" :key="item">
@@ -23,7 +23,7 @@
             </div>
           </el-carousel-item>
         </el-carousel>
-      </Row>
+      </el-row>
       <!-- </div> -->
     </div>
     <!-- <div v-else>

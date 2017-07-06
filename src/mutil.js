@@ -45,8 +45,7 @@ export default {
   },
   clearMessage() {
     if(this.isTestmode) return
-
-    $mainapp.$Message.destroy()
+    // $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
   },
   setTestmode(mode=true) {
