@@ -1,13 +1,26 @@
 
-h1,
+body {
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: rgb(31, 45, 61);
+}
+
+h1 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
 h2 {
   font-weight: bold;
+  font-size: 20px;
 }
 
 .gameboard {
   border: thin solid #0000ff;
   background-color: lightblue;
   padding: 15px;
+  font-size: 16px;
 }
 
 .flex-container {

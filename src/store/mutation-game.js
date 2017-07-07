@@ -7,6 +7,7 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
+
 import firstAgent from '@/components/agent-first'
 
 export default {
@@ -36,17 +37,16 @@ export default {
   },
   EFFECT_SET(state, payload) {
 
-    if(R.isEmpty(payload)) {
+    if (R.isEmpty(payload)) {
       state.effect = null
       state.effect = {}
-    }
-    else {
+    } else {
       state.effect = R.merge(state.effect)(payload)
     }
 
     console.log('commit EFFECT_SET payload', payload)
   },
-  STORE_MESSAGE(state,payload) {
+  STORE_MESSAGE(state, payload) {
     state.storemsg = payload
   },
   // ---------------------------------------------------- GAME_XXX
@@ -153,7 +153,7 @@ export default {
       }
     })
   },
-  GAME_PHASE(state,payload) {
+  GAME_PHASE(state, payload) {
     const phase = payload
     state.game.phase = phase
 
@@ -282,45 +282,6 @@ export default {
       }
     }
 
-    // console.log('SELECT_LIST this=',this);
-    // if (R.is(String, list)) {
-    //   const opt = R.split('_',list)
-    //   if(opt.length>1 && opt[0]==='opp') {
-    //     // 处理选择对手的牌库
-    //     let oppplayer = mutil.opponent(state.placeplayer)
-    //
-    //     if(state.placeholder) {
-    //       if(state.placeholder.owner != state.currentPlayer) {
-    //         console.warn('在发动玩家owner select list 效果')
-    //         // // throw '在对方回合发动选择效果'
-    //         // oppplayer = state.currentPlayer
-    //       }
-    //     }
-    //     // TODO FIX: 调整玩家“相对对象”的改变，不能直接使用 currentPlayer, opponentPlayer
-    //     // let oppplayer = mstate.opponentPlayer
-    //     // if(state.placeholder) {
-    //     //   if(state.placeholder.owner != state.currentPlayer) {
-    //     //     console.warn('在对方回合发动玩家owner选择效果')
-    //     //     // throw '在对方回合发动选择效果'
-    //     //     oppplayer = state.currentPlayer
-    //     //   }
-    //     // }
-    //
-    //     list = oppplayer[opt[1]]
-    //     console.log('commit SELECT_LIST opponent select',list)
-    //   }
-    //   else if (_.isFunction(list)){
-    //     console.log(`commit SELECT_LIST function select call`)
-    //     list = list.call(state)
-    //     console.log(`commit SELECT_LIST function select`,list)
-    //   }
-    //   else {
-    //     list = state.placeplayer[list]
-    //     console.log(`commit SELECT_LIST placeplayer ${state.placeplayer.id} select`,list)
-    //   }
-    // }
-    // state.placelist = list
-
     state.placelist = mutil.selectcards(list)
 
     if (state.placelist.length > 0)
@@ -341,91 +302,87 @@ export default {
   _ACT_SELECTION_INIT(state, payload = {}) {
 
     state.act_selection = R.merge({
-      list: () => state.placelist,
+      list: undefined,
+      selector: () => state.placelist,
+      filter: () => true,
+
       many: 1,
-      selectedList: [],
+      agent: undefined,
+      player: null,
       finish: false,
       type: 'ACT_SELECTION',
+      phase: null,
+      source: null,
+      message: null,
+
+      selectedList: [],
       card: undefined,
-      agent: undefined,
-      selector: undefined,
+      // choiceUI Vue Component 不能放入state中
+      choiceUI: false,
+      onselect: null,
+      onmark: (card) => {
+        card.selected = false
+        card.selectable = true
+      },
+      onunmark: (card) => {
+        card.selectable = false
+      },
+      selectedMuation: null,
+      // oncommit: null,
     })(payload)
 
-    if (!R.has('player', state.act_selection)) {
+    if (R.isNil('player', state.act_selection)) {
       console.error('ACT_SELECTION must assign player')
       throw 'ACT_SELECTION must assign player'
       return false
     }
 
-    // if (_.startsWith(state.act_selection.list, 'opp_')) {
-    //   throw 'ASYNC_ACT_SELECT_CARD_START do not support opp_xxx string list'
-    //   return false
-    // }
-
-    const player = state.act_selection.player
-
-    if (!state.act_selection.agent) {
-      state.act_selection = R.assoc('agent', player.agent)(state.act_selection)
+    // 复写list在 selector
+    // if (R.is(String, state.act_selection.list)) {
+    if(state.act_selection.list) {
+      state.act_selection.selector = state.act_selection.list
+      state.act_selection.list = null
     }
 
+    const player = state.act_selection.player
     // 处理变更placeplayer
     state.placeplayer = player
 
-    // 处理变更placelist
-    // let list = state.act_selection.list
-    // if (R.is(String, list)) {
-    //   if (R.equals(list, 'placelist')) {
-    //     console.log(`_ACT_SELECTION_INIT list string use placelist`)
-    //     list = state.placelist
-    //   } else {
-    //     console.log(`_ACT_SELECTION_INIT list string use ${list}`)
-    //     list = state.placeplayer[list]
-    //   }
-    //   console.log(`_ACT_SELECTION_INIT list string select`, list)
-    // } else if (_.isFunction(list)) {
-    //   console.log(`_ACT_SELECTION_INIT list function select call`)
-    //   list = list.call(state)
-    //   console.log(`_ACT_SELECTION_INIT list function select`, list)
-    // }
+    const pile = R.is(String, state.act_selection.selector) ?  state.act_selection.selector : undefined
+    const isopp = player.id === state.currentPlayer.id ? '' : '对手'
+    const iseffect = state.act_selection.source ? '效果:' : '对战:'
+    // TODO: 如何判读是对手选择
 
-    // 保留 selector
-    if (R.is(String, state.act_selection.list)) {
-      state.act_selection.selector = state.act_selection.list
+    if(!state.act_selection.agent) {
+      state.act_selection = R.assoc('agent', player.agent)(state.act_selection)
     }
-    // 处理变更placelist
-    let list = mutil.selectcards(state.act_selection.list)
-    state.placelist = list
+    if(!state.act_selection.message && pile) {
+      state.act_selection = R.assoc('message', iseffect + ':' + isopp + player.id + '从【' + pile + '】选择')(state.act_selection)
+      // console.log('_ACT_SELECTION_INIT message', state.act_selection.message )
+    }
+
+    // 处理selector => filter => list => placelist
+    let list = mutil.selectcards(state.act_selection.selector)
+    list = R.filter(state.act_selection.filter, list)
     state.act_selection.list = list
+    state.placelist = list
     // placelist end
 
-    state.placelist.forEach((card) => {
-      card.selected = false
-      card.selectable = true
-    })
+    state.placelist.forEach(state.act_selection.onmark)
   },
   ACT_SET_SELECTED(state) {
     if (!state.placeholder) {
       console.error('commit ACT_SET_SELECTED ERROR no placeholder card')
       return
     }
-    // if (state.placeholder !== card) {
-    //   console.error('commit ACT_SET_SELECTED ERROR card != placeholder card')
-    //   return
-    // }
 
     let flag = !state.placeholder.selected
     state.placeholder.selected = flag
 
-    mutil.call(R.prop('selectedMuation',state.act_selection), this, state, state.placeholder)
-    // if (state.act_selection.selectedMuation) {
-    //   // 处理muation callback
-    //   // console.log( `commit ACT_SET_SELECTED selectedMuation call` )
-    //   state.act_selection.selectedMuation(state, state.placeholder)
-    // }
+    mutil.call(R.prop('selectedMuation', state.act_selection), this, state, state.placeholder)
 
     // 处理更新selected list
     state.act_selection.selectedList = state.act_selection.list.filter((card) => card.selected)
-
     state.act_selection.card = flag ? state.placeholder : undefined
   },
   // ACT_UNSELECTION_ALL(state) {
@@ -435,9 +392,10 @@ export default {
   //   // console.log('commit ACT_UNSELECTION')
   // },
   _ACT_FINISH(state, payload) {
-    state.placelist.forEach((card) => {
-      card.selectable = false
-    })
+    state.placelist.forEach(state.act_selection.onunmark)
+    // state.placelist.forEach((card) => {
+    //   card.selectable = false
+    // })
     state.act_selection.finish = true
     console.log('commit ACT_FINISH')
   },
@@ -588,7 +546,7 @@ export default {
     const card = state.placeholder
     const buff = payload
     card.power.push(buff)
-    console.log(`commit ADD_BUFF ${state.placeholder.name}`,buff)
+    console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
   },
   ADD_TAG(state, payload) {
     if (!state.placeholder) {
@@ -597,13 +555,12 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String,tag)) {
-      card.play = R.assoc(tag,true)(card.play)
+    if (R.is(String, tag)) {
+      card.play = R.assoc(tag, true)(card.play)
+    } else {
+      card.play = R.merge(tag, card.play)
     }
-    else {
-      card.play = R.merge(tag,card.play)
-    }
-    console.log(`commit ADD_TAG ${state.placeholder.name}`,card.play)
+    console.log(`commit ADD_TAG ${state.placeholder.name}`, card.play)
   },
   REMOVE_TAG(state, payload) {
     if (!state.placeholder) {
@@ -612,13 +569,12 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String,tag)) {
+    if (R.is(String, tag)) {
       card.play = R.dissoc(tag)(card.play)
-    }
-    else {
+    } else {
       console.error('REMOVE_TAG payload must is string')
     }
-    console.log(`commit REMOVE_TAG ${state.placeholder.name}`,card.play)
+    console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
   },
   CLEAR_TAG(state, payload) {
     if (!state.placeholder) {

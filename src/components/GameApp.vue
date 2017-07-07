@@ -1,76 +1,78 @@
 <template>
 <div class="gameapp">
-  <Row class="gameboard">
+  <el-row type="flex" class="gameboard">
     <div>
       <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
-      <Button @click="gameTest()">GAME TEST</Button>
-      <Button @click="battleshow(0)">Battle Show</Button>
+      <el-button @click="gameTest()">GAME TEST</el-button>
+      <el-button @click="battleshow(0)">Battle Show</el-button>
     </div>
-  </Row>
-  <Row class="gameboard">
-    <Col span="4">
-    <div class="gameboard">
-      <h3>deck2</h3>
-      <comDeck :player="$store.state.player2"></comDeck>
-      <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
-    </div>
-    </Col>
-    <Col span="20">
-    <div class="gameboard" style="min-height:200px">
-      <comHand :player="$store.state.player2"></comHand>
-    </div>
-    <div class="gameboard" style="min-height:200px">
-      <comZone :player="$store.state.player2"></comZone>
-    </div>
-    </Col>
-  </Row>
-  <Row class="gameboard">
-    <Col span="20">
+  </el-row>
+  <el-row type="flex" class="gameboard">
+    <el-col :span="4">
+      <div class="gameboard">
+        <h3>deck2</h3>
+        <comDeck :player="$store.state.player2"></comDeck>
+        <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
+      </div>
+    </el-col>
+    <el-col :span="20">
+      <div class="gameboard" style="min-height:200px">
+        <comHand :player="$store.state.player2"></comHand>
+      </div>
+      <div class="gameboard" style="min-height:200px">
+        <comZone :player="$store.state.player2"></comZone>
+      </div>
+    </el-col>
+  </el-row>
+  <el-row type="flex" class="gameboard">
+    <el-col :span="20">
     <div class="gameboard" style="min-height:200px">
       <comZone :player="$store.state.player1"></comZone>
     </div>
     <div class="gameboard" style="min-height:200px">
       <comHand :player="$store.state.player1"></comHand>
     </div>
-    </Col>
-    <Col span="4">
+    </el-col>
+    <el-col :span="4">
     <div class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
       <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
       <BR/>
-      <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
-      <Button @click="playcard()">PLAY</Button>
+      <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
+      <el-button @click="playcard()">PLAY</el-button>
     </div>
-    </Col>
-  </Row>
-  <Row class="gameboard">
+    </el-col>
+  </el-row>
+  <el-row class="gameboard">
     <div>
       <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
-      <Button @click="gameloop()" shape="circle">GAME LOOP</Button>
-      <Button @click="gameloop(true)" shape="circle">GAME LOOP UI</Button>
-      <Button @click="battleshow(0)" shape="circle">Battle Show</Button>
-      <Button @click="run_gameloop()">QUICK RUN</Button>
-      <Button @click="run_gameloop(1)">QUICK RUN ONE TURN</Button>
-      <Button @click="gameTestBattle()">BATTLE TEST CARD</Button>
-      <BR/>
-      显示讯息 <i-switch v-model="isMessage"/>
-      异步讯息 <i-switch v-model="isAsyncMssage"/>
-      <Button @click="gameTest()">TEST</Button>
-      <Button @click="gameReset()">RESET</Button>
-      <Button @click="gameNewdeck()">NewDeck</Button>
-      <Button @click="gameNewdeck(true)">NewDeck UI</Button>
-      <Button @click="scoreshow()" shape="circle">Score Show</Button>
-      <Button @click="effectshow()" shape="circle">Effect Show</Button>
-      <BR/>
-      模拟测试模式 <i-switch v-model="isTest"/>
+      <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
+      <el-button type="primary" @click="gameloop(true)">GAME LOOP UI</el-button>
+      <el-button type="primary" @click="run_gameloop()">QUICK RUN</el-button>
+      <el-button type="primary" @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
+      <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
+      <BR/> 显示讯息
+      <el-switch v-model="isMessage" /> 异步讯息
+      <el-switch v-model="isAsyncMssage" />
+      <el-button @click="gameTest()">TEST</el-button>
+      <el-button @click="gameReset()">RESET</el-button>
+      <el-button @click="gameNewdeck()">NewDeck</el-button>
+      <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
+      <BR/> 模拟测试模式
+      <el-switch v-model="isTest" />
+      <el-button @click="battleshow(0)">Battle Show</el-button>
+      <el-button @click="scoreshow()">Score Show</el-button>
+      <el-button @click="effectshow()">Effect Show</el-button>
+      <el-button @click="effectchoiceshow()">Effect Choice Show</el-button>
     </div>
-  </Row>
-  <comMessage ref="info"></comMessage>
+  </el-row>
+  <comMessage ref="messageUI"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
   <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
+  <comEffectChoice ref="effectChoiceUI" v-model="$store.state.battle" :player="$store.state.player1"></comEffectChoice>
 </div>
 </template>
 
@@ -81,6 +83,7 @@ import comZone from './comZone.vue'
 import comBattle from './comBattle.vue'
 import comScore from './comScore.vue'
 import comEffect from './comEffect.vue'
+import comEffectChoice from './comEffectChoice.vue'
 import comMessage from './comMessage.vue'
 
 import testdeck1 from '@/components/decktest1.js'
@@ -112,6 +115,7 @@ export default {
     comMessage,
     comScore,
     comEffect,
+    comEffectChoice,
   },
   created() {},
   mounted() {
@@ -119,11 +123,12 @@ export default {
     // console.log('gameapp.vue mixinEffect effect');
     // mu.mixinEffect()
     console.log('gameapp.vue GAME initial')
-    this.$store.dispatch('GAME_INIT_STORE',
-      { store: this.$store,
-        mainapp: this,
-        effectUI: this.$refs.effectUI,
-      })
+    this.$store.dispatch('GAME_INIT_STORE', {
+      store: this.$store,
+      mainapp: this,
+      effectUI: this.$refs.effectUI,
+      effectChoiceUI: this.$refs.effectChoiceUI,
+    })
     mu.setUI(this.battleshow)
     // mu.tapUI()
 
@@ -227,14 +232,17 @@ export default {
       // this.$store.dispatch('DRAW', 5)
       // this.$store.dispatch('DRAW_TO_ZONE', 5)
     },
-    battleshow(value = 1000,onclose) {
-      return this.$refs.battle.open(value,onclose)
+    battleshow(value = 1000, onclose, msg) {
+      return this.$refs.battle.open(value, onclose, msg)
     },
-    scoreshow(value=0,onclose) {
-      return this.$refs.score.open(value,onclose)
+    scoreshow(value = 0, onclose, msg) {
+      return this.$refs.score.open(value, onclose, msg)
     },
-    effectshow(value=0,onclose) {
-      return this.$refs.effectUI.open(value,onclose)
+    effectshow(value = 0, onclose, msg) {
+      return this.$refs.effectUI.open(value, onclose, msg)
+    },
+    effectchoiceshow(value = 0, onclose, msg) {
+      return this.$refs.effectChoiceUI.open(0, onclose, msg)
     },
     playcard() {
       // this.$store.dispatch( 'SELECT_PLAYER', this.$store.state.player1 )
@@ -260,53 +268,59 @@ export default {
       //   console.log('hello promise')
       // })
     },
-    __message(msg,duration=1.5) {
+    __message(msg, duration = 1500, fullmessage = false) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
 
-      if(mu.isTestmode) return
+      if (mu.isTestmode) return
 
       return new Promise((resolve, reject) => {
-          this.$Message.info({
-                    content: msg,
-                    duration: duration,
-                    // onClose: () => resolve()
+
+        // const fullmessage = false
+        if (fullmessage || this.config.message) {
+          this.$refs.messageUI.showstart(msg, resolve)
+        } else {
+          this.$message.closeAll()
+          this.$message({
+            type: 'info',
+            message: msg,
+            duration: duration,
+            onClose: this.isAsyncMssage ? resolve : null,
           })
-          if(this.isAsyncMssage) {
-            // pause time
-            setTimeout(()=>resolve(),1500)
-          }
-          else {
+          if (!this.isAsyncMssage) {
             resolve()
           }
+          // if(this.isAsyncMssage) {
+          //   // pause time
+          //   setTimeout(()=>resolve(),1500)
+          // }
+          // else {
+          //   resolve()
+          // }
+        }
       })
     },
-    __notice(msg,duration=1.5) {
+    __notice(msg, duration = 1500) {
       // return promise from component
       // return this.$refs.info.async_message(msg)
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
       console.info('%c' + msg, 'color:green')
-      // if(this.config.message) {
-      //   return new Promise((resolve, reject) => {
-      //       const res = this.$Message.info({ content: this.msg, duration: 2000 })
-      //       resolve()
-      //   })
-      // }
-      // return true
-      if(mu.isTestmode) return
+      if (mu.isTestmode) return
 
       if (this.config.message) {
         return new Promise((resolve, reject) => {
-          this.$Notice.open({
-            title: msg,
+          this.$notify({
+            // title: msg,
+            message: msg,
             duration: duration,
-            // onClose: this.isAsyncMssage ? () => resolve() : () => undefined
+            type: 'info',
+            onClose: this.isAsyncMssage ? resolve : null,
           })
-          // if(!this.isAsyncMssage) {
-          resolve()
-          // }
+          if (!this.isAsyncMssage) {
+            resolve()
+          }
         })
       }
       return true
@@ -320,14 +334,10 @@ export default {
       return this.__notice(msg)
     },
     gameloop_phaseinfo(msg) {
-      if(!mu.isTestmode) {
-        // 停留信息延迟，但有新信息来就移除前面信息
-        this.$Message.destroy()
-      }
-      return this.__message(msg, 10)
+      return this.__message(msg)
     },
     gameloop_message(msg) {
-      return this.__notice(msg, 1.5)
+      return this.__notice(msg)
     },
     run_next(newphase, payload) {
       console.log(`next %c${newphase}`, 'color:blue')
@@ -341,13 +351,13 @@ export default {
         return this.$store.commit(type, payload)
       }
     },
-    async_battleshow(value = 1000) {
+    async_battleshow(value = 1000, msg = null) {
       if (!this.config.battelshow) return
-      if(mu.isTestmode) return
+      if (mu.isTestmode) return
 
       // TIPS: 取消使用loop check，使用传入 resolve -> watch -> callback resolve()
       return new Promise((resolve, reject) => {
-        this.battleshow(value, resolve)
+        this.battleshow(value, resolve, msg)
       })
 
       // if (value == 0) {
@@ -447,7 +457,7 @@ export default {
         await this.run_next('BATTLE_OPP_PLAY_SUPPORTER')
 
         await this.gameloop_message(`双方战斗准备完成`)
-        await this.async_battleshow(0)
+        await this.async_battleshow(1000, '对战开始')
 
         await this.gameloop_phaseinfo(`主效果阶段`)
         await this.gameloop_message(`效果：发动阶段`)
@@ -458,6 +468,8 @@ export default {
         await this.run_next('BATTLE_EFFECT_CLEAR')
 
         await this.run_next('BATTLE_END')
+        await this.async_battleshow(0, '战斗结束')
+
 
         // check game over block
         await this.run_next('GAME_CHECK_GAMEOVER').catch((reason) => {
@@ -521,7 +533,7 @@ export default {
     async run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
 
-      if(R.isNil(this.$store.state.player1.agent)) {
+      if (R.isNil(this.$store.state.player1.agent)) {
         this.run_message('run_gameloop 无法使用UI agent')
         return
       }
@@ -529,8 +541,7 @@ export default {
       if (this.$store.state.game.started) {
         this.run_message('对战已经开始，下一回合')
         // return
-      }
-      else {
+      } else {
         let firstplayer = null
         await this.run_next('GAME_START')
         this.run_message('游戏开始')
@@ -570,8 +581,7 @@ export default {
           this.run_message(`game lose ${this.score.lose.id} ${this.score.lose.name}`)
         }
         await this.scoreshow(0)
-      }
-      else {
+      } else {
         console.log(`end of gameloop, turn ${this.turnCount}`)
       }
     },
@@ -618,24 +628,28 @@ export default {
     },
     gameTest() {
 
-      console.log('RxJS practices')
-      var observable = Rx.Observable.create((observer) => {
-        observer.next(this.run_next('RAMDA_TEST'))
-        observer.next(2);
-        observer.next(3);
-        setTimeout(() => {
-          observer.next(4);
-          observer.complete();
-        }, 1000);
-      })
+      console.log('call emit');
+      this.$emit('testemit', this)
+      // this.$boardcast('test',this)
 
-      console.log('just before subscribe');
-      observable.subscribe({
-        next: x => console.log('got value ' + x),
-        error: err => console.error('something wrong occurred: ' + err),
-        complete: () => console.log('done'),
-      })
-      console.log('just after subscribe');
+      // console.log('RxJS practices')
+      // var observable = Rx.Observable.create((observer) => {
+      //   observer.next(this.run_next('RAMDA_TEST'))
+      //   observer.next(2);
+      //   observer.next(3);
+      //   setTimeout(() => {
+      //     observer.next(4);
+      //     observer.complete();
+      //   }, 1000);
+      // })
+      //
+      // console.log('just before subscribe');
+      // observable.subscribe({
+      //   next: x => console.log('got value ' + x),
+      //   error: err => console.error('something wrong occurred: ' + err),
+      //   complete: () => console.log('done'),
+      // })
+      // console.log('just after subscribe');
     },
     // end of methods
   }
@@ -653,6 +667,8 @@ export default {
 h2 {
   color: blue;
 }
+
+
 
 
 /*

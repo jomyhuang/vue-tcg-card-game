@@ -1,16 +1,19 @@
 <template>
-<Card :class="classCard" class="comCard-iview" :padding="padding">
+<!-- <el-card :class="classCard" class="comCard-el" :padding="padding"> -->
+<el-card :class="classCard" class="comCard-el" :body-style="{ padding: '0px' }">
   <div v-if="card">
     <div @click.stop.prevent="card.selectable ? selectcard($event) : undefined">
       <div v-if="card.selectable">
-        <Button type="text" icon="checkmark-round" @click.stop.prevent="selectcard($event)">
+        <el-button type="text" icon="checkmark-round" @click.stop.prevent="selectcard($event)">
           <span v-if="card.selected">UNSELECT</span>
           <span v-else="card.selected">SELECT</span>
-      </Button>
+        </el-button>
       </div>
-      <div v-if="card.facedown">
-        <div>精灵战争</div>
-        <div class="comCard-title">{{card.name}}</div>
+      <div v-if="card.facedown" class="comCard-text-faceoff">
+        <p/>
+        <img src="../assets/sdwlogo.png" width="80">
+        <div v-if="!card.selectable">精灵战争</div>
+        <!-- <div class="comCard-title">{{card.name}}</div> -->
       </div>
       <div v-else>
         <div class="card-title">{{card.name}}</div>
@@ -20,21 +23,32 @@
         <!-- <div v-tooltip.bottom-end="{ content: this.cardtext, classes: 'cardtip' }"> -->
         <!-- <div class="mu-card-tip" ref="cardtext" @mouseenter="handleHover" @mouseleave="handleHoverExit"> -->
         <!-- <mu-tooltip :label="cardtext" :show="show" :trigger="trigger" verticalPosition="bottom" horizontalPosition="center"/> -->
-        <Tooltip placement="bottom-start">
-          <div slot="content">
-            {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}{{card.attack2}} {{card.power2}}<br/> {{card.effecttext}}
-          </div>
+        <div v-if="showtips">
+          <el-tooltip class="item" placement="bottom">
+                <!-- <el-button>下边</el-button>
+          </el-tooltip> -->
+          <!-- <Tooltip placement="bottom-start"> -->
+            <div slot="content">
+              {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}{{card.attack2}} {{card.power2}}<br/> {{card.effecttext}}
+            </div>
+            <div class="comCard-text">
+              {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}<br/> {{card.attack2}} {{card.power2}}<br/>
+            </div>
+          </el-tooltip>
+        </div>
+        <div v-else>
           <div class="comCard-text">
             {{card.class}} {{card.race}} {{card.color}}<br/> # {{card.cardno}} [{{card.pro}}]<br/> {{card.attack1}} {{card.power1}}<br/> {{card.attack2}} {{card.power2}}<br/>
           </div>
-        </Tooltip>
+        </div>
       </div>
     </div>
   </div>
-  <div v-else>
-    <div>准备中</div>
+  <div v-else class="comCard-text-faceoff">
+    <p/>
+    <img src="../assets/sdwlogo.png" width="80">
   </div>
-</Card>
+</el-card>
 </template>
 
 <script>
@@ -46,7 +60,8 @@ export default {
       background: '#FF0000',
       trigger: null,
       show: false,
-      padding: 1,
+      onselect: null,
+      // padding: 1,
     }
   },
   // props: ['card'],
@@ -56,7 +71,15 @@ export default {
       default: () => {
         selectable: false
       },
-    }
+    },
+    showtips: {
+      type: Boolean,
+      default: true,
+    },
+    // style: {
+    //   type: String,
+    //   default: 'normal',
+    // }
   },
   components: {},
   created() {},
@@ -99,14 +122,14 @@ export default {
     },
     selectcard(event) {
       if (this.card.selectable) {
-        this.$store.dispatch('ACT_SELECTED_CARD', this.card)
+        if(this.onselect)
+          this.onselect.call(this,this.card)
+        else
+          this.$store.dispatch('ACT_SELECTED_CARD', this.card)
       } else {
-        console.log('card no choice')
+        // console.log('card no choice')
+        throw 'comCard selectcard call error!'
       }
-      // this.$store.commit('PICK_CARD',this.card)
-      // this.$store.commit('SELECT_CARD',this.card)
-      // this.$store.commit('SET_SELECTED')
-      // this.$store.dispatch('ACT_SELECT_CARD_END')
     },
   }
 }
@@ -136,6 +159,25 @@ export default {
   padding: 1px;
   font-size: 12px;
   font-weight: normal;
+}
+
+.comCard-text-faceoff {
+  padding: 1px;
+  font-weight: bold;
+  font-size: 15px;
+  text-align: center;
+}
+
+.comCard-el {
+  /*background-color: lightgrey;*/
+  width: 120px;
+  height: 150px;
+  margin: 5px;
+  /*border: none 2px #000000;*/
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  /*padding: 1px;*/
 }
 
 .comCard-iview {

@@ -1,10 +1,10 @@
 <template>
 <div class="comScore">
-  <Modal ref="scoreDialog" v-model="show" width="800" @on-ok="ok" @on-cancel="cancel">
-    <div slot="header" style="text-align:center">
+  <el-dialog ref="scoreDialog" v-model="show" size="large">
+    <div slot="title" style="text-align:center">
     精灵战争战绩
     </div>
-    <Row class="gameboard">
+    <el-row type="flex" class="gameboard">
       <div v-if="gameover">
         <div v-if="score.draw">
           <h2>战斗平手</h2>
@@ -17,8 +17,8 @@
       <div v-else>
         <h1>战斗进行中</h1>
       </div>
-    </Row>
-  </Modal>
+    </el-row>
+  </el-dialog>
 </div>
 </template>
 

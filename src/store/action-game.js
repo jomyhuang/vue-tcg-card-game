@@ -104,6 +104,7 @@ export default {
     commit('SELECT_CARD', null)
     console.log('action SET_FACEUP')
   },
+  //----------------------------------- CHOICE/SELECT
   ACT_SELECTED_CARD({
     dispatch,
     commit,
@@ -115,8 +116,8 @@ export default {
     commit('SELECT_CARD', card)
     commit('ACT_SET_SELECTED', card)
 
-    mutil.call(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
-    // // dispatch selected action
+    mutil.tcall(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
+    mutil.tcall(R.prop('onselect',state.act_selection), this, state, state.placeholder)
     // if (state.act_selection.selectedAction) {
     //   state.act_selection.selectedAction(state, card)
     // }
@@ -137,6 +138,14 @@ export default {
     }
 
     return new Promise(async function (resolve, reject) {
+
+      payload = R.assoc('onselect', (state,card) => {
+        // console.log('onselect click')
+        if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+          resolve(card)
+        }
+      } )(payload)
+
       // 注意：使用箭头函数不能是 async
       commit('_ACT_SELECTION_INIT', payload)
 
@@ -146,17 +155,17 @@ export default {
         return false
       }
 
-      if (state.act_selection.message)
-        console.log(state.act_selection.message)
+      // if (state.act_selection.message)
+      //   console.log(`message: ${state.act_selection.message}`)
 
-      let doselect = true
+      // let doselect = true
       if (R.length(state.act_selection.list) <= 0) {
         console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
         // 没列表直接结束离开
-        commit('_ACT_FINISH')
-        resolve()
-        doselect = false
-        return
+        // commit('_ACT_FINISH')
+        // doselect = false
+        resolve(null)
+        return false
       }
 
       // let xLens = R.lensProp('init')
@@ -170,62 +179,93 @@ export default {
       // } else {
       // if (doselect) {
       const agent = state.act_selection.agent
-      let selectcard
+      const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
+      const message = R.prop('message',state.act_selection)
+      const type = R.prop('type',state.act_selection)
+
+      // let selectcard
+
+      // if(choiceUI) {
+      //   console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+      //   choiceUI.open(0,resolve)
+      //   return
+      // }
 
       if (agent) {
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT]')
-        selectcard = agent.SELECT_CARD(state, payload)
+        console.log(`_AGENT ${type} ${message}`)
+        let selectcard = agent.SELECT_CARD(state, payload)
         dispatch('ACT_SELECTED_CARD', selectcard)
         console.log('ASYNC_ACT_SELECT_CARD_START from [AGENT] OK')
         // FIXME: agent 在测试模式下选择没有 actselection.list, selectedlist
+        resolve(selectcard)
       } else {
-        console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+
+        if(choiceUI) {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
+          choiceUI.open(0,resolve)
+        }
+        else {
+          console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
+        }
+        console.log(`_WAIT ${type} ${message}`)
+
         // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
         // move from _WAIT_ACT_SYNC_SELECT_UI
         // IDEA: FIXME: 修改resolve callback方式blocking，取消while loop，如何监控store值改变？？
-        const waitfunc = () => {
-          return new Promise(function (resolve, reject) {
-            setTimeout(() => {
-              if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-                resolve()
-              } else {
-                reject()
-              }
-            }, 1000)
-          })
-        }
+        // const waitfunc = () => {
+        //   return new Promise(function (resolve, reject) {
+        //     setTimeout(() => {
+        //       if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
+        //         resolve()
+        //       } else {
+        //         reject()
+        //       }
+        //     }, 1000)
+        //   })
+        // }
 
-        let message = R.prop('message',state.act_selection)
-        let type = R.prop('type',state.act_selection)
-        console.log(`_WAIT [UI] START BLOCKING ${type} ${message}`)
-        let waiting = true
-        while (waiting) {
-          await waitfunc().then((resolve) => {
-            waiting = false
-          }, (err) => {
-            // run again
-          })
-        }
-        // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
-        console.log(`_WAIT [UI] OK ${message}`)
 
-        selectcard = R.head(state.act_selection.selectedList)
+        // let waiting = true
+        // while (waiting) {
+        //   await waitfunc().then((resolve) => {
+        //     waiting = false
+        //   }, (err) => {
+        //     // run again
+        //   })
+        // }
+        // // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
+        // console.log(`_WAIT [UI] OK ${message}`)
+        //
+        // selectcard = R.head(state.act_selection.selectedList)
       }
 
+      // commit('_ACT_FINISH')
+      //
+      // // commit('SELECT_PLAYER', state.act_selection.player)
+      // // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
+      // mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
+      // // commit('SELECT_CARD', selectcard)
+      //
+      // // call thenAction
+      // mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      // // if (state.act_selection.thenAction) {
+      // //   state.act_selection.thenAction(state, selectcard)
+      // // }
+
+
+    }).then( (selectcard) => {
       commit('_ACT_FINISH')
-
-      // commit('SELECT_PLAYER', state.act_selection.player)
-      // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
       mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
-      // commit('SELECT_CARD', selectcard)
+      if(selectcard) {
+        mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
+      }
 
-      // call thenAction
-      mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
-      // if (state.act_selection.thenAction) {
-      //   state.act_selection.thenAction(state, selectcard)
-      // }
-
-      resolve()
+      const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
+      if(choiceUI) {
+        choiceUI.close()
+      }
+      return selectcard
     })
   },
   PLAY_CARD({

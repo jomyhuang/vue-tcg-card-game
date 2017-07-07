@@ -10,8 +10,7 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
-// import $cx from '@/cardxflow'
-
+import $cx from '@/cardxflow'
 
 export default {
   EFFECT_CONTEXT_INIT({
@@ -79,12 +78,14 @@ export default {
       text: 'effect context',
       type: type,
       phase: state.game.phase,
+      source: card,
       card: card,
       player: player,
       opponent: opponent,
       state: state,
       loop: true,
       UImode: false,
+      cx: $cx,
     }
 
     // console.group()
@@ -100,11 +101,12 @@ export default {
     dispatch
   }, payload) {
 
-    if (!R.isNil(payload)) {
+    if (R.is(String,payload)) {
       payload = {
-        list: payload
+        selector: payload
       }
     }
+
     // if (R.is(String, payload) || R.is(Array, payload) ) {
     //   // console.log('EFFECT_CHOICE is string')
     //   payload = {
@@ -122,16 +124,23 @@ export default {
 
     payload = R.merge({
       phase: 'EFFECT_CHOICE',
-      message: 'EFFECT_CHOICE',
       // player: state.currentPlayer,
       player: state.placeplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_CHOICE ${state.placeplayer.id} select ${card.name}`
-        card.name = card.name + '[EF]'
+        card.name = card.name + '[效果指定]'
       },
+      choiceUI: true,
+      source: R.prop('source',$cx.context),
+      // many: 2,
     })(payload)
 
-    console.log('EFFECT_CHOICE do ', payload)
+    // if(R.is(String, R.prop('list',payload))) {
+    //   payload = R.assoc('message', payload.player.id + '从【'+R.prop('list',payload)+'】选择')(payload)
+    //   // console.log(payload.message);
+    // }
+
+    // console.log('EFFECT_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
   EFFECT_OPP_CHOICE({
@@ -140,9 +149,9 @@ export default {
     dispatch
   }, payload) {
 
-    if (!R.isNil(payload)) {
+    if (R.is(String,payload)) {
       payload = {
-        list: payload
+        selector: payload
       }
     }
 
@@ -150,19 +159,24 @@ export default {
 
     payload = R.merge({
       phase: 'EFFECT_OPP_CHOICE',
-      message: 'EFFECT_OPP_CHOICE',
       player: oppplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_OPP_CHOICE ${oppplayer} select ${card.name}`
-        card.name = card.name + '[OEF]'
+        card.name = card.name + '[OPP效果指定]'
       },
+      // choiceUI: true,
+      source: R.prop('source',$cx.context),
     })(payload)
+
+    // if(R.is(String, R.prop('list',payload))) {
+    //   payload = R.assoc('message', payload.player.id + ' 对方从【'+R.prop('list',payload)+'】选择')(payload)
+    // }
 
     // return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( ()=> {
     //   console.log('EFFECT_OPP_CHOICE finish return select currentPlayer')
     //   commit('SELECT_PLAYER',state.currentPlayer)
     // })
-    console.log('EFFECT_OPP_CHOICE do ', payload)
+    // console.log('EFFECT_OPP_CHOICE do ', payload)
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },
 }
