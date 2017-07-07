@@ -9,7 +9,8 @@ import store from '@/store'
 import router from '@/router'
 
 import '../theme/reset.css'
-import './allstyle.css'
+// import './allstyle.css'
+// fix in style/base.scss
 
 // 自定义全局插件
 import muvue from '@/muvue'

@@ -39,8 +39,8 @@
       <comDeck :player="$store.state.player1"></comDeck>
       <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
       <BR/>
-      <Button @click="$store.dispatch('DRAW',1)">DRAW</Button>
-      <Button @click="playcard()">PLAY</Button>
+      <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
+      <el-button @click="playcard()">PLAY</el-button>
     </div>
     </el-col>
   </el-row>

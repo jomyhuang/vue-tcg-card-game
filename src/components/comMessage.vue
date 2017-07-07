@@ -1,6 +1,6 @@
 <template>
 <div class="comMessage">
-  <el-dialog ref="dialog" v-model="show" size="large" :close-on-click-modal="closemodal">
+  <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
     <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
     <div v-if="context">
       <div slot="header" style="text-align:center">
