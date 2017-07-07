@@ -8,8 +8,10 @@ import App from './App'
 import store from '@/store'
 import router from '@/router'
 
-import '../theme/reset.css'
-// import './allstyle.css'
+import './style/reset.css'
+import './style/allstyle.css'
+import './style/base.scss'
+
 // fix in style/base.scss
 
 // 自定义全局插件

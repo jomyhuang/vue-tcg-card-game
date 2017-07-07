@@ -657,7 +657,7 @@ export default {
 </script>
 
 <style>
-@import '../style/base.scss';
+/*@import '../style/base.scss';*/
 </style>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -668,37 +668,4 @@ h2 {
   color: blue;
 }
 
-
-
-
-/*
-h1,
-h2 {
-  font-weight: bold;
-}*/
-
-
-/*.gameboard {
-  border: thin solid #0000ff;
-  background-color: lightblue;
-  padding: 15px;
-}
-
-.flex-container {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-}
-
-.flex-item {
-  background-color: lightgrey;
-  width: 150px;
-  height: 200px;
-  margin: 10px;
-  border: none 5px #000000;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}*/
 </style>
