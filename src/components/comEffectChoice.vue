@@ -32,7 +32,7 @@
       </div>
     </div> -->
     <span slot="footer" class="dialog-footer">
-      <b>选择卡牌</b>
+      <b v-if="context">选择{{context.many}}张卡牌</b>
       <el-button type="primary" @click="clickok">确 定</el-button>
     </span>
   </el-dialog>

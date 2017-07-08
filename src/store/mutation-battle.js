@@ -181,7 +181,6 @@ export default {
     battle.defenser = R.assoc('total', totalDefenser)(battle.defenser)
 
     console.log(`FINAL totalDefenser ${battle.defenser.total}`)
-
   },
   BATTLE_SCORE(state, {
     battle = state.battle,
@@ -196,6 +195,11 @@ export default {
     if (totalAttacker == totalDefenser) {
       score.draw = true
       score.winside = 'draw'
+      // TODO: add mark isWin/Lose/Draw mark
+      mutil.addTag('isDraw',battle.attacker.main)
+      mutil.addTag('isDraw',battle.attacker.support)
+      mutil.addTag('isDraw',battle.defenser.main)
+      mutil.addTag('isDraw',battle.defenser.support)
       console.log(`battle is DRAW`)
     } else {
       if (totalAttacker > totalDefenser) {
@@ -209,6 +213,12 @@ export default {
         score.winside = 'defenser'
         // console.log(`battle result [defenser] WIN ${score.win.player.id} ${score.win.player.name}`)
       }
+      // TODO: add mark isWin/Lose/Draw mark
+      mutil.addTag('isWin',score.win.main)
+      mutil.addTag('isWin',score.win.support)
+      mutil.addTag('isLose',score.lose.main)
+      mutil.addTag('isLose',score.lose.support)
+      // console.log('tag check', score.win.main.play)
       console.log(`battle result [${score.winside}] WIN ${score.win.player.id} ${score.win.player.name}`)
     }
     score.finish = true

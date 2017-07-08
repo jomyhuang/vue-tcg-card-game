@@ -89,11 +89,14 @@ export default {
   mounted() {},
   beforeDestroy() {},
   computed: {
-    score() {
-      return this.$store.state.game.score
-    },
-    gameover() {
-      return this.$store.state.game.over
+    // score() {
+    //   return this.$store.state.game.score
+    // },
+    // gameover() {
+    //   return this.$store.state.game.over
+    // },
+    config: function() {
+      return this.$store.state.game.config
     },
   },
   methods: {
@@ -160,7 +163,8 @@ export default {
       this.stagedata = data
       this._setstage(stage)
 
-      if (mu.isTestmode) {
+      if (mu.isTestmode || !this.config.message) {
+        console.info(`%comEffect showstage ${stage}`,'color:green')
         onfinish.call(this)
         return
       }

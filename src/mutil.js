@@ -670,5 +670,14 @@ export default {
   },
   hasTag(tag, card = $store.state.placeholder) {
     return !R.isNil(card.play[tag])
-  }
+  },
+  addTag(tag, card = $store.state.placeholder,val=true) {
+    card.play = R.assoc(tag, val)(card.play)
+    // console.log('addtag',card.play);
+    return card
+  },
+  removeTag(tag, card = $store.state.placeholder) {
+    card.play = R.dissoc(tag)(card.play)
+    return card
+  },
 }

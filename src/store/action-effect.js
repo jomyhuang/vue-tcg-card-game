@@ -36,6 +36,18 @@ export default {
     commit('SELECT_CARD', card)
     console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`);
   },
+  EFFECT_TARGET({
+    commit,
+    state,
+    dispatch
+  }, payload) {
+    const card = payload
+    const owner = card.owner
+    commit('SELECT_PLAYER', owner)
+    commit('SELECT_CARD', card)
+    // TODO: if target is player? / register
+    console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`);
+  },
   TIGGER_EFFECT({
     commit,
     state,

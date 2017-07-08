@@ -245,14 +245,25 @@ export default {
       })
     }
   },
-  choice() {
+  effectChoice(payload) {
     return function() {
       const context = this
       const cx = context.cx
       const card = context.card
-      return new Promise(function(resolve, reject) {
-        $effectUI.showchoice({},resolve)
-      })
+      // return Promise.resolve().then( () => {
+      //   console.log('effectChoice before')
+      //   return dispatch('EFFECT_CHOICE',payload)
+      // })
+      //   .then((card) => {
+      //     this.target = card
+      //     console.log('effectChoice target',context.target)
+      //   })
+      return dispatch('EFFECT_CHOICE',payload)
+        .then((card) => {
+          this.target = card
+          console.log('effectChoice target',context.target)
+          // dispatch('EFFECT_TARGET',card)
+        })
     }
   },
   tap(fn) {
@@ -290,8 +301,9 @@ export default {
         context.UImode = true
         $effectUI.context = this
         // $effectUI.open(auto, resolve)
-        $effectUI.showstart(context,resolve)
-        // resolve()
+        // show message
+        // $effectUI.showstart(context,resolve)
+        resolve()
       })
     }]
   },

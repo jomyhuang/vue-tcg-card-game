@@ -1,12 +1,8 @@
 <template>
 <div class="gameapp">
-  <el-row type="flex" class="gameboard">
-    <div>
-      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
-      <el-button @click="gameTest()">GAME TEST</el-button>
-      <el-button @click="battleshow(0)">Battle Show</el-button>
-    </div>
-  </el-row>
+  <!-- <el-row type="flex" class="gameboard">
+    <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+  </el-row> -->
   <el-row type="flex" class="gameboard">
     <el-col :span="4">
       <div class="gameboard">
@@ -323,6 +319,9 @@ export default {
           }
         })
       }
+      else {
+        console.log(`%c notice ${msg}`,'color:green')
+      }
       return true
       // return this.config.message ? this.$Notice.open({title: msg, duration: 2.5}) : true
       // return this.config.message ? this.$refs.info.async_message(msg,duration) : true
@@ -434,8 +433,8 @@ export default {
       do {
 
         await this.run_next('GAME_TURN_BEGIN')
-        await this.gameloop_phaseinfo(`准备阶段`)
-        await this.gameloop_message(`${this.currentPlayer.name} 我的回合！！ 第${this.$store.state.game.turnCount}回合`)
+        await this.gameloop_phaseinfo(`第${this.$store.state.game.turnCount}回合 准备阶段`)
+        await this.gameloop_message(`${this.currentPlayer.name} 我的回合！！`)
         await this.gameloop_message('抽牌')
         await this.run_next('GAME_DRAW')
         await this.gameloop_message('战斗开始')
@@ -468,7 +467,7 @@ export default {
         await this.run_next('BATTLE_EFFECT_CLEAR')
 
         await this.run_next('BATTLE_END')
-        await this.async_battleshow(0, '战斗结束')
+        await this.async_battleshow(umi ? 0 : 1000, '战斗结束')
 
 
         // check game over block

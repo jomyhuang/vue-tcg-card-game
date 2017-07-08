@@ -174,8 +174,11 @@ process:
 // player/card tag modifier (add, remove)
 // --> tigger effect animate
 
+source? and(has(tag),has(effect))
+target? => ( source?selector(filter)(from) )
+  => card? => owner player?
 
-
+context.targets.map(action) -> run(dispatch/commit)
 
 
 4、更精炼的效果函数动作DSL表示方式：

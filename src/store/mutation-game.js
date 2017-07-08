@@ -7,7 +7,6 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
-
 import firstAgent from '@/components/agent-first'
 
 export default {
@@ -340,8 +339,10 @@ export default {
     // 复写list在 selector
     // if (R.is(String, state.act_selection.list)) {
     if(state.act_selection.list) {
-      state.act_selection.selector = state.act_selection.list
-      state.act_selection.list = null
+      // state.act_selection.selector = state.act_selection.list
+      // state.act_selection.list = null
+      throw '_ACT_SELECTION_INIT state.act_selection.list must null'
+      return
     }
 
     const player = state.act_selection.player

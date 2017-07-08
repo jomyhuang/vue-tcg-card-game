@@ -82,6 +82,9 @@ export default {
     // gameover() {
     //   return this.$store.state.game.over
     // },
+    config: function() {
+      return this.$store.state.game.config
+    },
   },
   methods: {
     ok() {},
@@ -145,7 +148,8 @@ export default {
       this.stagedata = data
       this._setstage(stage)
 
-      if (mu.isTestmode) {
+      if (mu.isTestmode || !this.config.message) {
+        console.info(`%ccomMessage showstage ${stage}`,'color:green')
         onfinish.call(this)
         return
       }
