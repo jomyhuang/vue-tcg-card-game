@@ -267,7 +267,7 @@ export default {
     __message(msg, duration = 1500, fullmessage = false) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
-      console.info('%c' + msg, 'color:green')
+      console.info('%c' + msg, 'color:blue')
 
       if (mu.isTestmode) return
 
@@ -277,23 +277,17 @@ export default {
         if (fullmessage || this.config.message) {
           this.$refs.messageUI.showstart(msg, resolve)
         } else {
-          this.$message.closeAll()
-          this.$message({
-            type: 'info',
-            message: msg,
-            duration: duration,
-            onClose: this.isAsyncMssage ? resolve : null,
-          })
-          if (!this.isAsyncMssage) {
-            resolve()
-          }
-          // if(this.isAsyncMssage) {
-          //   // pause time
-          //   setTimeout(()=>resolve(),1500)
-          // }
-          // else {
+          // this.$message.closeAll()
+          // this.$message({
+          //   type: 'info',
+          //   message: msg,
+          //   duration: duration,
+          //   onClose: this.isAsyncMssage ? resolve : null,
+          // })
+          // if (!this.isAsyncMssage) {
           //   resolve()
           // }
+          resolve()
         }
       })
     },
@@ -320,7 +314,7 @@ export default {
         })
       }
       else {
-        console.log(`%c notice ${msg}`,'color:green')
+        console.log(`%c[notice] ${msg}`,'color:green')
       }
       return true
       // return this.config.message ? this.$Notice.open({title: msg, duration: 2.5}) : true
@@ -418,6 +412,8 @@ export default {
       this.run_command('GAME_SET_CONFIG', {
         message: this.isMessage,
         battelshow: true,
+        umi: umi,
+        asyncmessage: this.isAsyncMssage,
       })
 
       let firstplayer = null

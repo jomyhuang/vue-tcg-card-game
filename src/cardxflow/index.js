@@ -53,6 +53,7 @@ export default {
       console.log('cardxflow install $effectUI', $effectUI)
       $effectChoiceUI = payload.effectChoiceUI
       console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
+      // console.dir($effectChoiceUI)
     }
     mu.assert($store._actions, '请设置vuex store')
 
@@ -110,9 +111,11 @@ export default {
       let current = Promise.resolve().then(() => {
         console.group()
         console.log('cxpipe start')
-        mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
+        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+        // BUG：这里call promise 产生错误
+        // mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
+        return mu.tcall(cx.phaseinfo, context, `begin pipe 发动${this.type}效果`)
         // select current player/card
-        // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
       })
       let promlist = fnlist.map((act) => {
         current = current.then(() => {
@@ -146,7 +149,7 @@ export default {
           }
         }).then(function (res) {
           // final task
-          mu.clearMessage()
+          // mu.clearMessage()
           console.groupEnd()
           cx._setcontext()
         })
@@ -156,8 +159,7 @@ export default {
     let fnlist = items
 
     // compose chain list
-    fnlist = [this._startGUI()].concat(fnlist)
-    // fnlist = fnlist.concat([this._closeGUI()])
+    fnlist = this._startGUI().concat(fnlist)
     // console.log(fnlist)
     return this.engage(fnlist)
   },
@@ -180,9 +182,12 @@ export default {
       let current = Promise.resolve().then(() => {
         console.group()
         console.log('cxengage start')
-        mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
+        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+        // BUG：这里call promise 产生错误
+        // mu.tcall(cx.phaseinfo, context, `begin ${card.cardno} ${card.name} 发动${this.type}效果`)
+        // FIXME: return promise 就可以
+        return mu.tcall(cx.phaseinfo, context, `begin engage 发动${this.type}效果`)
         // select current player/card
-        // mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
       })
       let promlist = fnlist.map((act) => {
         current = current.then(() => {
@@ -218,11 +223,74 @@ export default {
           }
         }).then(function (res) {
           // final task
-          mu.clearMessage()
+          // mu.clearMessage()
           console.groupEnd()
           cx._setcontext()
         })
     }
+  },
+  target(payload) {
+    // return [ this.phaseinfo('指定效果Target'), function() {
+    return function() {
+      const context = this
+      const cx = context.cx
+      const card = context.card
+
+      const fnselector = function(payload) {
+        console.log('$cx.target exec basic selector')
+        let actpayload = {
+          selector: payload.from,
+          filter: payload.filter,
+        }
+        // let list = mu.selectcards(payload.from)
+        // list = R.filter(payload.filter)(list)
+        // console.log(list,_.isArray(list));
+        return dispatch('EFFECT_CHOICE',actpayload)
+        // .then( (card)=> {
+        //   console.log('$cx.target fnselector then',card)
+        //   return card
+        // })
+      }
+
+      if(R.is(String,payload)) {
+        const fromstring = payload
+        payload = {
+          from: fromstring,
+        }
+      }
+
+      payload = R.merge({
+        from: payload,
+        selector: fnselector,
+        filter: () => true,
+      })(payload)
+
+      return new Promise(async function(resolve, reject) {
+        console.log('$cx.target')
+        console.dir(payload)
+
+        let target = await mu.tcall(payload.selector,context,payload)
+        // let target = await mu.tcall(fnselector,context,payload)
+        // let target = await dispatch('EFFECT_CHOICE',payload.from)
+
+        // console.log('target res', target);
+        if(target) {
+          resolve(target)
+        }
+        else {
+          reject()
+        }
+      })
+      .then( (target) => {
+        this.target = target
+        dispatch('EFFECT_TARGET',target)
+        console.log('$cx.target targeting',context.target)
+      })
+      .catch((err) => {
+        console.log('$cx.target target is null')
+      })
+    }
+  // ]
   },
   buff(power, tag) {
     return function () {
@@ -275,31 +343,44 @@ export default {
   },
   message(message) {
     return function () {
-      this.text = message
-      return $mainapp.gameloop_message(message)
+      this.text = _.isFunction(message) ? mu.tcall(message,this) : message
+      return $mainapp.gameloop_message(this.text)
     }
   },
   phaseinfo(message) {
     return function () {
-      this.text = message
-      return $mainapp.gameloop_phaseinfo(message)
+      this.text = _.isFunction(message) ? mu.tcall(message,this) : message
+      // this.text = message
+      return $mainapp.gameloop_phaseinfo(this.text)
     }
   },
   iftest(message) {
     return function () {
-      this.reason = '效果中断测试'
+      this.reason = message ? message : '效果中断测试'
       this.loop = false
       return Promise.reject(new Error('效果中断测试'))
     }
   },
-  _startGUI(auto = 0) {
+  ifstop(message) {
+    return function () {
+      this.reason = message ? message : 'ifstop效果中断测试'
+      // this.loop = false
+      return Promise.reject(new Error('ifstop效果中断测试'))
+    }
+  },
+  _startGUI() {
     // console.log('startGUI',this)
-    return [this.phaseinfo('效果开始'), function () {
+    const fnmsg = function () {
+      return `${this.card.cardno} ${this.card.name} 发动${this.type}效果`
+    }
+
+    return [this.phaseinfo(fnmsg), function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
         context.UImode = true
         $effectUI.context = this
+        console.log('$cx._startGUI')
         // $effectUI.open(auto, resolve)
         // show message
         // $effectUI.showstart(context,resolve)

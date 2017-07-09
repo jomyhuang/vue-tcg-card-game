@@ -32,9 +32,9 @@ export default {
   }, payload) {
     const card = payload
     const owner = card.owner
+    console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
-    console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`);
   },
   EFFECT_TARGET({
     commit,
@@ -43,10 +43,10 @@ export default {
   }, payload) {
     const card = payload
     const owner = card.owner
+    console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
     // TODO: if target is player? / register
-    console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`);
   },
   TIGGER_EFFECT({
     commit,
@@ -136,7 +136,6 @@ export default {
 
     payload = R.merge({
       phase: 'EFFECT_CHOICE',
-      // player: state.currentPlayer,
       player: state.placeplayer,
       selectedMuation: (state, card) => {
         state.storemsg = `EFFECT_CHOICE ${state.placeplayer.id} select ${card.name}`

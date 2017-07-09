@@ -1,6 +1,6 @@
 <template>
 <div class="comEffectChoice">
-  <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
+  <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal" @open="_opendialog" @close="_closedialog">
     <div>
       <div slot="header" style="text-align:center" v-if="context">
         <h3 v-if="source">{{source.name}}</h3>
@@ -170,8 +170,8 @@ export default {
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
-      this.$refs.dialog.$on('open', this._opendialog)
-      this.$refs.dialog.$on('close', this._closedialog)
+      // this.$refs.dialog.$on('open', this._opendialog)
+      // this.$refs.dialog.$on('close', this._closedialog)
 
       this.show = true
 

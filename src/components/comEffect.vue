@@ -1,6 +1,6 @@
 <template>
 <div class="comEffect">
-  <el-dialog ref="dialog" v-model="show" size="large" :close-on-click-modal="closemodal">
+  <el-dialog ref="dialog" v-model="show" size="large" :close-on-click-modal="closemodal" @open="_opendialog" @close="_closedialog">
     <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
     <div v-if="context.card">
       <div slot="header" style="text-align:center">
@@ -134,9 +134,8 @@ export default {
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
-      this.$refs.dialog.$on('open', this._opendialog)
-      this.$refs.dialog.$on('close', this._closedialog)
-      // this.$refs.dialog.$on('close', this.onClose)
+      // this.$refs.dialog.$once('open', this._opendialog)
+      // this.$refs.dialog.$once('close', this._closedialog)
 
       this.show = true
 

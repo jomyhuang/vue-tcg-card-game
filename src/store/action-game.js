@@ -168,16 +168,6 @@ export default {
         return false
       }
 
-      // let xLens = R.lensProp('init')
-      // let xSel = R.view(xLens)(state.act_selection)
-
-      // OK 1 for test
-      // if (xSel) {
-      //   const card = xSel
-      //   dispatch('ACT_SELECTED_CARD', card)
-      //   console.log('ASYNC_ACT_SELECT_CARD_START from [INIT]')
-      // } else {
-      // if (doselect) {
       const agent = state.act_selection.agent
       const choiceUI = mutil.getChoiceUI(R.prop('choiceUI', state.act_selection))
       const message = R.prop('message',state.act_selection)
@@ -209,51 +199,7 @@ export default {
           console.log('ASYNC_ACT_SELECT_CARD_START from [UI]')
         }
         console.log(`_WAIT ${type} ${message}`)
-
-        // await dispatch('_WAIT_ACT_SYNC_SELECT_UI')
-        // move from _WAIT_ACT_SYNC_SELECT_UI
-        // IDEA: FIXME: 修改resolve callback方式blocking，取消while loop，如何监控store值改变？？
-        // const waitfunc = () => {
-        //   return new Promise(function (resolve, reject) {
-        //     setTimeout(() => {
-        //       if (R.length(state.act_selection.selectedList) >= state.act_selection.many) {
-        //         resolve()
-        //       } else {
-        //         reject()
-        //       }
-        //     }, 1000)
-        //   })
-        // }
-
-
-        // let waiting = true
-        // while (waiting) {
-        //   await waitfunc().then((resolve) => {
-        //     waiting = false
-        //   }, (err) => {
-        //     // run again
-        //   })
-        // }
-        // // console.log('_WAIT_ACT_SYNC_SELECT_UI OK')
-        // console.log(`_WAIT [UI] OK ${message}`)
-        //
-        // selectcard = R.head(state.act_selection.selectedList)
       }
-
-      // commit('_ACT_FINISH')
-      //
-      // // commit('SELECT_PLAYER', state.act_selection.player)
-      // // TODO fix: agent 在测试模式下选择没有 actselection.list, selectedlist
-      // mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')
-      // // commit('SELECT_CARD', selectcard)
-      //
-      // // call thenAction
-      // mutil.call(R.prop('thenAction',state.act_selection), this, state, selectcard)
-      // // if (state.act_selection.thenAction) {
-      // //   state.act_selection.thenAction(state, selectcard)
-      // // }
-
-
     }).then( (selectcard) => {
       commit('_ACT_FINISH')
       mutil.assert(selectcard, 'assert ASYNC_ACT_SELECT_CARD_START is null')

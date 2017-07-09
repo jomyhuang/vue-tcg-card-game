@@ -181,6 +181,11 @@ target? => ( source?selector(filter)(from) )
 context.targets.map(action) -> run(dispatch/commit)
 
 
+//
+add tag,
+remove / auto by one-turn/next-turn
+
+
 4、更精炼的效果函数动作DSL表示方式：
 ？check 使用marco 语言
 ? CojureScript

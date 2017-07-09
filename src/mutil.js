@@ -590,7 +590,7 @@ export default {
 
     // console.log('mutil.selectcards selector', selector)
 
-    if (R.is(String, selector)) { // string
+    if (_.isString(selector)) { // string
       switch (selector) {
         case 'placelist':
           list = placelist
@@ -610,21 +610,21 @@ export default {
             console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
+    } else if (_.isArray(selector)) { // array
+      list = selector
+      console.log(`mutil.selectcards (type array) select`, list)
     } else if (_.isFunction(selector)) { // function
       // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
       console.log(`mutil.selectcards (type function) select`, list)
-    } else if (R.is(Array, selector)) { // array
-      list = selector
-      console.log(`mutil.selectcards (type array) select`, list)
-    } else if (_is.isNil(selector)) { // undefined/Nil
+    } else if (_.isNil(selector)) { // undefined/Nil
       list = placelist
       console.log(`mutil.selectcards (type Nil) select placelist`, list)
     } else {
       throw `mutil.selectcards (type unknown) select`
     }
 
-    this.assert(R.is(Array, list), `selectcards list is not array`)
+    this.assert(_.isArray(list), `selectcards list is not array`)
 
     return list
   },

@@ -302,6 +302,7 @@ export default {
 
     state.act_selection = R.merge({
       list: undefined,
+      from: undefined,
       selector: () => state.placelist,
       filter: () => true,
 
@@ -336,7 +337,6 @@ export default {
       return false
     }
 
-    // 复写list在 selector
     // if (R.is(String, state.act_selection.list)) {
     if(state.act_selection.list) {
       // state.act_selection.selector = state.act_selection.list
@@ -344,6 +344,8 @@ export default {
       throw '_ACT_SELECTION_INIT state.act_selection.list must null'
       return
     }
+    // 保留from／selector
+    payload.from = payload.selector
 
     const player = state.act_selection.player
     // 处理变更placeplayer

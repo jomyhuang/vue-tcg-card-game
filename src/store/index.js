@@ -79,6 +79,8 @@ const state = {
       battelshow: false,
       battleshow_pauseonly: false,
       maxturn: 99,
+      umi: false,
+      asyncmessage: false,
     },
   },
   turn: {},

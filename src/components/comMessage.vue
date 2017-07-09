@@ -1,25 +1,22 @@
 <template>
 <div class="comMessage">
-  <el-dialog ref="dialog" v-model="show" size="small" :close-on-click-modal="closemodal">
+  <el-dialog ref="dialog" :visible.sync="show" size="small" :close-on-click-modal="closemodal" @open="_opendialog" @close="_closedialog">
     <!-- <el-dialog ref="effectDialog" v-model="show" size="large" @open="opendialog"> -->
     <div v-if="context">
       <div slot="header" style="text-align:center">
         <!-- <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3> -->
       </div>
       <!-- <div v-show="stage"> -->
-      <transition name="bounceLeft" mode="in-out">
+      <!-- <transition name="bounceLeft"> -->
         <div v-if="isstage('start')">
             <h1>{{msg}}</h1>
         </div>
-      </transition>
-
-      <transition name="bounceDown">
-        <div v-if="isstage('showbuff')">
+        <div v-else-if="isstage('showbuff')">
           <h2>SHOW BUFF EFFECT</h2>
           <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
           <h5>{{stagedata.tag}}</h5>
         </div>
-      </transition>
+      <!-- </transition> -->
 
     </div>
     <div v-else>
@@ -93,13 +90,14 @@ export default {
       return this.stage === val
     },
     _opendialog() {
-      // console.log('open dialog event special')
+      console.log('message open dialog event')
     },
     _closedialog() {
-      console.log('close dialog event')
+      console.log('message close dialog event')
       this.closeable = false
       this._setstage()
       this.stagedata = null
+      this.msg = null
 
       if (this.onClose) {
         // console.log('emit callback onclose')
@@ -118,11 +116,12 @@ export default {
 
       // <el-xxx ... @open="func">
       // bind "open" event by code
-      this.$refs.dialog.$on('open', this._opendialog)
-      this.$refs.dialog.$on('close', this._closedialog)
+      // this.$refs.dialog.$once('open', this._opendialog)
+      // this.$refs.dialog.$once('close', this._closedialog)
       // this.$refs.dialog.$on('close', this.onClose)
 
       this.show = true
+      console.log('message show dialog')
 
       if (this.autoClose) {
         setTimeout(() => {
@@ -153,15 +152,16 @@ export default {
         onfinish.call(this)
         return
       }
-      const fnclose = () => {
-        this._setstage()
-        // clear data
-        this.stagedata = null
-        if (onfinish)
-          onfinish.call(this)
+      // const fnclose = () => {
+      //   if (onfinish)
+      //     onfinish.call(this)
+      // }
+      if(!onfinish) {
+        console.log('showstage onfinish is null');
       }
 
-      return this.open(duration, fnclose)
+
+      return this.open(duration, onfinish)
     },
     showstart(msg, onfinish) {
       return this.showstage('start', msg, onfinish)
