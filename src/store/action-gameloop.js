@@ -448,6 +448,11 @@ export default {
         commit('CLEAR_TAG')
       }, cards)
 
+      if(state.player1.supporter.length >0 || state.player2.supporter.length >0) {
+        throw new Error('player1/player2 supporter is not empty')
+        return reject()
+      }
+
       console.log(`BATTLE_EFFECT_CLEAR end`)
       resolve()
     })
