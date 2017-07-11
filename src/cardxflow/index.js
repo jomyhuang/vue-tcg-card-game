@@ -5,6 +5,7 @@ import Rx from 'rxjs/Rx'
 
 
 import mu from '@/mutil'
+import is from '@/cardxflow/is'
 
 
 export var $store = {}
@@ -231,13 +232,15 @@ export default {
   },
   target(payload) {
     // return [ this.phaseinfo('指定效果Target'), function() {
+    // 获取函数名称
+    // console.log('target caller', this.target.name );
     return function() {
       const context = this
       const cx = context.cx
       const card = context.card
 
       const fnselector = function(payload) {
-        console.log('$cx.target exec basic selector')
+        console.log('$cx.target exec default selector')
         let actpayload = {
           selector: payload.from,
           filter: payload.filter,
@@ -265,6 +268,8 @@ export default {
         filter: () => true,
       })(payload)
 
+      // console.log('target func', mu.getfuncname(is.attacker));
+
       return new Promise(async function(resolve, reject) {
         console.log('$cx.target')
         console.dir(payload)
@@ -287,7 +292,10 @@ export default {
         console.log('$cx.target targeting',context.target)
       })
       .catch((err) => {
-        console.log('$cx.target target is null')
+        cx._stop('$cx.target target is null')
+        // console.log('$cx.target target is null')
+        // context.loop = false
+        // throw new Error('$cx.target target is null')
       })
     }
   // ]
@@ -338,7 +346,7 @@ export default {
     return function () {
       const context = this
       const card = context.card
-      return _.isFunction(fn) ? console.log(`tap function `, fn.call(this, card)) : console.log(`tap %c${fn}`, 'color:blue')
+      return _.isFunction(fn) ? console.log(`tap function `, mu.tcall(fn, this, card)) : console.log(`tap %c${fn}`, 'color:blue')
     }
   },
   message(message) {
@@ -353,6 +361,11 @@ export default {
       // this.text = message
       return $mainapp.gameloop_phaseinfo(this.text)
     }
+  },
+  _stop(msg) {
+    console.warn(msg)
+    this.context.loop = false
+    throw new Error(msg)
   },
   iftest(message) {
     return function () {
@@ -456,13 +469,13 @@ export default {
         commit('ADD_BUFF', buff)
         // resolve()
         // $effectUI.showbuff(buff,resolve)
-        Rx.Observable.fromPromise(123)
-        .flatMap(function(result) {
-          console.log('rx next1')
-        })
-        .subscribe(function onNext(result) {
-          console.log('rx finish')
-        })
+        // Rx.Observable.fromPromise(123)
+        // .flatMap(function(result) {
+        //   console.log('rx next1')
+        // })
+        // .subscribe(function onNext(result) {
+        //   console.log('rx finish')
+        // })
       })
     }
   },

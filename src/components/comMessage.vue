@@ -7,7 +7,7 @@
         <!-- <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3> -->
       </div>
       <!-- <div v-show="stage"> -->
-      <!-- <transition name="bounceLeft"> -->
+      <transition name="el-zoom-in-center">
         <div v-if="isstage('start')">
             <h1>{{msg}}</h1>
         </div>
@@ -16,7 +16,7 @@
           <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
           <h5>{{stagedata.tag}}</h5>
         </div>
-      <!-- </transition> -->
+      </transition>
 
     </div>
     <div v-else>

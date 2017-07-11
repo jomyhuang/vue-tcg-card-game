@@ -234,10 +234,12 @@ export default {
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {
     state.placeplayer = player
-    console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
+    if(state.placeplayer)
+      console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
+    else
+      console.log('SELECT_PLAYER is null')
   },
-  SELECT_CARD(state, card = null) {
-    let save = state.placeholder
+  SELECT_CARD(state, card) {
     state.placeholder = card
     state.pickindex = -1
     if (state.placeholder) {
@@ -246,25 +248,6 @@ export default {
       console.warn('commit SELECT_CARD null')
     }
   },
-  // SELECT_CARD_SAVE(state, savecard = state.placeholder) {
-  //   state.placeholdersave = savecard
-  //   if (state.placeholdersave) {
-  //     console.log(`commit SELECT_CARD_SAVE ${state.placeholdersave.name}`)
-  //   } else {
-  //     console.warn('commit SELECT_CARD_SAVE null')
-  //   }
-  // },
-  // SELECT_CARD_RESTORE(state) {
-  //   let card = state.placeholdersave
-  //   state.placeholdersave = undefined
-  //   state.placeholder = card
-  //   state.pickindex = -1
-  //   if (state.placeholder) {
-  //     console.log(`commit SELECT_CARD_RESTORE ${state.placeholder.name}`)
-  //   } else {
-  //     console.warn('commit SELECT_CARD_RESTORE null')
-  //   }
-  // },
   SELECT_LIST(state, payload) {
     let list = payload
     if (R.isNil(list)) {
@@ -273,13 +256,13 @@ export default {
       return
     }
 
-    mutil.assert(state.placeplayer.id === state.currentPlayer.id, 'commit SELECT_LIST placeplayer not equal currentPlayer')
-
-    if (state.placeholder) {
-      if (state.placeholder.owner != state.currentPlayer) {
-        console.warn('在发动玩家owner select list 效果')
-      }
-    }
+    // mutil.assert(state.placeplayer.id === state.currentPlayer.id, 'commit SELECT_LIST placeplayer not equal currentPlayer')
+    //
+    // if (state.placeholder) {
+    //   if (state.placeholder.owner != state.currentPlayer) {
+    //     console.warn('在发动玩家owner select list 效果')
+    //   }
+    // }
 
     state.placelist = mutil.selectcards(list)
 
@@ -540,6 +523,30 @@ export default {
     // state.placeplayer.graveyard.push(state.placeholder)
     console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
+  },
+  TO_EXSUPPORT(state) {
+    if (!state.placeholder) {
+      console.log('commit TO_EXSUPPORT ERROR no placeholder card')
+      return
+    }
+    const card = state.placeholder
+    const owner = state.placeholder.owner
+    let place
+
+    if(state.battle.attacker.player.id === owner.id) {
+      place = 'attacker'
+    } else if(state.battle.defenser.player.id === owner.id) {
+      place = 'defenser'
+    } else {
+      throw new Error('TO_EXSUPPORT error no place')
+      return
+    }
+    state.battle[place].exsupport.push(card)
+    // push to supporter list
+    owner.supporter.push(card)
+
+    console.log(`TO_EXSUPPORT add ex-support ${place}`, card)
+    console.dir(state.battle)
   },
   ADD_BUFF(state, payload) {
     if (!state.placeholder) {

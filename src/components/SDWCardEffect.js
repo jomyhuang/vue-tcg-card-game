@@ -22,7 +22,6 @@ export default {
           $cx.message('END PIPE')),
     ),
 
-
     // isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
     // isDefenser: $cx.engage(
     //   [$cx.tap('do this tap message array1')],
@@ -48,11 +47,21 @@ export default {
         // $cx.phaseinfo('选择一张牌，进入休息区'),
         // $cx.phaseinfo('信息2'),
         // $cx.phaseinfo('信息3'),
-        $cx.target('opp_zone'),
         // $cx.effectChoice('opp_zone'),
         // $cx.run('EFFECT_CHOICE', 'opp_zone'),
+        $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+
+        // $cx.phaseinfo('再次支援'),
+        // $cx.target('hand'),
+        // $cx.run('PICK_CARD'),
+        // $cx.run('TO_EXSUPPORT'),
+        // $cx.phaseinfo('再次支援'),
+        // $cx.target('opp_hand'),
+        // $cx.run('PICK_CARD'),
+        // $cx.run('TO_EXSUPPORT'),
+        
         // $cx.phaseinfo('进入基地'),
         // $cx.choice(),
         // $cx.RXbuff(1000),
@@ -62,6 +71,9 @@ export default {
         // $cx.ifstop(),
         // 'string message',
       )
+      // .then( () => {
+      //   console.log('GUI then');
+      // })
     },
   },
   // "JW15-002": {

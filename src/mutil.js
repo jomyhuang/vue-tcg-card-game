@@ -43,6 +43,11 @@ export default {
   assert(...args) {
     return console.assert(...args)
   },
+  getfuncname(fn) {
+    // 获取函数名称
+    console.log('mutil.getfuncname', fn.name)
+    return fn.name
+  },
   clearMessage() {
     if(this.isTestmode) return
     // $mainapp.$Message.destroy()
@@ -470,7 +475,7 @@ export default {
     return init
   },
   battleInit(state) {
-    return initbattle
+    return R.clone(initbattle)
     // const newbattle = R.clone(initbattle)
     // return newbattle
     // return {
@@ -672,11 +677,19 @@ export default {
     return !R.isNil(card.play[tag])
   },
   addTag(tag, card = $store.state.placeholder,val=true) {
+    if(!card) {
+      console.log('mu.addTag card is null')
+      return
+    }
     card.play = R.assoc(tag, val)(card.play)
     // console.log('addtag',card.play);
     return card
   },
   removeTag(tag, card = $store.state.placeholder) {
+    if(!card) {
+      console.log('mu.removeTag card is null')
+      return
+    }
     card.play = R.dissoc(tag)(card.play)
     return card
   },

@@ -30,6 +30,13 @@ export default {
     state,
     dispatch
   }, payload) {
+    if (!payload) {
+      console.log('commit EFFECT_SOURCE ERROR no card')
+      commit('SELECT_PLAYER', null)
+      commit('SELECT_CARD',  null)
+      return
+    }
+
     const card = payload
     const owner = card.owner
     console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`)
@@ -41,6 +48,13 @@ export default {
     state,
     dispatch
   }, payload) {
+    if (!payload) {
+      console.log('commit EFFECT_TARGET ERROR no card')
+      commit('SELECT_PLAYER', null)
+      commit('SELECT_CARD', null)
+      return
+    }
+
     const card = payload
     const owner = card.owner
     console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`)

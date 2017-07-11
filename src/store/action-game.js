@@ -117,10 +117,8 @@ export default {
     commit('ACT_SET_SELECTED', card)
 
     mutil.tcall(R.prop('selectedAction',state.act_selection), this, state, state.placeholder)
+    // chceck & reslove
     mutil.tcall(R.prop('onselect',state.act_selection), this, state, state.placeholder)
-    // if (state.act_selection.selectedAction) {
-    //   state.act_selection.selectedAction(state, card)
-    // }
   },
   ASYNC_ACT_SELECT_CARD_START({
     commit,
@@ -137,6 +135,7 @@ export default {
       }
     }
 
+    // 注意：使用箭头函数不能是 async
     return new Promise(async function (resolve, reject) {
 
       payload = R.assoc('onselect', (state,card) => {
@@ -146,7 +145,6 @@ export default {
         }
       } )(payload)
 
-      // 注意：使用箭头函数不能是 async
       commit('_ACT_SELECTION_INIT', payload)
 
       if (!R.is(Array, state.act_selection.list)) {
@@ -155,15 +153,9 @@ export default {
         return false
       }
 
-      // if (state.act_selection.message)
-      //   console.log(`message: ${state.act_selection.message}`)
-
-      // let doselect = true
       if (R.length(state.act_selection.list) <= 0) {
         console.warn('ASYNC_ACT_SELECT_CARD_START list is empty no select')
         // 没列表直接结束离开
-        // commit('_ACT_FINISH')
-        // doselect = false
         resolve(null)
         return false
       }
@@ -190,7 +182,6 @@ export default {
         // FIXME: agent 在测试模式下选择没有 actselection.list, selectedlist
         resolve(selectcard)
       } else {
-
         if(choiceUI) {
           console.log('ASYNC_ACT_SELECT_CARD_START from [choiceUI]')
           choiceUI.open(0,resolve)
@@ -234,11 +225,6 @@ export default {
     dispatch
   }, payload) {
     payload = R.assoc('player', state.opponentPlayer)(payload)
-    // 使用SELECT_LIST模式
-    // const list = payload.list
-    // commit('SELECT_PLAYER', state.opponentPlayer)
-    // commit('SELECT_LIST', payload.list)
-    // payload = R.dissoc('list')(payload)
 
     return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
   },

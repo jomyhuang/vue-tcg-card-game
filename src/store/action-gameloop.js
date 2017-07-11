@@ -324,6 +324,7 @@ export default {
 
       dispatch('GAME_PHASE','BATTLE_EFFECT')
       console.info(`BATTLE_EFFECT begin----------------------`)
+      // calc phase 1
       commit('BATTLE_CALC')
 
       // currentPlayer
@@ -346,6 +347,8 @@ export default {
       dispatch('EFFECT_SOURCE', state.battle.defenser.support)
       await dispatch('TIGGER_EFFECT', 'main')
 
+      // calc phase 2
+      commit('BATTLE_CALC')
       commit('BATTLE_CALC2')
       commit('BATTLE_SCORE')
 
@@ -374,23 +377,46 @@ export default {
           commit('PICK_CARD', x.support)
           commit('TO_GRAVEYARD')
         })([battle.attacker, battle.defenser])
+
+        R.forEach( x => {
+          commit('PICK_CARD',x)
+          commit('TO_GRAVEYARD')
+        })(battle.attacker.exsupport)
+
+        R.forEach( x => {
+          commit('PICK_CARD',x)
+          commit('TO_GRAVEYARD')
+        })(battle.defenser.exsupport)
+
       } else {
-        console.log('battle win clear');
         let win = battle.score.win
-        // commit('SELECT_PLAYER', win.player)
+        console.log('battle win clear',win)
+
         commit('PICK_CARD', win.main)
         let index = state.pickindex
         commit('TO_BASE')
         commit('PICK_CARD', win.support)
         commit('TO_ZONE', index)
 
-        console.log('battle lose clear');
+        R.forEach( x => {
+          // console.log('win exsupport pick')
+          commit('PICK_CARD',x)
+          commit('TO_BASE')
+        })(win.exsupport)
+
         let lose = battle.score.lose
-        // commit('SELECT_PLAYER', lose.player)
+        console.log('battle lose clear',lose)
+
         commit('PICK_CARD', lose.main)
         commit('TO_GRAVEYARD')
         commit('PICK_CARD', lose.support)
         commit('TO_GRAVEYARD')
+
+        R.forEach( x => {
+          // console.log('lose exsupport pick')
+          commit('PICK_CARD',x)
+          commit('TO_GRAVEYARD')
+        })(lose.exsupport)
 
         // clear scoreboard
         if(win.main.cardno===battle.attacker.main.cardno) {

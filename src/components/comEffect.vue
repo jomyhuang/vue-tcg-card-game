@@ -7,14 +7,14 @@
         <h3>效果发动 {{context.card.name}} 发动{{context.type}}效果</h3>
       </div>
       <!-- <div v-show="stage"> -->
-      <transition name="bounceLeft" mode="in-out">
+      <transition name="el-zoom-in-center" mode="in-out">
         <div v-if="isstage('start')">
           <h1>效果启动</h1>
         </div>
       </transition>
 
       <el-row type="flex" class="gameboard">
-        <transition name="bounceDown">
+        <transition name="el-zoom-in-center">
           <div v-if="isstage('showbuff')">
             <h2>SHOW BUFF EFFECT</h2>
             <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>

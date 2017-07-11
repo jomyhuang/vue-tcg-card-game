@@ -178,8 +178,23 @@ source? and(has(tag),has(effect))
 target? => ( source?selector(filter)(from) )
   => card? => owner player?
 
-context.targets.map(action) -> run(dispatch/commit)
+context.targets.map(action) ->  chain squ action
 
+run(dispatch/commit).then( action b ).then( action c ) ?
+
+
+compose(seq)(target?)
+
+
+// Reflect -> function -> desc/message
+
+selector: fn1 / is.fn1
+fn1.name -> get function name
+selector.name -> get function name
+
+is.fn1 only sense fn1, but is1 don't
+
+how? getMessage(selector) -> return message
 
 //
 add tag,
@@ -230,8 +245,6 @@ Effect FUNCTION -> Agent HMI -> GAMEVUE UI
 = 弃一张手牌到XX牌推
 = 从XX牌堆回手一张牌
 = 附加Tag，不能使用支援卡
-
-
 
 -------------------------------------------------------
 
