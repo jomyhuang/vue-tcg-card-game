@@ -83,6 +83,9 @@ export default {
       if (x) {
         let anti = mutil.checkAnti(x.antipro, battle.defenser.main.antipro)
         let power = anti ? x.power2 : x.power1
+        // FIXME:
+        // card.power => is final power / isAntipro?
+        // card.buffs = [] is buff list
         // fix this
         // basic power
         // powerlist.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
@@ -91,7 +94,7 @@ export default {
         // plus buff power
         R.forEach(s => {
           powerlist.push(s.power)
-        })(x.power)
+        })(x.buffs)
       } else {
         console.warn('BATTLE_CALC attacker calc power object null')
       }
@@ -118,7 +121,7 @@ export default {
         powerlist.push(power)
         R.forEach(s => {
           powerlist.push(s.power)
-        })(x.power)
+        })(x.buffs)
       } else {
         console.warn('BATTLE_CALC default calc power object null')
       }

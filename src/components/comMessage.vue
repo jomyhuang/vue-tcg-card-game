@@ -90,10 +90,10 @@ export default {
       return this.stage === val
     },
     _opendialog() {
-      console.log('message open dialog event')
+      // console.log('message open dialog event')
     },
     _closedialog() {
-      console.log('message close dialog event')
+      // console.log('message close dialog event')
       this.closeable = false
       this._setstage()
       this.stagedata = null
@@ -121,7 +121,7 @@ export default {
       // this.$refs.dialog.$on('close', this.onClose)
 
       this.show = true
-      console.log('message show dialog')
+      // console.log('message show dialog')
 
       if (this.autoClose) {
         setTimeout(() => {
@@ -148,7 +148,7 @@ export default {
       this._setstage(stage)
 
       if (mu.isTestmode || !this.config.message) {
-        console.info(`%ccomMessage showstage ${stage}`,'color:green')
+        console.info(`%cMessage showstage ${stage}`,'color:green')
         onfinish.call(this)
         return
       }
@@ -159,7 +159,6 @@ export default {
       if(!onfinish) {
         console.log('showstage onfinish is null');
       }
-
 
       return this.open(duration, onfinish)
     },

@@ -245,10 +245,11 @@ export default {
           selector: payload.from,
           filter: payload.filter,
         }
+        const act = payload.opponent ? 'EFFECT_OPP_CHOICE' : 'EFFECT_CHOICE'
         // let list = mu.selectcards(payload.from)
         // list = R.filter(payload.filter)(list)
         // console.log(list,_.isArray(list));
-        return dispatch('EFFECT_CHOICE',actpayload)
+        return dispatch(act,actpayload)
         // .then( (card)=> {
         //   console.log('$cx.target fnselector then',card)
         //   return card
@@ -266,13 +267,14 @@ export default {
         from: payload,
         selector: fnselector,
         filter: () => true,
+        opponent: false,
       })(payload)
 
       // console.log('target func', mu.getfuncname(is.attacker));
 
       return new Promise(async function(resolve, reject) {
         console.log('$cx.target')
-        console.dir(payload)
+        // console.dir(payload)
 
         let target = await mu.tcall(payload.selector,context,payload)
         // let target = await mu.tcall(fnselector,context,payload)
@@ -299,6 +301,18 @@ export default {
       })
     }
   // ]
+  },
+  opptarget(payload) {
+    if(R.is(String,payload)) {
+      const fromstring = payload
+      payload = {
+        from: fromstring
+      }
+    }
+    payload = R.assoc('opponent',true)(payload)
+    console.log('$cx.opptarget wrapper')
+
+    return this.target(payload)
   },
   buff(power, tag) {
     return function () {

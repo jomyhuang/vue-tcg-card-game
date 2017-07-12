@@ -179,15 +179,14 @@ target? => ( source?selector(filter)(from) )
   => card? => owner player?
 
 context.targets.map(action) ->  chain squ action
-
-run(dispatch/commit).then( action b ).then( action c ) ?
-
-
 compose(seq)(target?)
 
 
-// Reflect -> function -> desc/message
+// XX
+run(dispatch/commit).then( action b ).then( action c ) ?
 
+
+// Reflect -> function -> desc/message
 selector: fn1 / is.fn1
 fn1.name -> get function name
 selector.name -> get function name
@@ -196,9 +195,23 @@ is.fn1 only sense fn1, but is1 don't
 
 how? getMessage(selector) -> return message
 
-//
+// tag system
 add tag,
 remove / auto by one-turn/next-turn
+
+// new effect system
+play ex-support then / how to tigger effect?
+play card then -> tigger effect
+
+loop {
+  tiggerlist => source
+    => loop by active tag (...) => check & tigger
+                            => new tigger from effect?
+}
+
+
+
+
 
 
 4、更精炼的效果函数动作DSL表示方式：

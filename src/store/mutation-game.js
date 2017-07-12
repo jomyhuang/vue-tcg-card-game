@@ -555,7 +555,7 @@ export default {
     }
     const card = state.placeholder
     const buff = payload
-    card.power.push(buff)
+    card.buffs.push(buff)
     console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
   },
   ADD_TAG(state, payload) {
@@ -587,14 +587,13 @@ export default {
     console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
   },
   CLEAR_TAG(state, payload) {
-    if (!state.placeholder) {
-      console.log('commit CLEAR_TAG ERROR no placeholder card')
+    if(!payload) {
+      console.log('commit CLEAR_TAG card is null')
       return
     }
-    const card = state.placeholder
-    const tag = payload
-    card.play = null
+    const card = payload
     card.play = {}
-    console.log(`commit CLEAR_TAG ${state.placeholder.name}`)
+    card.buffs = []
+    console.log(`commit CLEAR_TAG ${card.name}`,card)
   },
 }

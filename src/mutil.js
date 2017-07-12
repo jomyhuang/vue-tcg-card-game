@@ -476,34 +476,6 @@ export default {
   },
   battleInit(state) {
     return R.clone(initbattle)
-    // const newbattle = R.clone(initbattle)
-    // return newbattle
-    // return {
-    //   attacker: {
-    //     player: null,
-    //     main: null,
-    //     support: null,
-    //     hero: null,
-    //     power: [],
-    //     chain: [],
-    //   },
-    //   defenser: {
-    //     player: null,
-    //     main: null,
-    //     support: null,
-    //     hero: null,
-    //     power: [],
-    //     chain: [],
-    //   },
-    //   score: {
-    //     finish: false,
-    //     winside: null,
-    //     draw: false,
-    //     win: null,
-    //     lose: null,
-    //   },
-    //   chain: [],
-    // }
   },
   makecard(cardid, player = {}, facedown = false) {
     // console.log('find card ', card, cardDB[card]);
@@ -529,17 +501,20 @@ export default {
       selected: false,
       selectable: false,
       owner: player,
+      // powerup: false,
+      // power: 0,
+      buffs: [],
       play: {},
-      power: [],
       effecttext: cardDB[cardid].effecttext ? cardDB[cardid].effecttext : '无效果',
     })
 
     gamecard.power1 = this.convertPower(gamecard.power1)
     gamecard.power2 = this.convertPower(gamecard.power2)
+    // gamecard.power = gamecard.power1
 
     return gamecard
   },
-  makepower(card, power = 0, effect, tag) {
+  makebuff(card, power = 0, effect, tag) {
     if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
       tag = `${effect} UP +${power}`
     }
@@ -552,40 +527,40 @@ export default {
     // card.power.push( buff )
     return buff
   },
-  addbuff(card, power = 0, effect, tag) {
-    if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
-      tag = `${effect} UP +${power}`
-    }
-    let buff = {
-      card: card,
-      power: power,
-      effect: effect,
-      tag: tag,
-    }
-    card.power.push(buff)
-    return buff
-  },
-  makeflat(chain) {
-    // reduce version
-    return R.reduce((a, x) => {
-      if (x) {
-        let sublist = R.prop('power')(x)
-        a = R.into(a, R.map(R.prop('power')))(sublist)
-      }
-      return a
-    }, [])(chain)
-  },
-  reducepower(chain) {
-    return R.reduce((a, x) => {
-      let sum = 0
-      if (x) {
-        let sublist = R.prop('power')(x)
-        let powerlist = R.map(R.prop('power'))(sublist)
-        sum = R.reduce(R.add, 0)(powerlist)
-      }
-      return a + sum
-    }, 0)(chain)
-  },
+  // addbuff(card, power = 0, effect, tag) {
+  //   if (!R.isNil(effect) && R.isNil(tag) && power > 0) {
+  //     tag = `${effect} UP +${power}`
+  //   }
+  //   let buff = {
+  //     card: card,
+  //     power: power,
+  //     effect: effect,
+  //     tag: tag,
+  //   }
+  //   card.power.push(buff)
+  //   return buff
+  // },
+  // makeflat(chain) {
+  //   // reduce version
+  //   return R.reduce((a, x) => {
+  //     if (x) {
+  //       let sublist = R.prop('power')(x)
+  //       a = R.into(a, R.map(R.prop('power')))(sublist)
+  //     }
+  //     return a
+  //   }, [])(chain)
+  // },
+  // reducepower(chain) {
+  //   return R.reduce((a, x) => {
+  //     let sum = 0
+  //     if (x) {
+  //       let sublist = R.prop('power')(x)
+  //       let powerlist = R.map(R.prop('power'))(sublist)
+  //       sum = R.reduce(R.add, 0)(powerlist)
+  //     }
+  //     return a + sum
+  //   }, 0)(chain)
+  // },
   selectcards(selector) {
 
     const placeplayer = $store.state.placeplayer

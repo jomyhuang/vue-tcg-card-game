@@ -337,6 +337,9 @@ export default {
       dispatch('EFFECT_SOURCE', state.battle.attacker.support)
       await dispatch('TIGGER_EFFECT', 'main')
 
+      // finish then process ex-support
+
+
       // opponentPlayer
       dispatch('EFFECT_SOURCE', state.battle.defenser.main)
       await dispatch('TIGGER_EFFECT', 'isDefenser')
@@ -349,7 +352,7 @@ export default {
 
       // calc phase 2
       commit('BATTLE_CALC')
-      commit('BATTLE_CALC2')
+      // commit('BATTLE_CALC2')
       commit('BATTLE_SCORE')
 
       console.info(`BATTLE_EFFECT end------------`)
@@ -441,12 +444,11 @@ export default {
         }
       }
 
-      console.log(`BATTLE_EFFECT_CLEAR clear play tag`)
-      const cards = battle.chain
+      console.log(`BATTLE_EFFECT_CLEAR clear play tag & buffs`)
+      console.log('battle.chian',battle.chain)
       R.map((x) => {
-        commit('SELECT_CARD',x)
-        commit('CLEAR_TAG')
-      }, cards)
+        commit('CLEAR_TAG',x)
+      })(battle.chain)
 
       if(state.player1.supporter.length >0 || state.player2.supporter.length >0) {
         throw new Error('player1/player2 supporter is not empty')

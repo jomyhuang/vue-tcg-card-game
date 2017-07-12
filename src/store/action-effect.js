@@ -90,13 +90,13 @@ export default {
     }
 
     if (!condition(card, type)) {
-      console.log(`card without ${type} status key skip`);
+      // console.log(`card without ${type} status key skip`);
       return false
     }
 
     let effectfunc = R.path(['effect', type])(card)
     if (!effectfunc) {
-      console.log(`card without effect func ${type} skip`)
+      // console.log(`card without effect func ${type} skip`)
       return false
     }
 
