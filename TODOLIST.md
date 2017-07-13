@@ -200,17 +200,42 @@ add tag,
 remove / auto by one-turn/next-turn
 
 // new effect system
-play ex-support then / how to tigger effect?
-play card then -> tigger effect
 
+#1 card.box/map(slot):
+=> player.cardpool card all list
+  => card.slot = 'deck/hand....'
+  => deck is getter / filter by card.box is "box"
+
+=> effectlist in cardflow
+
+#2 play card
+-> active card (exclude hand, deck)
+-> make into effectlist
+  source: this
+  tigger name: 'isAttacker'...
+  type: (once, end-of-turn, end-of-game)
+  condition: function, if tag is on, or card.box in 'xxx'...
+  finish: false
+
+#3 event on/oneturn/once -> promise emit
+async/await emit 'tigger name', this card (poirity), onfinish
+async/await emit ['tigger name'...]
+async/await emit ['tigger name'...] @ card.box (tigger by box-diff)
+* "one tag" only "one tigger" in game loop
+
+active list = filter by tigger name or/ this card
 loop {
-  tiggerlist => source
-    => loop by active tag (...) => check & tigger
-                            => new tigger from effect?
+  await event/tigger if condition
+  make finish true
 }
+remove once
 
 
+call onfinish(resolve)
 
+in end of turn
+remove EOT effect
+renew finish
 
 
 

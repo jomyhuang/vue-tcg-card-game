@@ -172,6 +172,7 @@ export const initbattle = {
     hero: null,
     power: [],
     chain: [],
+    total: undefined,
   },
   defenser: {
     player: null,
@@ -181,6 +182,7 @@ export const initbattle = {
     hero: null,
     power: [],
     chain: [],
+    total: undefined,
   },
   score: {
     finish: false,

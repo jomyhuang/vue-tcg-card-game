@@ -112,34 +112,18 @@ export default {
       // joining game
       state.players.push(player)
 
-      // console.log(pack)
-      // const (player,deckfile) = pack...
-      // let player = pack[0]
-      // let deckfile = pack[1]
-      // console.log( 'init deck ', player.id )
       player.cardPool = []
       player.deck = []
       deckfile.forEach((cardid) => {
-        // move to mutil
-        // let card = cardDB[cardid]
+        // move to mutil / new card factory
         let gamecard = mutil.makecard(cardid, player)
         if (gamecard) {
-          // clone /or make gamecard object
-          // simple clone
-          // const gamecard = Object.assign({}, card)
-          // // new prop for game card object
-          // Vue.set(gamecard, 'facedown', false)
-          // Vue.set(gamecard, 'selected', false)
-          // Vue.set(gamecard, 'selectable', false)
-          // Vue.set(gamecard, 'play', {})
-          // gamecard.power1 = mutil.convertPower(gamecard.power1)
-          // gamecard.power2 = mutil.convertPower(gamecard.power2)
-          // end prop
           player.cardPool.push(gamecard)
           player.deck.push(gamecard)
         } else {
           // throw init error
-          console.warn(`GAME_READY: warning ${cardid} not found`)
+          console.error(`GAME_READY: warning ${cardid} not found`)
+          throw new Error(`GAME_READY: warning ${cardid} not found`)
         }
       })
 

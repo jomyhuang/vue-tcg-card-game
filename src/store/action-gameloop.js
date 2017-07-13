@@ -181,8 +181,8 @@ export default {
       commit('ADD_TAG', 'isAttacker')
       commit('SET_FACEUP')
 
-      commit('SELECT_PLAYER', state.currentPlayer)
-      commit('SELECT_CARD', state.battle.attacker.main)
+      // FIXME: await effect
+      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
       dispatch('TIGGER_EFFECT', 'faceup')
     })
   },
@@ -228,8 +228,8 @@ export default {
       commit('ADD_TAG', 'isDefenser')
       commit('SET_FACEUP')
 
-      commit('SELECT_PLAYER', state.opponentPlayer)
-      commit('SELECT_CARD', state.battle.defenser.main)
+      // FIXME: await effect
+      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
       dispatch('TIGGER_EFFECT', 'faceup')
       commit('SELECT_PLAYER', state.currentPlayer)
       // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
@@ -429,7 +429,8 @@ export default {
             defenser: {
               main: null,
               support: null,
-            }
+              exsupport: [],
+            },
           })
         }
         else {
@@ -439,6 +440,7 @@ export default {
             attacker: {
               main: null,
               support: null,
+              exsupport: [],
             }
           })
         }

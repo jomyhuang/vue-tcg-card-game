@@ -46,7 +46,6 @@ import $cx from '@/cardxflow'
 import R from 'ramda'
 
 
-
 export default {
   name: 'comEffectChoice',
   data() {

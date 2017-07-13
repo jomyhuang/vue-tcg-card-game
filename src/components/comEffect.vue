@@ -112,7 +112,7 @@ export default {
       // console.log('open dialog event special')
     },
     _closedialog() {
-      console.log('close dialog event')
+      // console.log('close dialog event')
       this.closeable = false
       this._setstage()
       this.stagedata = null
