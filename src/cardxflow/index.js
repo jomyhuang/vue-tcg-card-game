@@ -38,6 +38,7 @@ export default {
   init: false,
   context: null,
   active: false,
+  $effectlist: [],
 
   install(payload) {
     if (this.init) {
@@ -67,6 +68,7 @@ export default {
     // Vue.config.debug = process.env.DEBUG_MODE
     // Vue.config.test = process.env.NODE_ENV === 'development'
     // Vue.config.test = process.env.NODE_ENV === 'testing'
+    this.$initeffect()
 
     this.init = true
     console.log('cardflow installed')
@@ -79,6 +81,28 @@ export default {
   //   // console.log('cx.source ($store.state.placeholder)')
   //   return $store.state.placeholder
   // },
+  $initeffect() {
+    console.log('$cx._initeffect')
+    this.$effectlist = []
+  },
+  $playcard(payload, card) {
+    if(!card) {
+      console.log('$cx._playcard card is null');
+      return
+    }
+    if( R.is(String, payload)) {
+      const from = payload
+      payload = {
+        tigger: from
+      }
+    }
+    payload = R.assoc('card',card)(payload)
+
+    this.$effectlist.push(payload)
+
+    console.log(`$cx._playcard ${payload.tigger}`)
+    return payload
+  },
   run(type, payload) {
     return function () {
       const context = this

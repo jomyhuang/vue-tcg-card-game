@@ -127,6 +127,7 @@ const state = {
     deck: [],
     zone: [],
     hand: [],
+    // get hand() { return mu.getslot('player1','hand') },
     graveyard: [],
     base: [],
     supporter: [],
@@ -159,6 +160,7 @@ const state = {
     maxMana: 10,
     agent: null,
   },
+  get foo() { return 'foo' },
 }
 
 export const initstate = R.clone(state)
