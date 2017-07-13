@@ -482,7 +482,11 @@ export default {
     return new Promise(function (resolve, reject) {
       dispatch('GAME_PHASE','GAME_NEXT_TURN')
       commit('GAME_NEXT_PLAYER')
-      resolve()
+      // check slot
+      if( mutil.checkslot() )
+        resolve()
+      else
+        reject()
     })
   },
   GAME_CHECK_GAMEOVER({
