@@ -50,19 +50,19 @@ export default {
         // $cx.effectChoice('opp_zone'),
         // $cx.run('EFFECT_CHOICE', 'opp_zone'),
 
-        // $cx.target('opp_zone'),
-        // $cx.run('PICK_CARD'),
-        // $cx.run('TO_GRAVEYARD'),
+        $cx.target('opp_zone'),
+        $cx.run('PICK_CARD'),
+        $cx.run('TO_GRAVEYARD'),
 
-        $cx.phaseinfo('再次支援'),
-        $cx.target('hand'),
-        $cx.run('PICK_CARD'),
-        $cx.run('TO_EXSUPPORT'),
-        //
-        $cx.phaseinfo('对手再次支援'),
-        $cx.opptarget('hand'),
-        $cx.run('PICK_CARD'),
-        $cx.run('TO_EXSUPPORT'),
+        // $cx.phaseinfo('再次支援'),
+        // $cx.target('hand'),
+        // $cx.run('PICK_CARD'),
+        // $cx.run('TO_EXSUPPORT'),
+        // //
+        // $cx.phaseinfo('对手再次支援'),
+        // $cx.opptarget('hand'),
+        // $cx.run('PICK_CARD'),
+        // $cx.run('TO_EXSUPPORT'),
 
         // $cx.phaseinfo('进入基地'),
         // $cx.choice(),

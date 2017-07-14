@@ -120,6 +120,8 @@ export default {
         if (gamecard) {
           player.cardPool.push(gamecard)
           player.deck.push(gamecard)
+          gamecard = mutil.moveslot('deck',gamecard)
+          // gamecard.slot = 'deck'
         } else {
           // throw init error
           console.error(`GAME_READY: warning ${cardid} not found`)
@@ -370,6 +372,30 @@ export default {
     console.log('commit ACT_FINISH')
   },
   // ---------------------------------------------------- CARD
+  ACTIVE_CARD(state, card) {
+    if (R.isNil(card)) {
+      throw new Error('ACTIVE_CARD error! card is null')
+    }
+    if(card.active) {
+      console.warn('commit ACTIVE_CARD card already active',card)
+      // throw new Error('error! card is activing')
+      return
+    }
+    // if( card.facedown ) {
+    //   console.warn('commit ACTIVE_CARD card is zone facedown in-active')
+    //   return
+    // }
+    // if( card.slot == 'hand' ) {
+    //   console.warn('commit ACTIVE_CARD card is hand in-active')
+    //   return
+    // }
+
+    card.active = true
+    state.activelist.push(card)
+    mutil.cxplaycard(card)
+    
+    console.log(`commit ACTIVE_CARD ${card.cardno} is activing`)
+  },
   PICK_CARD(state, card) {
     if (R.isNil(card)) {
       console.log(`PICK_CARD is undefined, select placeholder`)
@@ -377,7 +403,6 @@ export default {
     }
     if (card) {
       const owner = card.owner
-      // console.log('card owner',owner.id)
       const pilelist = [
         ['hand', owner.hand],
         ['zone', owner.zone],
@@ -385,12 +410,6 @@ export default {
         ['graveyard', owner.graveyard],
         ['supporter', owner.supporter],
       ]
-      // const pilelist = [
-      //   ['hand', state.placeplayer.hand],
-      //   ['zone', state.placeplayer.zone],
-      //   ['base', state.placeplayer.base],
-      //   ['graveyard', state.placeplayer.graveyard],
-      // ]
 
       let found = false
       state.placeholder = null
@@ -403,6 +422,8 @@ export default {
         if (index > -1) {
           pile.splice(index, 1)
           state.placeholder = card
+          state.placeholder = mutil.moveslot(undefined,state.placeholder)
+          // state.placeholder.slot = undefined
           state.pickindex = index
           found = true
           console.log(`commit PICK_CARD find ${card.name} from ${pilename} index ${index}`)
@@ -423,6 +444,8 @@ export default {
   DRAW(state) {
     if (state.placeplayer.deck.length > 0) {
       state.placeholder = state.placeplayer.deck.pop()
+      // state.placeholder.slot = undefined
+      state.placeholder = mutil.moveslot(undefined,state.placeholder)
       // console.log( `commit DRAW ${state.placeholder.name}` )
     } else {
       state.placeholder = null
@@ -455,7 +478,8 @@ export default {
     }
     const owner = state.placeholder.owner
     owner.hand.push(state.placeholder)
-    // state.placeplayer.hand.push(state.placeholder)
+    // state.placeholder.slot = 'hand'
+    state.placeholder = mutil.moveslot('hand',state.placeholder)
     state.placeholder = null
   },
   TO_ZONE(state, index) {
@@ -466,13 +490,13 @@ export default {
     const owner = state.placeholder.owner
     if (!_.isUndefined(index)) {
       owner.zone.splice(index, 0, state.placeholder)
-      // state.placeplayer.zone.splice(index, 0, state.placeholder)
       console.log(`commit TO_ZONE replace index ${index} ${owner.id} ${state.placeholder.name}`)
     } else {
       owner.zone.push(state.placeholder)
-      // state.placeplayer.zone.push(state.placeholder)
       console.log(`commit TO_ZONE ${owner.id} ${state.placeholder.name}`)
     }
+    // state.placeholder.slot = 'zone'
+    state.placeholder = mutil.moveslot('zone',state.placeholder)
     state.placeholder = null
   },
   TO_BASE(state) {
@@ -482,7 +506,8 @@ export default {
     }
     const owner = state.placeholder.owner
     owner.base.push(state.placeholder)
-    // state.placeplayer.base.push(state.placeholder)
+    // state.placeholder.slot = 'base'
+    state.placeholder = mutil.moveslot('base',state.placeholder)
     console.log(`commit TO_BASE ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
@@ -493,7 +518,8 @@ export default {
     }
     const owner = state.placeholder.owner
     owner.graveyard.push(state.placeholder)
-    // state.placeplayer.graveyard.push(state.placeholder)
+    // state.placeholder.slot = 'graveyard'
+    state.placeholder = mutil.moveslot('graveyard',state.placeholder)
     console.log(`commit TO_GRAVEYARD ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
@@ -504,7 +530,8 @@ export default {
     }
     const owner = state.placeholder.owner
     owner.supporter.push(state.placeholder)
-    // state.placeplayer.graveyard.push(state.placeholder)
+    state.placeholder.slot = 'supporter'
+    state.placeholder = mutil.moveslot('supporter',state.placeholder)
     console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
@@ -528,9 +555,12 @@ export default {
     state.battle[place].exsupport.push(card)
     // push to supporter list
     owner.supporter.push(card)
+    // state.placeholder.slot = 'supporter'
+    state.placeholder = mutil.moveslot('supporter',state.placeholder)
 
     console.log(`TO_EXSUPPORT add ex-support ${place}`, card)
-    console.dir(state.battle)
+    // console.dir(state.battle)
+    state.placeholder = null
   },
   ADD_BUFF(state, payload) {
     if (!state.placeholder) {

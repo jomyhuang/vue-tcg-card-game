@@ -12,6 +12,7 @@ export var $store = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+var $effectlist = []
 var dispatch
 var commit
 
@@ -64,6 +65,7 @@ export default {
     mu.mixinEffect(payload)
     console.log('cardflow link mutil')
 
+    this.$initeffect()
     // Vue.config.debug = process.env.DEBUG_MODE
     // Vue.config.test = process.env.NODE_ENV === 'development'
     // Vue.config.test = process.env.NODE_ENV === 'testing'
@@ -79,6 +81,54 @@ export default {
   //   // console.log('cx.source ($store.state.placeholder)')
   //   return $store.state.placeholder
   // },
+  debug() {
+    console.log('$cx.effectlist debug')
+    console.dir($effectlist)
+  },
+  $initeffect() {
+    console.log('$cx.$initeffect')
+    $effectlist = []
+  },
+  $playcard(card) {
+    if(!card) {
+      console.log('$cx.playcard card is null');
+      return
+    }
+    const effect = R.prop('effect')(card)
+    // if(R.isNil(effect)) {
+    //   return
+    // }
+
+    const tiggerkeywords = {
+      isAttacker: {
+        // type: 'once',
+      },
+      main: {
+        // type: 'once',
+      },
+      faceup: {
+        // type: 'once',
+      },
+    }
+
+    R.forEachObjIndexed( (v,k) => {
+      const type = tiggerkeywords[k]
+      if(type) {
+        console.log(`$playcard tigger ${card.cardno} ${k}`)
+        let payload = {
+          source: card,
+          tigger: k,
+          type: 'once',
+        }
+        payload = R.merge(type)(payload)
+
+        $effectlist.push(mu.makeeffect(payload))
+        console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
+      }
+    })(effect)
+
+    return
+  },
   run(type, payload) {
     return function () {
       const context = this

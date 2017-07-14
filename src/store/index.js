@@ -52,6 +52,8 @@ const state = {
   pickindex: -1,
   test: {},
   testmode: false,
+  activelist: [],
+
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
