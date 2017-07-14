@@ -391,8 +391,8 @@ export default {
     // }
 
     card.active = true
-    // state.activelist.push(card)
-    // mutil.cxplaycard(card)
+    state.activelist.push(card)
+    mutil.cxplaycard(card)
     console.log(`commit ACTIVE_CARD ${card.cardno} is activing`)
   },
   PICK_CARD(state, card) {

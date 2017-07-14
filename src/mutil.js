@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import R from 'ramda'
 import _ from 'lodash'
+import $cx from '@/cardxflow'
 
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
@@ -340,6 +341,8 @@ export default {
       throw 'mutil.resetGameState fail init object'
     }
 
+    $cx.$initeffect()
+
     return init
   },
   battleInit(state) {
@@ -549,7 +552,6 @@ export default {
 
     return true
   },
-<<<<<<< HEAD
   getslot(player,slot) {
     const list = R.path([player,slot])($store.state)
     return list ? R.filter( x => x.slot===slot )(list) : []
@@ -571,8 +573,6 @@ export default {
     return effect
   },
   cxplaycard(card) {
-    return $cx.$playcard( card )
+    return $cx.$playcard(card)
   },
-=======
->>>>>>> parent of 0c7a8cc... make effectlist
 }

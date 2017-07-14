@@ -12,6 +12,7 @@ export var $store = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+var $effectlist = []
 var dispatch
 var commit
 
@@ -64,6 +65,7 @@ export default {
     mu.mixinEffect(payload)
     console.log('cardflow link mutil')
 
+    this.$initeffect()
     // Vue.config.debug = process.env.DEBUG_MODE
     // Vue.config.test = process.env.NODE_ENV === 'development'
     // Vue.config.test = process.env.NODE_ENV === 'testing'
@@ -79,10 +81,9 @@ export default {
   //   // console.log('cx.source ($store.state.placeholder)')
   //   return $store.state.placeholder
   // },
-<<<<<<< HEAD
   $initeffect() {
-    console.log('$cx._initeffect')
-    this.$effectlist = []
+    console.log('$cx.$initeffect')
+    $effectlist = []
   },
   $playcard(card) {
     if(!card) {
@@ -92,13 +93,11 @@ export default {
     let payload = {}
     payload = R.assoc('source',card)(payload)
 
-    this.$effectlist.push(mu.makeeffect(payload))
+    $effectlist.push(mu.makeeffect(payload))
 
     console.log(`$cx._playcard ${payload.source.cardno} ${payload.tigger}`)
     return payload
   },
-=======
->>>>>>> parent of 0c7a8cc... make effectlist
   run(type, payload) {
     return function () {
       const context = this
