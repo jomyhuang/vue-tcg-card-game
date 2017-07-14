@@ -52,6 +52,8 @@ const state = {
   pickindex: -1,
   test: {},
   testmode: false,
+  activelist: [],
+
   // ACT_SELECT_CARD_...
   act_selection: {
     list: [],
@@ -127,7 +129,6 @@ const state = {
     deck: [],
     zone: [],
     hand: [],
-    // get hand() { return mu.getslot('player1','hand') },
     graveyard: [],
     base: [],
     supporter: [],
@@ -160,7 +161,6 @@ const state = {
     maxMana: 10,
     agent: null,
   },
-  get foo() { return 'foo' },
 }
 
 export const initstate = R.clone(state)

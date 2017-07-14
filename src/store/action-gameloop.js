@@ -181,6 +181,9 @@ export default {
       commit('ADD_TAG', 'isAttacker')
       commit('SET_FACEUP')
 
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
+
       // FIXME: await effect
       dispatch('EFFECT_SOURCE', state.battle.attacker.main)
       dispatch('TIGGER_EFFECT', 'faceup')
@@ -228,6 +231,9 @@ export default {
       commit('ADD_TAG', 'isDefenser')
       commit('SET_FACEUP')
 
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
+
       // FIXME: await effect
       dispatch('EFFECT_SOURCE', state.battle.defenser.main)
       dispatch('TIGGER_EFFECT', 'faceup')
@@ -271,6 +277,9 @@ export default {
       })
       commit('ADD_TAG', 'isSupporter')
 
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
+
       commit('PICK_CARD', state.battle.attacker.support)
       commit('TO_SUPPORTER')
     })
@@ -309,6 +318,9 @@ export default {
         }
       })
       commit('ADD_TAG', 'isSupporter')
+
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
 
       commit('PICK_CARD', state.battle.defenser.support)
       commit('TO_SUPPORTER')

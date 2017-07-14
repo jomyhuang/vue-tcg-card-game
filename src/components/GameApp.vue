@@ -626,7 +626,6 @@ export default {
       console.log('add', R.add(mu.tcall(10),mu.tcall(10)));
       console.log('add', R.add(mu.tcall(()=>30),mu.tcall(10)));
 
-      console.log(mu.getslot('player1','hand'));
       // console.log('call emit');
       // this.$emit('testemit', this)
       // this.$boardcast('test',this)

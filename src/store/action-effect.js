@@ -166,7 +166,10 @@ export default {
     // }
 
     // console.log('EFFECT_CHOICE do ', payload)
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( (card) => {
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
+    })
   },
   EFFECT_OPP_CHOICE({
     commit,
@@ -202,6 +205,9 @@ export default {
     //   commit('SELECT_PLAYER',state.currentPlayer)
     // })
     // console.log('EFFECT_OPP_CHOICE do ', payload)
-    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload)
+    return dispatch('ASYNC_ACT_SELECT_CARD_START', payload).then( (card) => {
+      // NEWEFFECT
+      commit('ACTIVE_CARD', card)
+    })
   },
 }

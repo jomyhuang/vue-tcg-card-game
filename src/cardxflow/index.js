@@ -38,7 +38,6 @@ export default {
   init: false,
   context: null,
   active: false,
-  $effectlist: [],
 
   install(payload) {
     if (this.init) {
@@ -68,7 +67,6 @@ export default {
     // Vue.config.debug = process.env.DEBUG_MODE
     // Vue.config.test = process.env.NODE_ENV === 'development'
     // Vue.config.test = process.env.NODE_ENV === 'testing'
-    this.$initeffect()
 
     this.init = true
     console.log('cardflow installed')
@@ -81,28 +79,26 @@ export default {
   //   // console.log('cx.source ($store.state.placeholder)')
   //   return $store.state.placeholder
   // },
+<<<<<<< HEAD
   $initeffect() {
     console.log('$cx._initeffect')
     this.$effectlist = []
   },
-  $playcard(payload, card) {
+  $playcard(card) {
     if(!card) {
       console.log('$cx._playcard card is null');
       return
     }
-    if( R.is(String, payload)) {
-      const from = payload
-      payload = {
-        tigger: from
-      }
-    }
-    payload = R.assoc('card',card)(payload)
+    let payload = {}
+    payload = R.assoc('source',card)(payload)
 
-    this.$effectlist.push(payload)
+    this.$effectlist.push(mu.makeeffect(payload))
 
-    console.log(`$cx._playcard ${payload.tigger}`)
+    console.log(`$cx._playcard ${payload.source.cardno} ${payload.tigger}`)
     return payload
   },
+=======
+>>>>>>> parent of 0c7a8cc... make effectlist
   run(type, payload) {
     return function () {
       const context = this

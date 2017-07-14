@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import R from 'ramda'
 import _ from 'lodash'
-import $cx from '@/cardxflow'
 
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
@@ -17,6 +16,7 @@ export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
 
+
 export function testfn() {
   console.log('test func $store', $store)
   console.log('test func this', this)
@@ -29,7 +29,6 @@ export default {
   mixin: false,
   _isTestmode: false,
   // testmode: false,
-
   tap(fn) {
     console.log('mutil tap this func', this)
   },
@@ -124,6 +123,46 @@ export default {
         card.effect = value
         const fn = card.effect['mounted'] || (() => {})
         const result = fn.call(card)
+
+        // OK1:
+        // let mounted = R.bind(R.prop('mounted')(card.effect),card)
+        // R.apply(mounted)(card)
+        // let log = (x) => console.log('tap ' + x)
+
+        // OK2: Ramda func way
+        // let mounted = R.path(['effect', 'mounted'])
+        // let callmounted =
+        //   R.when(
+        //     mounted,
+        //     R.pipe(
+        //       mounted,
+        //       // bind for mounted function
+        //       R.bind(R.__, card),
+        //       R.call,
+        //       // R.tap(console.log),
+        //       // bind for "return function"
+        //       // R.bind(R.__, card),
+        //       // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+        //       // OK! R.apply(R.__,[]),
+        //       // R.call,
+        //     )
+        //   )
+
+        // check it out: 如何带入闭包的card值
+        // call可以
+        // apply work 必须要有第二参数[]
+        // OK! let result = R.apply(callmounted(card),[])
+        // OK2: 传统bind方式
+        // let mounted = card.effect.mounted
+        // if(mounted) {
+        //   // OK1: bind way, to gen new function
+        //   // let bindfunc = mounted.bind(card)
+        //   // bindfunc({})
+        //   // OK2: apply this directly
+        // mounted.apply(card,{})
+        //
+        // let result = callmounted(card)
+
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
@@ -297,13 +336,9 @@ export default {
       state[key] = value
     })(init)
 
-    // console.log('reset gamestate', $store.state.foo)
     if(state.player1.deck.length>0) {
       throw 'mutil.resetGameState fail init object'
     }
-
-    // init $effectlist
-    $cx.$initeffect()
 
     return init
   },
@@ -334,6 +369,7 @@ export default {
       // power: 0,
       buffs: [],
       play: {},
+      active: false,
       effecttext: cardDB[cardid].effecttext ? cardDB[cardid].effecttext : '无效果',
     })
 
@@ -499,7 +535,7 @@ export default {
   },
   checkslot() {
     console.log('mutil.checkslot')
-    
+
     R.forEach( (player) => {
       R.forEach( (slot) => {
         R.forEach( (card) => {
@@ -513,9 +549,15 @@ export default {
 
     return true
   },
+<<<<<<< HEAD
   getslot(player,slot) {
     const list = R.path([player,slot])($store.state)
     return list ? R.filter( x => x.slot===slot )(list) : []
+  },
+  moveslot(toslot,card) {
+    const from = card.slot
+    card.slot = toslot
+    return card
   },
   makeeffect(payload) {
     const effect = R.merge({
@@ -527,5 +569,10 @@ export default {
       target: undefined,
     })(payload)
     return effect
-  }
+  },
+  cxplaycard(card) {
+    return $cx.$playcard( card )
+  },
+=======
+>>>>>>> parent of 0c7a8cc... make effectlist
 }
