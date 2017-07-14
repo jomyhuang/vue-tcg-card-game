@@ -623,8 +623,7 @@ export default {
     },
     gameTest() {
 
-      console.log('add', R.add(mu.tcall(10),mu.tcall(10)));
-      console.log('add', R.add(mu.tcall(()=>30),mu.tcall(10)));
+      $cx.debug()
 
       // console.log('call emit');
       // this.$emit('testemit', this)

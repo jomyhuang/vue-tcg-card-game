@@ -81,22 +81,53 @@ export default {
   //   // console.log('cx.source ($store.state.placeholder)')
   //   return $store.state.placeholder
   // },
+  debug() {
+    console.log('$cx.effectlist debug')
+    console.dir($effectlist)
+  },
   $initeffect() {
     console.log('$cx.$initeffect')
     $effectlist = []
   },
   $playcard(card) {
     if(!card) {
-      console.log('$cx._playcard card is null');
+      console.log('$cx.playcard card is null');
       return
     }
-    let payload = {}
-    payload = R.assoc('source',card)(payload)
+    const effect = R.prop('effect')(card)
+    // if(R.isNil(effect)) {
+    //   return
+    // }
 
-    $effectlist.push(mu.makeeffect(payload))
+    const tiggerkeywords = {
+      isAttacker: {
+        // type: 'once',
+      },
+      main: {
+        // type: 'once',
+      },
+      faceup: {
+        // type: 'once',
+      },
+    }
 
-    console.log(`$cx._playcard ${payload.source.cardno} ${payload.tigger}`)
-    return payload
+    R.forEachObjIndexed( (v,k) => {
+      const type = tiggerkeywords[k]
+      if(type) {
+        console.log(`$playcard tigger ${card.cardno} ${k}`)
+        let payload = {
+          source: card,
+          tigger: k,
+          type: 'once',
+        }
+        payload = R.merge(type)(payload)
+
+        $effectlist.push(mu.makeeffect(payload))
+        console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
+      }
+    })(effect)
+
+    return
   },
   run(type, payload) {
     return function () {
