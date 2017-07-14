@@ -101,13 +101,13 @@ export default {
 
     const tiggerkeywords = {
       isAttacker: {
-        // type: 'once',
+        type: 'once',
       },
       main: {
-        // type: 'once',
+        type: 'once',
       },
       faceup: {
-        // type: 'once',
+        type: 'once',
       },
     }
 
@@ -118,16 +118,19 @@ export default {
         let payload = {
           source: card,
           tigger: k,
-          type: 'once',
         }
         payload = R.merge(type)(payload)
-
         $effectlist.push(mu.makeeffect(payload))
+
         console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
       }
     })(effect)
 
     return
+  },
+  $getlist(tag) {
+    // return R.filter( (x) => x.tigger==tag )($effectlist)
+    return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
   },
   run(type, payload) {
     return function () {
