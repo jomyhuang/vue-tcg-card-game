@@ -519,13 +519,28 @@ export default {
   hasTag(tag, card = $store.state.placeholder) {
     return !R.isNil(card.play[tag])
   },
-  addTag(tag, card = $store.state.placeholder,val=true) {
+  addTag(tag, card = $store.state.placeholder, val=true) {
     if(!card) {
       console.log('mu.addTag card is null')
       return
     }
     card.play = R.assoc(tag, val)(card.play)
-    // console.log('addtag',card.play);
+
+    // EFFECTNEW
+    const effect = R.path(['effect',tag])(card)
+    if(effect) {
+      let payload = {
+        tigger: tag,
+        source: card,
+        func: effect,
+        type: 'tag',
+        // when: () => { console.log('when',card,tag); return (card.play[tag]) }
+        when: () => { return (card.play[tag]) }
+      }
+      $cx.$addtigger(payload)
+    }
+
+    console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
     return card
   },
   removeTag(tag, card = $store.state.placeholder) {
@@ -534,6 +549,7 @@ export default {
       return
     }
     card.play = R.dissoc(tag)(card.play)
+    console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
     return card
   },
   checkslot() {
@@ -566,9 +582,10 @@ export default {
       tigger: undefined,
       type: 'once',
       source: undefined,
-      when: () => true,
       run: false,
+      func: () => true,
       target: undefined,
+      when: () => true,
     })(payload)
     return effect
   },

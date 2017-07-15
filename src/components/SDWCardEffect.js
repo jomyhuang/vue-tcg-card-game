@@ -31,12 +31,12 @@ export default {
     //   $cx.engage($cx.tap('do this tap message array1')),
     //   $cx.engage($cx.buff(500), $cx.tap('effect array2')),
     // ],
-    // faceup({
-    //   dispatch,
-    // }) {
-    //   console.log('JW15-001 FACEUP effect this=', this)
-    //   dispatch('DRAW', 1)
-    // },
+    faceup({
+      dispatch,
+    }) {
+      console.log('JW15-001 FACEUP effect this=', this)
+      // dispatch('DRAW', 1)
+    },
     main() {
       return $cx.GUIengage(
       // return $cx.engage(

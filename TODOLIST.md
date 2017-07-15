@@ -223,6 +223,11 @@ async/await emit ['tigger name'...]
 async/await emit ['tigger name'...] @ card.box (tigger by box-diff)
 * "one tag" only "one tigger" in game loop
 
+=> ADD_TAG => 直接增加Tigger
+=> $playcard => 增加主动效果
+=> $diff => 增加牌堆变化效果
+
+
 active list = filter by tigger name or/ this card
 loop {
   await event/tigger if condition

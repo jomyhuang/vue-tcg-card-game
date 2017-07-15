@@ -393,7 +393,7 @@ export default {
     card.active = true
     state.activelist.push(card)
     mutil.cxplaycard(card)
-    
+
     console.log(`commit ACTIVE_CARD ${card.cardno} is activing`)
   },
   PICK_CARD(state, card) {
@@ -468,7 +468,7 @@ export default {
       state.placeholder.facedown = false
       // setting face up
       state.placeholder.play.faceup = true
-      console.log('SET_FACEUP face up tagging');
+      console.log('SET_FACEUP face up');
     }
   },
   TO_HAND(state) {
@@ -579,11 +579,8 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String, tag)) {
-      card.play = R.assoc(tag, true)(card.play)
-    } else {
-      card.play = R.merge(tag, card.play)
-    }
+    mutil.addTag(tag,card)
+
     console.log(`commit ADD_TAG ${state.placeholder.name}`, card.play)
   },
   REMOVE_TAG(state, payload) {
@@ -593,11 +590,12 @@ export default {
     }
     const card = state.placeholder
     const tag = payload
-    if (R.is(String, tag)) {
-      card.play = R.dissoc(tag)(card.play)
-    } else {
-      console.error('REMOVE_TAG payload must is string')
-    }
+    // if (R.is(String, tag)) {
+    //   card.play = R.dissoc(tag)(card.play)
+    // } else {
+    //   console.error('REMOVE_TAG payload must is string')
+    // }
+    mutil.removeTag(tag,card)
     console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
   },
   CLEAR_TAG(state, payload) {
@@ -608,6 +606,7 @@ export default {
     const card = payload
     card.play = {}
     card.buffs = []
+    // TODO: EFFECTNEW clear tag with tigger
     console.log(`commit CLEAR_TAG ${card.name}`,card)
   },
 }

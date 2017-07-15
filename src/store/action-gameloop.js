@@ -179,6 +179,7 @@ export default {
         }
       })
       commit('ADD_TAG', 'isAttacker')
+      commit('ADD_TAG', 'faceup')
       commit('SET_FACEUP')
 
       // NEWEFFECT
@@ -229,6 +230,7 @@ export default {
         }
       })
       commit('ADD_TAG', 'isDefenser')
+      commit('ADD_TAG', 'faceup')
       commit('SET_FACEUP')
 
       // NEWEFFECT

@@ -83,7 +83,11 @@ export default {
   // },
   debug() {
     console.log('$cx.effectlist debug')
-    console.dir($effectlist)
+    // console.dir($effectlist)
+    R.forEach( (x) => {
+      console.log(`tigger ${x.source.cardno} ${x.tigger}`);
+      console.dir(x)
+    })($effectlist)
   },
   $initeffect() {
     console.log('$cx.$initeffect')
@@ -99,38 +103,45 @@ export default {
     //   return
     // }
 
-    const tiggerkeywords = {
-      isAttacker: {
-        type: 'once',
-      },
+    const tiggerlist = {
+      // isAttacker: {
+      //   type: 'once',
+      // },
       main: {
         type: 'once',
       },
-      faceup: {
-        type: 'once',
-      },
+      // faceup: {
+      //   type: 'once',
+      // },
     }
 
     R.forEachObjIndexed( (v,k) => {
-      const type = tiggerkeywords[k]
+      const type = tiggerlist[k]
       if(type) {
-        console.log(`$playcard tigger ${card.cardno} ${k}`)
         let payload = {
           source: card,
           tigger: k,
+          func: v,
         }
         payload = R.merge(type)(payload)
-        $effectlist.push(mu.makeeffect(payload))
+        // $effectlist.push(mu.makeeffect(payload))
+        this.$addtigger(payload)
 
+        console.log(`$cx.$playcard 主动技能 tigger ${card.cardno} ${k}`)
         console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
       }
     })(effect)
 
     return
   },
+  $addtigger(payload) {
+    $effectlist.push(mu.makeeffect(payload))
+    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
+  },
   $getlist(tag) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
-    return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
+    return R.filter( (x) => x.tigger==tag && mu.tcall(x.when) )($effectlist)
+    // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
   },
   run(type, payload) {
     return function () {

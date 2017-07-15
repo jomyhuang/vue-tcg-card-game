@@ -132,7 +132,8 @@ export default {
       return false
     }
     let list = $cx.$getlist(payload)
-    console.log(`NEWTIGGER_EFFECT test ${payload}`,list)
+    if(list.length)
+      console.log(`NEWTIGGER_EFFECT test ${payload}`,list)
 
     const type = payload
     const phase = state.game.phase
