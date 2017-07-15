@@ -138,9 +138,11 @@ export default {
     $effectlist.push(mu.makeeffect(payload))
     console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
   },
-  $getlist(tag) {
+  $getlist(tag,card) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
-    return R.filter( (x) => x.tigger==tag && mu.tcall(x.when) )($effectlist)
+    const cardcheck = card ? (x) => x.source.key == card.key : () => true
+
+    return R.filter( (x) => x.tigger==tag && mu.tcall(x.when) && !x.run && mu.tcall(cardcheck,this,x) )($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
   },
   run(type, payload) {

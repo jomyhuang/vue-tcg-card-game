@@ -131,9 +131,13 @@ export default {
       console.warn(`TIGGER_EFFECT placeholder is null skip`)
       return false
     }
-    let list = $cx.$getlist(payload)
-    if(list.length)
-      console.log(`NEWTIGGER_EFFECT test ${payload}`,list)
+    let activelist = $cx.$getlist(payload,state.placeholder)
+    // let activelist = $cx.$getlist(payload)
+    if(!activelist.length) {
+      return
+    }
+
+    console.log(`NEWTIGGER_EFFECT test ${payload}`,activelist)
 
     const type = payload
     const phase = state.game.phase
@@ -142,24 +146,41 @@ export default {
     const opponent = mutil.opponent(player)
 
     // without condition check effect 不需要 tag check
-    let condition
-    const checklist = ['main']
-
-    if (R.contains(type)(checklist)) {
-      condition = (card, type) => true
-    } else {
-      condition = (card, type) => R.path(['play', type])(card)
+    // let condition
+    // const checklist = ['main']
+    //
+    // if (R.contains(type)(checklist)) {
+    //   condition = (card, type) => true
+    // } else {
+    //   condition = (card, type) => R.path(['play', type])(card)
+    // }
+    //
+    // if (!condition(card, type)) {
+    //   // console.log(`card without ${type} status key skip`);
+    //   return false
+    // }
+    //
+    // let effectfunc = R.path(['effect', type])(card)
+    // if (!effectfunc) {
+    //   // console.log(`card without effect func ${type} skip`)
+    //   return false
+    // }
+    if(activelist.length > 1) {
+      console.warn('NEWTIGGER_EFFECT activelist length >1 make sure piority')
     }
 
-    if (!condition(card, type)) {
-      // console.log(`card without ${type} status key skip`);
-      return false
+    const list = R.filter( (x) => x.source.key == card.key )(activelist)
+    if(!list.length) {
+      throw new Error('TIGGER_EFFECT no card found')
+    }
+    if(list.length > 1) {
+      console.warn('NEWTIGGER_EFFECT list length >1 make sure piority')
     }
 
-    let effectfunc = R.path(['effect', type])(card)
+    let effectfunc = list[0].func
     if (!effectfunc) {
       // console.log(`card without effect func ${type} skip`)
-      return false
+      throw new Error('TIGGER_EFFECT func is null')
     }
 
     let context = {
@@ -180,7 +201,13 @@ export default {
     console.log(`TIGGER_EFFECT => ${card.cardno} %c${type} effect action`, 'color:blue')
     // console.log(effectfunc())
 
-    return mutil.tcall(effectfunc,context,context)
+    return mutil.tcall(effectfunc,context,context).then( () => {
+      console.log('NEWTIGGER_EFFECT then do clear...')
+      R.forEach( (x) => {
+        // mark run already
+        x.run = true
+      })(activelist)
+    })
     // return effectfunc().call(context,context)
   },
   EFFECT_CHOICE({

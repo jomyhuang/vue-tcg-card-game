@@ -34,8 +34,11 @@ export default {
     faceup({
       dispatch,
     }) {
-      console.log('JW15-001 FACEUP effect this=', this)
       // dispatch('DRAW', 1)
+      return new Promise(function(resolve, reject) {
+        console.log('JW15-001 FACEUP effect this=', this)
+        resolve()
+      });
     },
     main() {
       return $cx.GUIengage(

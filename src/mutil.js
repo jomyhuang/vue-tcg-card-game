@@ -29,6 +29,7 @@ export default {
   // store
   mixin: false,
   _isTestmode: false,
+  ucardid: 0,
   // testmode: false,
   tap(fn) {
     console.log('mutil tap this func', this)
@@ -363,6 +364,8 @@ export default {
     let gamecard = Object.assign({}, cardDB[cardid])
 
     gamecard = R.merge(gamecard, {
+      key: this.ucardid++,
+      // key: Symbol('uid'),
       facedown: facedown,
       selected: false,
       selectable: false,
@@ -526,14 +529,14 @@ export default {
     }
     card.play = R.assoc(tag, val)(card.play)
 
-    // EFFECTNEW
+    // EFFECTNEW add tag tigger
     const effect = R.path(['effect',tag])(card)
     if(effect) {
       let payload = {
         tigger: tag,
         source: card,
         func: effect,
-        type: 'tag',
+        from: 'tag',
         // when: () => { console.log('when',card,tag); return (card.play[tag]) }
         when: () => { return (card.play[tag]) }
       }
@@ -549,6 +552,8 @@ export default {
       return
     }
     card.play = R.dissoc(tag)(card.play)
+    // EFFECTNEW remove tag tigger
+
     console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
     return card
   },
@@ -586,6 +591,8 @@ export default {
       func: () => true,
       target: undefined,
       when: () => true,
+      from: undefined,
+      active: true,
     })(payload)
     return effect
   },
