@@ -172,7 +172,7 @@ export default {
       //   // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
       //   // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
       // },
-    }).then( (card) => {
+    }).then( async function(card) {
       commit('BATTLE_SET', {
         attacker: {
           main: card,
@@ -186,8 +186,9 @@ export default {
       commit('ACTIVE_CARD', card)
 
       // FIXME: await effect
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      dispatch('TIGGER_EFFECT', 'faceup')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // dispatch('TIGGER_EFFECT', 'faceup')
+      await mutil.tiggerEffect('faceup', state.battle.attacker.main)
     })
   },
   BATTLE_OPP_DECLARE_DEFENSER({
@@ -223,7 +224,7 @@ export default {
       //   commit('SELECT_PLAYER', state.currentPlayer)
       //   // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
       // },
-    }).then( (card) => {
+    }).then( async function(card) {
       commit('BATTLE_SET', {
         defenser: {
           main: card,
@@ -237,8 +238,10 @@ export default {
       commit('ACTIVE_CARD', card)
 
       // FIXME: await effect
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      dispatch('TIGGER_EFFECT', 'faceup')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // dispatch('TIGGER_EFFECT', 'faceup')
+      await mutil.tiggerEffect('faceup', state.battle.defenser.main)
+
       commit('SELECT_PLAYER', state.currentPlayer)
       // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
     })
@@ -342,27 +345,34 @@ export default {
       commit('BATTLE_CALC')
 
       // currentPlayer
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      await dispatch('TIGGER_EFFECT', 'isAttacker')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      await dispatch('TIGGER_EFFECT', 'main')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.support)
-      await dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.support)
-      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // await dispatch('TIGGER_EFFECT', 'isAttacker')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.support)
+      // await dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.support)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      await mutil.tiggerEffect('isAttacker', state.battle.attacker.main)
+      await mutil.tiggerEffect('main', state.battle.attacker.main)
+      await mutil.tiggerEffect('isAttacker', state.battle.attacker.support)
+      await mutil.tiggerEffect('main', state.battle.attacker.support)
 
       // finish then process ex-support
 
-
       // opponentPlayer
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      await dispatch('TIGGER_EFFECT', 'isDefenser')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      await dispatch('TIGGER_EFFECT', 'main')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.support)
-      await dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.support)
-      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // await dispatch('TIGGER_EFFECT', 'isDefenser')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.support)
+      // await dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.support)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      await mutil.tiggerEffect('isDefenser', state.battle.defenser.main)
+      await mutil.tiggerEffect('main', state.battle.defenser.main)
+      await mutil.tiggerEffect('isSupporter', state.battle.defenser.support)
+      await mutil.tiggerEffect('main', state.battle.defenser.support)
 
       // calc phase 2
       commit('BATTLE_CALC')

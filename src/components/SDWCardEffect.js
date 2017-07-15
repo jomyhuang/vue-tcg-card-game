@@ -31,12 +31,17 @@ export default {
     //   $cx.engage($cx.tap('do this tap message array1')),
     //   $cx.engage($cx.buff(500), $cx.tap('effect array2')),
     // ],
-    faceup({
-      dispatch,
-    }) {
+    faceup() {
       // dispatch('DRAW', 1)
       return new Promise(function(resolve, reject) {
         console.log('JW15-001 FACEUP effect this=', this)
+        resolve()
+      });
+    },
+    isWin() {
+      // dispatch('DRAW', 1)
+      return new Promise(function(resolve, reject) {
+        console.log('JW15-001 isWin tag effect this=', this)
         resolve()
       });
     },

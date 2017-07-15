@@ -16,6 +16,8 @@ export var $store = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+var dispatch
+var commit
 
 
 export function testfn() {
@@ -75,6 +77,9 @@ export default {
       if (payload.store) {
         $store = payload.store
         console.log('mutil install $store', $store)
+        dispatch = $store.dispatch
+        commit = $store.commit
+
         $mainapp = payload.mainapp
         console.log('mutil install $mainapp', $mainapp)
         $effectUI = payload.effectUI
@@ -543,7 +548,7 @@ export default {
       $cx.$addtigger(payload)
     }
 
-    console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
+    // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
     return card
   },
   removeTag(tag, card = $store.state.placeholder) {
@@ -554,7 +559,7 @@ export default {
     card.play = R.dissoc(tag)(card.play)
     // EFFECTNEW remove tag tigger
 
-    console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
+    // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
     return card
   },
   checkslot() {
@@ -580,6 +585,7 @@ export default {
   moveslot(toslot,card) {
     const from = card.slot
     card.slot = toslot
+    // TODO: clear some tag/tigger when diff slot
     return card
   },
   makeeffect(payload) {
@@ -599,4 +605,7 @@ export default {
   cxplaycard(card) {
     return $cx.$playcard(card)
   },
+  tiggerEffect(tag,card) {
+    return dispatch('TIGGER_EFFECT', { tag: tag, source: card } )
+  }
 }

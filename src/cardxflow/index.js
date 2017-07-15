@@ -128,7 +128,7 @@ export default {
         this.$addtigger(payload)
 
         console.log(`$cx.$playcard 主动技能 tigger ${card.cardno} ${k}`)
-        console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
+        // console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
       }
     })(effect)
 
@@ -141,18 +141,13 @@ export default {
   $getlist(tag,card) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
+    // TODO: add slot check
 
-    return R.filter( (x) => x.tigger==tag && mu.tcall(x.when) && !x.run && mu.tcall(cardcheck,this,x) )($effectlist)
+    return R.filter( (x) => x.tigger==tag
+              && mu.tcall(x.when)
+              && !x.run
+              && mu.tcall(cardcheck,this,x) )($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
-  },
-  run(type, payload) {
-    return function () {
-      const context = this
-      const fn = $store._actions[type] ? $store.dispatch : $store.commit
-      const card = context.card
-      return mu.tcall(fn, context, type, payload)
-      // return fn.call(card, type, payload)
-    }
   },
   _setcontext(context=null) {
     if(context) {
@@ -164,6 +159,15 @@ export default {
       this.context = null
       this.active = false
       console.log('$cx.setcontext clear')
+    }
+  },
+  run(type, payload) {
+    return function () {
+      const context = this
+      const fn = $store._actions[type] ? $store.dispatch : $store.commit
+      const card = context.card
+      return mu.tcall(fn, context, type, payload)
+      // return fn.call(card, type, payload)
     }
   },
   pipe(...items) {

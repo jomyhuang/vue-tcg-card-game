@@ -53,6 +53,9 @@ describe('GameAPP', () => {
     // vm = createVM(GameApp, true)
     let state = vm.$store.state
 
+    // set timeout
+    this.timeout(5000)
+
     // console.log(vm.$el);
     // createVM how to call?
     // vm.gameReset({decklist:[testdeck1,testdeck2]})
@@ -67,6 +70,9 @@ describe('GameAPP', () => {
   it('test run_gameloop whole game w/testdeck1,testdeck2', async function() {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
+
+    // set timeout
+    this.timeout(5000)
 
     // vm.gametestmode
     vm.gameReset({decklist:[testdeck1,testdeck2]})
@@ -97,7 +103,7 @@ describe('GameAPP', () => {
     let state = vm.$store.state
 
     // set timeout
-    this.timeout(3000)
+    this.timeout(5000)
 
     // vm.gameReset
     // set agent
