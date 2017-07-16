@@ -543,7 +543,8 @@ export default {
         func: effect,
         from: 'tag',
         // when: () => { console.log('when',card,tag); return (card.play[tag]) }
-        when: () => { return (card.play[tag]) }
+        when: () => { return (card.play[tag]) },
+        slot: ['zone','supporter'],
       }
       $cx.$addtigger(payload)
     }

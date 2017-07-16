@@ -86,12 +86,15 @@ export default {
       // })
     },
   },
-  // "JW15-002": {
-  //   faceup() {
-  //     // console.log(`${this.cardno} FACEUP effect this=`, this)
-  //   },
-  //   main() {
-  //     // console.log(`${this.cardno} MAIN effect`)
-  //   }
-  // },
+  "JW15-002": {
+    // faceup() {
+    //   // console.log(`${this.cardno} FACEUP effect this=`, this)
+    // },
+    main() {
+      return new Promise(function(resolve, reject) {
+        console.log('JW15-002 main tag effect this=', this)
+        resolve()
+      });
+    }
+  },
 }

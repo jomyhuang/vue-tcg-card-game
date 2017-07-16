@@ -186,6 +186,12 @@ export default {
     // if(list.length > 1) {
     //   console.warn('NEWTIGGER_EFFECT list length >1 make sure piority')
     // }
+    // check slot
+    let whenslot = activelist[0].slot
+    if( !whenslot.includes(card.slot) ) {
+      console.warn(`NEWTIGGER_EFFECT slot check error ${card.cardno} @ ${card.slot} `, whenslot)
+      return false
+    }
 
     let effectfunc = activelist[0].func
     if (!effectfunc) {

@@ -143,7 +143,8 @@ describe('GameAPP', () => {
     // test faceup effect
     // expect(battle.defenser.player.hand.length).to.equal(5)
 
-    expect(battle.attacker.total).to.equal(9000)
+    expect(battle.attacker.total).to.equal(8000)
+    // expect(battle.attacker.total).to.equal(9000)
     expect(battle.defenser.total).to.equal(6000)
 
     expect(battle.score.finish).to.equal(true)
