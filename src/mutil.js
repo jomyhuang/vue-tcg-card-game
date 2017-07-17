@@ -559,7 +559,7 @@ export default {
     }
     card.play = R.dissoc(tag)(card.play)
     // EFFECTNEW remove tag tigger
-
+    $cx.$removetigger(tag,card)
     // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
     return card
   },

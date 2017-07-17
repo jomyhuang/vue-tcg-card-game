@@ -604,9 +604,13 @@ export default {
       return
     }
     const card = payload
-    card.play = {}
     card.buffs = []
     // TODO: EFFECTNEW clear tag with tigger
+    R.forEachObjIndexed( (v,k) => {
+      mutil.removeTag(k,card)
+    })(card.play)
+    // card.play = {}
+
     console.log(`commit CLEAR_TAG ${card.name}`,card)
   },
 }

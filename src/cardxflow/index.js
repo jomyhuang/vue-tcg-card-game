@@ -139,15 +139,27 @@ export default {
     $effectlist.push(mu.makeeffect(payload))
     console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
   },
+  $removetigger(tag,card) {
+    // if(tag == 'main') return
+    // remove
+    // $effectlist = R.filter( (x) => !(x.tigger == tag && x.source.key == card.key) )($effectlist)
+    // make inactive first
+    $effectlist = R.map( (x) => {
+      if(x.tigger == tag && x.source.key == card.key ) x.active = false
+      return x
+    })($effectlist)
+    
+    console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length);
+  },
   $getlist(tag,card) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
-    const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
     // TODO: add slot check
+    const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
 
     return R.filter( (x) => x.tigger==tag
+              && !x.run && x.active
               && mu.tcall(x.when)
-              && !x.run
               // && mu.tcall(slotcheck,this,x)
               && mu.tcall(cardcheck,this,x) )($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)

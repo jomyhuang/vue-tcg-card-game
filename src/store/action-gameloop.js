@@ -470,6 +470,7 @@ export default {
         }
       }
 
+      // CLEAR TAG
       console.log(`BATTLE_EFFECT_CLEAR clear play tag & buffs`)
       console.log('battle.chian',battle.chain)
       R.map((x) => {

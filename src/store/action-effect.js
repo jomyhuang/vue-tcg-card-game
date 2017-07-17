@@ -135,76 +135,53 @@ export default {
       }
     }
 
-    const type = payload.tag
-    const card = payload.source
+    const tag = payload.tag
+    const source = payload.source
 
     const phase = state.game.phase
-    const player = card.owner
+    const player = source.owner
     const opponent = mutil.opponent(player)
 
     if (R.isNil(payload.source)) {
       console.warn(`TIGGER_EFFECT source is null skip`)
-      return false
+      throw new Error(`TIGGER_EFFECT source is null`)
+    }
+    if (R.isNil(payload.tag)) {
+      throw new Error(`TIGGER_EFFECT tag is null`)
     }
 
-    let activelist = $cx.$getlist(type, card)
+    let activelist = $cx.$getlist(tag, source)
     // let activelist = $cx.$getlist(type)
     if(!activelist.length) {
-      return
-    }
-
-    console.log(`NEWTIGGER_EFFECT getlist ${type}`,activelist)
-
-    // without condition check effect 不需要 tag check
-    // let condition
-    // const checklist = ['main']
-    //
-    // if (R.contains(type)(checklist)) {
-    //   condition = (card, type) => true
-    // } else {
-    //   condition = (card, type) => R.path(['play', type])(card)
-    // }
-    //
-    // if (!condition(card, type)) {
-    //   // console.log(`card without ${type} status key skip`);
-    //   return false
-    // }
-    //
-    // let effectfunc = R.path(['effect', type])(card)
-    // if (!effectfunc) {
-    //   // console.log(`card without effect func ${type} skip`)
-    //   return false
-    // }
-    if(activelist.length > 1) {
-      console.warn('NEWTIGGER_EFFECT activelist length >1 make sure piority')
-    }
-
-    // const list = R.filter( (x) => x.source.key == card.key )(activelist)
-    // if(!list.length) {
-    //   throw new Error('TIGGER_EFFECT no card found')
-    // }
-    // if(list.length > 1) {
-    //   console.warn('NEWTIGGER_EFFECT list length >1 make sure piority')
-    // }
-    // check slot
-    let whenslot = activelist[0].slot
-    if( !whenslot.includes(card.slot) ) {
-      console.warn(`NEWTIGGER_EFFECT slot check error ${card.cardno} @ ${card.slot} `, whenslot)
+      // no tigger to run
       return false
     }
 
-    let effectfunc = activelist[0].func
+    console.log(`NEWTIGGER_EFFECT getlist ${tag}`,activelist)
+    if(activelist.length > 1) {
+      console.warn('NEWTIGGER_EFFECT activelist length >1 make sure piority')
+      throw new Error('NEWTIGGER_EFFECT activelist length >1 make sure piority')
+    }
+
+    // check slot
+    let tigger = R.head(activelist)
+    let whenslot = tigger.slot
+    if( !whenslot.includes(source.slot) ) {
+      console.warn(`NEWTIGGER_EFFECT slot check error ${source.cardno} @ ${source.slot} `, whenslot)
+      return false
+    }
+
+    let effectfunc = tigger.func
     if (!effectfunc) {
-      // console.log(`card without effect func ${type} skip`)
       throw new Error('TIGGER_EFFECT func is null')
     }
 
     let context = {
       text: 'effect context',
-      type: type,
+      type: tag,
       phase: state.game.phase,
-      source: card,
-      card: card,
+      source: source,
+      card: source,
       player: player,
       opponent: opponent,
       state: state,
@@ -214,13 +191,13 @@ export default {
     }
 
     // console.group()
-    dispatch('EFFECT_SOURCE', payload.source)
-    console.log(`TIGGER_EFFECT => ${card.cardno} ${card.key} %c${type} effect action`, 'color:blue')
+    dispatch('EFFECT_SOURCE', source)
+    console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key} %c${tag} effect action`, 'color:blue')
     // console.log(effectfunc())
 
     return mutil.tcall(effectfunc,context,context).then( () => {
       // console.log('NEWTIGGER_EFFECT then do clear...')
-      activelist[0].run = true
+      tigger.run = true
       // R.forEach( (x) => {
       //   // mark run already
       //   x.run = true
