@@ -93,63 +93,21 @@ export default {
     console.log('$cx.$initeffect')
     $effectlist = []
   },
-  $playcard(card) {
-    if(!card) {
-      console.log('$cx.playcard card is null');
-      return
-    }
-    const effect = R.prop('effect')(card)
-    // if(R.isNil(effect)) {
-    //   return
-    // }
-
-    const tiggerlist = {
-      // isAttacker: {
-      //   type: 'once',
-      // },
-      main: {
-        type: 'once',
-      },
-      // faceup: {
-      //   type: 'once',
-      // },
-    }
-
-    R.forEachObjIndexed( (v,k) => {
-      const type = tiggerlist[k]
-      if(type) {
-        let payload = {
-          source: card,
-          tigger: k,
-          func: v,
-        }
-        payload = R.merge(type)(payload)
-        // $effectlist.push(mu.makeeffect(payload))
-        // this.$addtigger(payload)
-        mu.addTag(k,card)
-
-        console.log(`$cx.$playcard 主动技能 tigger ${card.cardno} ${k}`)
-        // console.log(`$cx.playcard ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
-      }
-    })(effect)
-
-    return
-  },
   $addtigger(payload) {
     $effectlist.push(mu.makeeffect(payload))
-    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`,payload)
+    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`)
   },
   $removetigger(tag,card) {
     // if(tag == 'main') return
-    // remove
+    // way1: remove
     // $effectlist = R.filter( (x) => !(x.tigger == tag && x.source.key == card.key) )($effectlist)
-    // make inactive first
+    // way2: make inactive first
     $effectlist = R.map( (x) => {
       if(x.tigger == tag && x.source.key == card.key ) x.active = false
       return x
     })($effectlist)
-    
-    console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length);
+    // TODO: way3 transduce
+    // console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length)
   },
   $getlist(tag,card) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
@@ -277,7 +235,7 @@ export default {
       })
       let promlist = fnlist.map((act) => {
         current = current.then(() => {
-          console.log('act-----------------')
+          console.log('>>act-------------')
           if (_.isFunction(act)) {
             let res = mu.tcall(act, context, context)
             // let res = act.call(context, context)
@@ -294,13 +252,13 @@ export default {
 
       return Promise.all(promlist)
         .then(function (res) {
-          console.log('-engage OK---------')
+          console.log('>>engage OK-------')
           // console.log('context',context)
           // return 'then next'
         })
         .catch((err) => {
-          console.log('%c-engage catch------', 'color:red')
-          console.log('%ceffect 中断 promise all', 'color:red')
+          console.log('%c>>engage catch------', 'color:red')
+          console.log('%c>>effect 中断 promise all', 'color:red')
           console.log('%c' + err, 'color:red')
           // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
           // console.log('context',context)

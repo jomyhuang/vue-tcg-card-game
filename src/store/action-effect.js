@@ -62,65 +62,65 @@ export default {
     commit('SELECT_CARD', card)
     // TODO: if target is player? / register
   },
-  TIGGER_EFFECT22({
-    commit,
-    state,
-    dispatch
-  }, payload) {
-
-    if (R.isNil(state.placeholder)) {
-      console.warn(`TIGGER_EFFECT placeholder is null skip`)
-      return false
-    }
-
-    const type = payload
-    const phase = state.game.phase
-    const card = state.placeholder
-    const player = card.owner
-    const opponent = mutil.opponent(player)
-
-    // without condition check effect 不需要 tag check
-    let condition
-    const checklist = ['main']
-
-    if (R.contains(type)(checklist)) {
-      condition = (card, type) => true
-    } else {
-      condition = (card, type) => R.path(['play', type])(card)
-    }
-
-    if (!condition(card, type)) {
-      // console.log(`card without ${type} status key skip`);
-      return false
-    }
-
-    let effectfunc = R.path(['effect', type])(card)
-    if (!effectfunc) {
-      // console.log(`card without effect func ${type} skip`)
-      return false
-    }
-
-    let context = {
-      text: 'effect context',
-      type: type,
-      phase: state.game.phase,
-      source: card,
-      card: card,
-      player: player,
-      opponent: opponent,
-      state: state,
-      loop: true,
-      UImode: false,
-      cx: $cx,
-    }
-
-    // console.group()
-    console.log(`TIGGER_EFFECT => ${card.cardno} %c${type} effect action`, 'color:blue')
-    // console.log(effectfunc())
-
-    return mutil.tcall(effectfunc,context,context)
-    // return effectfunc().call(context,context)
-  },
+  // TIGGER_EFFECT22({
+  //   commit,
+  //   state,
+  //   dispatch
+  // }, payload) {
+  //
+  //   if (R.isNil(state.placeholder)) {
+  //     console.warn(`TIGGER_EFFECT placeholder is null skip`)
+  //     return false
+  //   }
+  //
+  //   const type = payload
+  //   const phase = state.game.phase
+  //   const card = state.placeholder
+  //   const player = card.owner
+  //   const opponent = mutil.opponent(player)
+  //
+  //   // without condition check effect 不需要 tag check
+  //   let condition
+  //   const checklist = ['main']
+  //
+  //   if (R.contains(type)(checklist)) {
+  //     condition = (card, type) => true
+  //   } else {
+  //     condition = (card, type) => R.path(['play', type])(card)
+  //   }
+  //
+  //   if (!condition(card, type)) {
+  //     // console.log(`card without ${type} status key skip`);
+  //     return false
+  //   }
+  //
+  //   let effectfunc = R.path(['effect', type])(card)
+  //   if (!effectfunc) {
+  //     // console.log(`card without effect func ${type} skip`)
+  //     return false
+  //   }
+  //
+  //   let context = {
+  //     text: 'effect context',
+  //     type: type,
+  //     phase: state.game.phase,
+  //     source: card,
+  //     card: card,
+  //     player: player,
+  //     opponent: opponent,
+  //     state: state,
+  //     loop: true,
+  //     UImode: false,
+  //     cx: $cx,
+  //   }
+  //
+  //   // console.group()
+  //   console.log(`TIGGER_EFFECT => ${card.cardno} %c${type} effect action`, 'color:blue')
+  //   // console.log(effectfunc())
+  //
+  //   return mutil.tcall(effectfunc,context,context)
+  //   // return effectfunc().call(context,context)
+  // },
   TIGGER_EFFECT({
     commit,
     state,
@@ -190,20 +190,18 @@ export default {
       cx: $cx,
     }
 
-    // console.group()
     dispatch('EFFECT_SOURCE', source)
-    console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key} %c${tag} effect action`, 'color:blue')
-    // console.log(effectfunc())
+    console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag}effect action`, 'color:blue')
 
     return mutil.tcall(effectfunc,context,context).then( () => {
-      // console.log('NEWTIGGER_EFFECT then do clear...')
+      // after tigger run
       tigger.run = true
+      tigger.turn = state.game.turnCount
       // R.forEach( (x) => {
       //   // mark run already
       //   x.run = true
       // })(activelist)
     })
-    // return effectfunc().call(context,context)
   },
   EFFECT_CHOICE({
     commit,

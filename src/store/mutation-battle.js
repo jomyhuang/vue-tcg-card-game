@@ -6,7 +6,7 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
-import firstAgent from '@/components/agent-first'
+// import firstAgent from '@/components/agent-first'
 
 export default {
   // BATTLE/TURN -------------------------------------------------

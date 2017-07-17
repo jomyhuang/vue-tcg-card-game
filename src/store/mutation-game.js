@@ -381,20 +381,12 @@ export default {
       // throw new Error('error! card is activing')
       return
     }
-    // if( card.facedown ) {
-    //   console.warn('commit ACTIVE_CARD card is zone facedown in-active')
-    //   return
-    // }
-    // if( card.slot == 'hand' ) {
-    //   console.warn('commit ACTIVE_CARD card is hand in-active')
-    //   return
-    // }
 
     card.active = true
     state.activelist.push(card)
-    mutil.cxplaycard(card)
+    mutil.activecard(card)
 
-    console.log(`commit ACTIVE_CARD ${card.cardno} is activing`)
+    console.log(`commit ACTIVE_CARD ${card.cardno} is active`)
   },
   PICK_CARD(state, card) {
     if (R.isNil(card)) {
@@ -605,12 +597,15 @@ export default {
     }
     const card = payload
     card.buffs = []
-    // TODO: EFFECTNEW clear tag with tigger
-    R.forEachObjIndexed( (v,k) => {
-      mutil.removeTag(k,card)
-    })(card.play)
+    // EFFECTNEW clear tag with tigger
     // card.play = {}
+    // TODO: KEEP SOME TAG OVER TURN
+    const keep = []
+    R.forEachObjIndexed( (v,k) => {
+      if( !keep.includes(k) )
+        mutil.removeTag(k,card)
+    })(card.play)
 
-    console.log(`commit CLEAR_TAG ${card.name}`,card)
+    console.log(`commit CLEAR_TAG & tigger ${card.name}`)
   },
 }

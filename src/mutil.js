@@ -53,11 +53,11 @@ export default {
     return fn.name
   },
   clearMessage() {
-    if(this.isTestmode) return
+    if (this.isTestmode) return
     // $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
   },
-  setTestmode(mode=true) {
+  setTestmode(mode = true) {
     // manual test mode flag
     this.isTestmode = mode
     return mode
@@ -102,13 +102,13 @@ export default {
     this._isTestmode = process.env.NODE_ENV === 'testing'
 
     // isTestmode property
-    Object.defineProperty(this,'isTestmode', {
+    Object.defineProperty(this, 'isTestmode', {
       // value: false,
-      get: function() {
+      get: function () {
         // console.log('isTestmode property get')
         return this._isTestmode || process.env.NODE_ENV === 'testing'
       },
-      set: function(val) {
+      set: function (val) {
         // console.log('isTestmode property set')
         this._isTestmode = val
       },
@@ -331,7 +331,7 @@ export default {
   resetGameState(state) {
 
     const init = R.clone(initstate)
-    if(init.player1.deck.length>0) {
+    if (init.player1.deck.length > 0) {
       throw 'mutil.resetGameState init object is not default'
     }
     // FIXME: 在测试环境中 replacestate失效
@@ -343,7 +343,7 @@ export default {
       state[key] = value
     })(init)
 
-    if(state.player1.deck.length>0) {
+    if (state.player1.deck.length > 0) {
       throw 'mutil.resetGameState fail init object'
     }
 
@@ -524,71 +524,6 @@ export default {
   packisNil(pack) {
     return R.isNil(pack) || R.isNil(R.head(pack))
   },
-  hasTag(tag, card = $store.state.placeholder) {
-    return !R.isNil(card.play[tag])
-  },
-  addTag(tag, card = $store.state.placeholder, val=true) {
-    if(!card) {
-      console.log('mu.addTag card is null')
-      return
-    }
-    card.play = R.assoc(tag, val)(card.play)
-
-    // EFFECTNEW add tag tigger
-    const effect = R.path(['effect',tag])(card)
-    if(effect) {
-      let payload = {
-        tigger: tag,
-        source: card,
-        func: effect,
-        from: 'tag',
-        // when: () => { console.log('when',card,tag); return (card.play[tag]) }
-        when: () => { return (card.play[tag]) },
-        slot: ['zone','supporter'],
-      }
-      $cx.$addtigger(payload)
-    }
-
-    // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
-    return card
-  },
-  removeTag(tag, card = $store.state.placeholder) {
-    if(!card) {
-      console.log('mu.removeTag card is null')
-      return
-    }
-    card.play = R.dissoc(tag)(card.play)
-    // EFFECTNEW remove tag tigger
-    $cx.$removetigger(tag,card)
-    // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
-    return card
-  },
-  checkslot() {
-    console.log('mutil.checkslot')
-
-    R.forEach( (player) => {
-      R.forEach( (slot) => {
-        R.forEach( (card) => {
-          if( card.slot !== slot ) {
-            console.log(`checkslot error ${player} ${slot} ${card.cardno} != ${card.slot}`);
-            throw new Error('mutil.checkslot error! ')
-          }
-        })($store.state[player][slot])
-      })(['deck','hand','base','zone','graveyard'])
-  })(['player1','player2'])
-
-    return true
-  },
-  getslot(player,slot) {
-    const list = R.path([player,slot])($store.state)
-    return list ? R.filter( x => x.slot===slot )(list) : []
-  },
-  moveslot(toslot,card) {
-    const from = card.slot
-    card.slot = toslot
-    // TODO: clear some tag/tigger when diff slot
-    return card
-  },
   makeeffect(payload) {
     const effect = R.merge({
       tigger: undefined,
@@ -603,10 +538,114 @@ export default {
     })(payload)
     return effect
   },
-  cxplaycard(card) {
-    return $cx.$playcard(card)
+  hasTag(tag, card = $store.state.placeholder) {
+    return !R.isNil(card.play[tag])
   },
-  tiggerEffect(tag,card) {
-    return dispatch('TIGGER_EFFECT', { tag: tag, source: card } )
+  addTag(tag, card = $store.state.placeholder, val = true) {
+    if (!card) {
+      console.log('mu.addTag card is null')
+      return
+    }
+    card.play = R.assoc(tag, val)(card.play)
+
+    // EFFECTNEW add tag tigger
+    const effect = R.path(['effect', tag])(card)
+    if (effect) {
+      let payload = {
+        tigger: tag,
+        source: card,
+        func: effect,
+        from: 'tagtigger',
+        type: 'once',
+        // when: () => { console.log('when',card,tag); return (card.play[tag]) }
+        when: () => {
+          return (card.play[tag])
+        },
+        slot: ['zone', 'supporter'],
+      }
+      $cx.$addtigger(payload)
+    }
+
+    // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
+    return card
+  },
+  removeTag(tag, card = $store.state.placeholder) {
+    if (!card) {
+      console.log('mu.removeTag card is null')
+      return
+    }
+    card.play = R.dissoc(tag)(card.play)
+    // EFFECTNEW remove tag tigger
+    $cx.$removetigger(tag, card)
+    // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
+    return card
+  },
+  checkslot() {
+    console.log('mutil.checkslot')
+
+    R.forEach((player) => {
+      R.forEach((slot) => {
+        R.forEach((card) => {
+          if (card.slot !== slot) {
+            console.log(`checkslot error ${player} ${slot} ${card.cardno} != ${card.slot}`);
+            throw new Error('mutil.checkslot error! ')
+          }
+        })($store.state[player][slot])
+      })(['deck', 'hand', 'base', 'zone', 'graveyard'])
+    })(['player1', 'player2'])
+
+    return true
+  },
+  getslot(player, slot) {
+    const list = R.path([player, slot])($store.state)
+    return list ? R.filter(x => x.slot === slot)(list) : []
+  },
+  moveslot(toslot, card) {
+    const from = card.slot
+    card.slot = toslot
+    // TODO: clear some tag/tigger when diff slot
+    return card
+  },
+  activecard(card) {
+
+    if (!card) {
+      console.log('mu.activecard is null');
+      return
+    }
+    const effect = R.prop('effect')(card)
+    if(!effect) {
+      return
+    }
+
+    // 主动技能列表
+    const tiggerlist = {
+      main: {
+        type: 'once',
+      },
+    }
+
+    R.forEachObjIndexed((v, k) => {
+      const type = tiggerlist[k]
+      if (type) {
+        let payload = {
+          source: card,
+          tigger: k,
+          func: v,
+        }
+        payload = R.merge(type)(payload)
+        this.addTag(k, card)
+
+        console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`)
+      }
+    })(effect)
+
+    return card
+  },
+  tiggerEffect(tag, card) {
+    // TAG tigger
+    return dispatch('TIGGER_EFFECT', {
+      tag: tag,
+      source: card
+    })
   }
 }
