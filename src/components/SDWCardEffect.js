@@ -14,6 +14,7 @@ export default {
       this.name = this.name + 'TEST'
       // console.log('JW15-001 mounted test ok')
     },
+    isAttackerWhen: () => true,
     isAttacker: $cx.pipe(
         $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
         $cx.GUIengage('do engage 2',
@@ -58,9 +59,12 @@ export default {
         // $cx.effectChoice('opp_zone'),
         // $cx.run('EFFECT_CHOICE', 'opp_zone'),
 
+        $cx.when( ()=> false, '中断测试' ),
         $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+        // $cx.reject(),
+      // )(true)
 
         // $cx.phaseinfo('再次支援'),
         // $cx.target('hand'),

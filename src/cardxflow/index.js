@@ -114,10 +114,12 @@ export default {
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
     // TODO: add slot check
     const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
+    const tagcheck = card ? (x) => x.source.play[tag] : () => true
 
     return R.filter( (x) => x.tigger==tag
               && !x.run && x.active
-              && mu.tcall(x.when)
+              // && mu.tcall(x.when)
+              && mu.tcall(tagcheck,this,x)
               // && mu.tcall(slotcheck,this,x)
               && mu.tcall(cardcheck,this,x) )($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
@@ -258,8 +260,9 @@ export default {
         })
         .catch((err) => {
           console.log('%c>>engage catch------', 'color:red')
-          console.log('%c>>effect 中断 promise all', 'color:red')
+          console.log('%c>>effect reject promise all', 'color:red')
           console.log('%c' + err, 'color:red')
+          console.log('%c' + context.reason, 'color:red')
           // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
           // console.log('context',context)
           if (context.loop) {
@@ -421,21 +424,29 @@ export default {
   },
   _stop(msg) {
     console.warn(msg)
+    // this.context.reason = msg
     this.context.loop = false
-    throw new Error(msg)
+    return Promise.reject(new Error(msg))
   },
-  iftest(message) {
+  when(pred = ()=>true, stopfn = ()=>'$cx.when logic false' ) {
     return function () {
-      this.reason = message ? message : '效果中断测试'
-      this.loop = false
-      return Promise.reject(new Error('效果中断测试'))
+      const context = this
+      const cx = context.cx
+      const run = mu.tcall(pred, this)
+      if(!run) {
+        context.reason = _.isFunction(stopfn) ? mu.tcall(stopfn,this) : stopfn
+        return cx._stop('$cx.when logic false')
+      }
+
+      return Promise.resolve(true)
     }
   },
-  ifstop(message) {
+  reject(message) {
     return function () {
-      this.reason = message ? message : 'ifstop效果中断测试'
-      // this.loop = false
-      return Promise.reject(new Error('ifstop效果中断测试'))
+      const msg = message ? message : 'reject 效果中断点'
+      this.reason = msg
+      this.loop = true
+      return Promise.reject(new Error('$cx.reject breakpoint'))
     }
   },
   _startGUI() {

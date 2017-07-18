@@ -171,6 +171,15 @@ export default {
       return false
     }
 
+    // check when
+    if( !R.isNil(tigger.when) ) {
+      // console.log('when',tigger.when)
+      if( !mutil.tcall(tigger.when,this,tigger) ) {
+        console.warn(`NEWTIGGER_EFFECT ${tag} when check fail`)
+        return false
+      }
+    }
+
     let effectfunc = tigger.func
     if (!effectfunc) {
       throw new Error('TIGGER_EFFECT func is null')
@@ -191,8 +200,10 @@ export default {
     }
 
     dispatch('EFFECT_SOURCE', source)
-    console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag}effect action`, 'color:blue')
+    console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag} effect action`, 'color:blue')
 
+    // TODO: enter effectfunc before when check (define in effect)
+    // EFFECTWHEN: do
     return mutil.tcall(effectfunc,context,context).then( () => {
       // after tigger run
       tigger.run = true

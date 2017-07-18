@@ -530,11 +530,12 @@ export default {
       type: 'once',
       source: undefined,
       run: false,
+      from: undefined,
+      active: true,
       func: () => true,
       target: undefined,
       when: () => true,
-      from: undefined,
-      active: true,
+      slot: [],
     })(payload)
     return effect
   },
@@ -557,12 +558,16 @@ export default {
         func: effect,
         from: 'tagtigger',
         type: 'once',
-        // when: () => { console.log('when',card,tag); return (card.play[tag]) }
-        when: () => {
-          return (card.play[tag])
-        },
+        // when: () => {
+        //   return (card.play[tag])
+        // },
         slot: ['zone', 'supporter'],
       }
+      const when = R.path(['effect', tag.concat('When')])(card)
+      if(when) {
+        payload.when = when
+      }
+
       $cx.$addtigger(payload)
     }
 
