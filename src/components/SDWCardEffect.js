@@ -22,7 +22,6 @@ export default {
           // $cx.run('EFFECT_CHOICE', 'hand'),
           $cx.message('END PIPE')),
     ),
-
     // isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
     // isDefenser: $cx.engage(
     //   [$cx.tap('do this tap message array1')],
@@ -39,13 +38,6 @@ export default {
         resolve()
       });
     },
-    isWin() {
-      // dispatch('DRAW', 1)
-      return new Promise(function(resolve, reject) {
-        console.log('JW15-001 isWin tag effect this=', this)
-        resolve()
-      });
-    },
     main() {
       return $cx.GUIengage(
       // return $cx.engage(
@@ -59,10 +51,12 @@ export default {
         // $cx.effectChoice('opp_zone'),
         // $cx.run('EFFECT_CHOICE', 'opp_zone'),
 
-        $cx.when( ()=> false, '中断测试' ),
+        // $cx.when( ()=> false, '中断测试' ),
+        // $cx.run('ADD_TAG', 'isWork'),
         $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
+
         // $cx.reject(),
       // )(true)
 
@@ -99,6 +93,32 @@ export default {
         console.log('JW15-002 main tag effect this=', this)
         resolve()
       });
-    }
+    },
+    // slotGRAVEYARD() {
+    //   // dispatch('DRAW', 1)
+    //   return $cx.GUIengage(
+    //     $cx.phaseinfo('坟场启动选择对手'),
+    //     $cx.opptarget('deck'),
+    //     $cx.run('PICK_CARD'),
+    //     $cx.run('TO_GRAVEYARD'),
+    //   )
+    //   // return new Promise(function(resolve, reject) {
+    //   //   console.log('JW15-002 slotGRAVEYARD tag effect this=', this)
+    //   //   resolve()
+    //   // });
+    // },
+    atGraveyard() {
+      // dispatch('DRAW', 1)
+      // return $cx.GUIengage(
+      //   $cx.phaseinfo('坟场启动选择对手'),
+      //   $cx.opptarget('deck'),
+      //   $cx.run('PICK_CARD'),
+      //   $cx.run('TO_GRAVEYARD'),
+      // )
+      return new Promise(function(resolve, reject) {
+        console.log('JW15-002 atGraveyard tag effect this=', this)
+        resolve()
+      });
+    },
   },
 }

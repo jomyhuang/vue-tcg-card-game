@@ -182,24 +182,20 @@ context.targets.map(action) ->  chain squ action
 compose(seq)(target?)
 
 
-// XX
-run(dispatch/commit).then( action b ).then( action c ) ?
-
-
 // Reflect -> function -> desc/message
 selector: fn1 / is.fn1
 fn1.name -> get function name
 selector.name -> get function name
-
 is.fn1 only sense fn1, but is1 don't
 
 how? getMessage(selector) -> return message
 
+
+//--------------------------- new effect system
 // tag system
 add tag,
 remove / auto by one-turn/next-turn
 
-// new effect system
 
 #1 card.box/map(slot):
 => player.cardpool card all list
@@ -208,45 +204,49 @@ remove / auto by one-turn/next-turn
 
 => effectlist in cardflow
 
-#2 play card
--> active card (exclude hand, deck)
--> make into effectlist
-  source: this
-  tigger name: 'isAttacker'...
-  type: (once, end-of-turn, end-of-game)
-  condition: function, if tag is on, or card.box in 'xxx'...
-  finish: false
+#2 tag -> event tigger system
+=> add tag -> add tigger (from: tag)
+=> remove tag -> remove tigger (from: tag)
 
-#3 event on/oneturn/once -> promise emit
-async/await emit 'tigger name', this card (poirity), onfinish
-async/await emit ['tigger name'...]
-async/await emit ['tigger name'...] @ card.box (tigger by box-diff)
-* "one tag" only "one tigger" in game loop
-
-=> ADD_TAG => 直接增加Tigger
-=> $playcard => 增加主动效果
-=> $diff => 增加牌堆变化效果
+// => ADD_TAG => 直接增加Tigger
+//    REMOVE_TAG => 移除Tigger
+// => ADD_TAG => 放进 Tigger ／ 可直接 dispatch／remove
 
 
-active list = filter by tigger name or/ this card
-loop {
-  await event/tigger if condition
-  make finish true
-}
-remove once
+#3 play card  / ACTIVE_CARD
+play card 阶段 -> 主动效果（main...)
+
+=> $playcard => 增加主动效果 => 从哪里启动？ => UI click
 
 
+#4 event tigger ->
+from: tag / active(play)
+tigger: name of tigger
+type: once/EOT/end-of-game
+条件：
+when: 启动前检查
+slot: [...] / 卡在哪里启动
+
+先单点触发 -》 Loop 触发（连续）
+
+
+#5
+emit 'tag/tigger name' + card
+emit 'tag' ( -> list -> ... )
+
+=> $diff => 增加牌堆变化效果启动
+
+#清除阶段
+CLEAR_TAG phase
+
+
+## memo
 call onfinish(resolve)
 
-in end of turn
-remove EOT effect
-renew finish
-
-
-whenEngage( when, ... )
-
-
-
+##逻辑条件：
+Tag 模式
+isAttacker / isAttackerWhen:
+...$cx.when()
 
 
 4、更精炼的效果函数动作DSL表示方式：
@@ -260,24 +260,17 @@ whenEngage( when, ... )
 ==、支援增加的buff是在主战、还是支援精灵本身
 OK、check 对手回合发动卡牌的效果的处理、检查
 OK、效果自带的message展示系统
-==、effect tagging
-==、回合结束，清除阶段，清除掉所有play效果标签
-add
-clear
-check
-if
-
 OK、增加effect context，用于测试、记录、信息
 OK、effect pipe 中断，logic check
-==、play card -> zone, play 所在位置place location UI信息
+OK、play card -> zone, play 所在位置place location UI信息(slot)
 
 ==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
-=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
+OK、 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
 
 
 7、HERO/英雄系统
 
-
+8、
 Effect FUNCTION -> Agent HMI -> GAMEVUE UI
                 -> STORE -----> COM -> GAMEVUE UI
                 ** -> UI component -> Message/interactive

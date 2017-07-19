@@ -10,6 +10,7 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
+import $cx from '@/cardxflow'
 
 export default {
   // game loop
@@ -357,6 +358,14 @@ export default {
       await mutil.tiggerEffect('main', state.battle.attacker.main)
       await mutil.tiggerEffect('isAttacker', state.battle.attacker.support)
       await mutil.tiggerEffect('main', state.battle.attacker.support)
+
+
+      // let next = $cx.$getnext('slotGRAVEYARD')
+      // if(next) {
+      //   console.log('tiggerlist do slotGRAVEYARD')
+      //   // await dispatch('TIGGER_EFFECT', { tag: next.tigger, source: next.source })
+      //   await mutil.tiggerEffect('slotGRAVEYARD', { tag: next.tigger, source: next.source } )
+      // }
 
       // finish then process ex-support
 

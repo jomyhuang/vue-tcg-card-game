@@ -3,18 +3,17 @@ import R from 'ramda'
 import _ from 'lodash'
 import Rx from 'rxjs/Rx'
 
-
 import mu from '@/mutil'
 import is from '@/cardxflow/is'
 
-
 export var $store = {}
+export var $state = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
 var $effectlist = []
-var dispatch
-var commit
+export var dispatch
+export var commit
 
 // export quick function
 //
@@ -48,7 +47,8 @@ export default {
 
     if (payload) {
       $store = payload.store
-      console.log('cardxflow install $store', $store)
+      $state = payload.store.state
+      console.log('cardxflow install $store/$state', $store)
       $mainapp = payload.mainapp
       console.log('cardxflow install $mainapp', $mainapp)
       $effectUI = payload.effectUI
@@ -94,7 +94,7 @@ export default {
     $effectlist = []
   },
   $addtigger(payload) {
-    $effectlist.push(mu.makeeffect(payload))
+    $effectlist.push(payload)
     console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`)
   },
   $removetigger(tag,card) {
@@ -123,6 +123,11 @@ export default {
               // && mu.tcall(slotcheck,this,x)
               && mu.tcall(cardcheck,this,x) )($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
+  },
+  $getnext(tag) {
+    const list = this.$getlist(tag)
+
+    return list.length > 0 ?  R.head(list) : null
   },
   _setcontext(context=null) {
     if(context) {

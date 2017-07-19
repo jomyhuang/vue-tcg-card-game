@@ -401,6 +401,7 @@ export default {
         ['base', owner.base],
         ['graveyard', owner.graveyard],
         ['supporter', owner.supporter],
+        ['deck', owner.deck],
       ]
 
       let found = false
@@ -425,7 +426,7 @@ export default {
 
       if (!found) {
         console.error(`commit PICK_CARD ERROR ${card.name} not found in all pile`)
-        console.error(`commit PICK_CARD ERROR owner id ${card.owner.id} ${state.battle.attacker.support.name}`)
+        console.error(`commit PICK_CARD ERROR owner id ${card.owner.id}`,card)
         throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
       }
     } else {
@@ -512,6 +513,7 @@ export default {
     owner.graveyard.push(state.placeholder)
     // state.placeholder.slot = 'graveyard'
     state.placeholder = mutil.moveslot('graveyard',state.placeholder)
+    // mutil.addTag('slotGRAVEYARD', state.placeholder)
     console.log(`commit TO_GRAVEYARD ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },

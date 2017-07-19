@@ -151,7 +151,6 @@ export default {
     }
 
     let activelist = $cx.$getlist(tag, source)
-    // let activelist = $cx.$getlist(type)
     if(!activelist.length) {
       // no tigger to run
       return false
@@ -205,13 +204,8 @@ export default {
     // TODO: enter effectfunc before when check (define in effect)
     // EFFECTWHEN: do
     return mutil.tcall(effectfunc,context,context).then( () => {
-      // after tigger run
       tigger.run = true
       tigger.turn = state.game.turnCount
-      // R.forEach( (x) => {
-      //   // mark run already
-      //   x.run = true
-      // })(activelist)
     })
   },
   EFFECT_CHOICE({
@@ -286,7 +280,7 @@ export default {
         state.storemsg = `EFFECT_OPP_CHOICE ${oppplayer} select ${card.name}`
         card.name = card.name + '[OPP效果指定]'
       },
-      // choiceUI: true,
+      choiceUI: true,
       source: R.prop('source',$cx.context),
     })(payload)
 

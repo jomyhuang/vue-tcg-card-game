@@ -2,6 +2,7 @@ import R from 'ramda'
 import _ from 'lodash'
 
 import $cx from '@/cardxflow'
+import { $store, $state } from '@/cardxflow'
 import mu from '@/mutil'
 
 function _condition(phase) {
