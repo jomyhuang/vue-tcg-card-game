@@ -235,18 +235,17 @@ emit 'tag/tigger name' + card
 emit 'tag' ( -> list -> ... )
 
 => $diff => 增加牌堆变化效果启动
+auto add/remove smart tag // is[slot]: isBase...
+
 
 #清除阶段
 CLEAR_TAG phase
-
-
-## memo
-call onfinish(resolve)
 
 ##逻辑条件：
 Tag 模式
 isAttacker / isAttackerWhen:
 ...$cx.when()
+...$cx.iif()
 
 
 4、更精炼的效果函数动作DSL表示方式：
@@ -263,13 +262,20 @@ OK、效果自带的message展示系统
 OK、增加effect context，用于测试、记录、信息
 OK、effect pipe 中断，logic check
 OK、play card -> zone, play 所在位置place location UI信息(slot)
-
+==、从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
 ==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
-OK、 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
+
+==、处理多个Targets
+有效果，才第一个显示效果信息
+没有卡选择状况处理
+如何获取function名称？ -> 显示判断信息
+do tasks by reducer
+效果发动时候，点亮场面卡牌
+tag = (tigger object)?
+buff clear EOT、EOG
 
 
 7、HERO/英雄系统
-
 8、
 Effect FUNCTION -> Agent HMI -> GAMEVUE UI
                 -> STORE -----> COM -> GAMEVUE UI

@@ -84,7 +84,7 @@ export default {
   debug() {
     console.log('$cx.effectlist debug')
     // console.dir($effectlist)
-    R.forEach( (x) => {
+    R.forEach((x) => {
       console.log(`tigger ${x.source.cardno} ${x.tigger}`);
       console.dir(x)
     })($effectlist)
@@ -96,46 +96,79 @@ export default {
   $addtigger(payload) {
     $effectlist.push(payload)
     console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`)
+    return payload
   },
-  $removetigger(tag,card) {
+  $removetigger(tag, card) {
     // if(tag == 'main') return
     // way1: remove
     // $effectlist = R.filter( (x) => !(x.tigger == tag && x.source.key == card.key) )($effectlist)
     // way2: make inactive first
-    $effectlist = R.map( (x) => {
-      if(x.tigger == tag && x.source.key == card.key ) x.active = false
+    $effectlist = R.map((x) => {
+      if (x.tigger == tag && x.source.key == card.key) x.active = false
       return x
     })($effectlist)
     // TODO: way3 transduce
     // console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length)
   },
-  $getlist(tag,card) {
+  $getlist(tag, card) {
     // return R.filter( (x) => x.tigger==tag )($effectlist)
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
     // TODO: add slot check
     const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
     const tagcheck = card ? (x) => x.source.play[tag] : () => true
 
-    return R.filter( (x) => x.tigger==tag
-              && !x.run && x.active
-              // && mu.tcall(x.when)
-              && mu.tcall(tagcheck,this,x)
-              // && mu.tcall(slotcheck,this,x)
-              && mu.tcall(cardcheck,this,x) )($effectlist)
+    return R.filter((x) => x.tigger == tag &&
+      !x.run && x.active
+      // && mu.tcall(x.when)
+      &&
+      mu.tcall(tagcheck, this, x)
+      // && mu.tcall(slotcheck,this,x)
+      &&
+      mu.tcall(cardcheck, this, x))($effectlist)
     // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
   },
-  $getnext(tag) {
-    const list = this.$getlist(tag)
-
-    return list.length > 0 ?  R.head(list) : null
+  $getnext(tag, card) {
+    const list = this.$getlist(tag, card)
+    return list.length > 0 ? R.head(list) : null
   },
-  _setcontext(context=null) {
-    if(context) {
+  async $emitnext(taglist, card) {
+    if (_.isString(taglist)) {
+      const fromstring = taglist
+      taglist = [fromstring]
+    }
+    let tigger = undefined
+    do {
+      let tag = R.head(taglist)
+      if (!tag) break
+      taglist = R.drop(1, taglist)
+
+      // console.log(`%c$emitnext ${tag} ${card}`,'color:red')
+      // TODO: get list & make piority
+      // tigger = this.$getnext(tag, card)
+      // if (!tigger)
+      tigger = this.$getnext(tag)
+
+      if (tigger) {
+        console.log(`%c$emitnext tigger is ${tigger.tigger}`, 'color:fuchsia',tigger.source)
+        // tigger now
+        await dispatch('TIGGER_EFFECT', {
+          tag: tigger.tigger,
+          source: tigger.source
+        })
+        // throw new Error
+      }
+    }
+    while (!tigger)
+    // console.log('$emitnext finish');
+
+    return tigger
+  },
+  _setcontext(context = null) {
+    if (context) {
       this.context = context
       this.active = true
       console.log('$cx.setcontext set')
-    }
-    else {
+    } else {
       this.context = null
       this.active = false
       console.log('$cx.setcontext clear')
@@ -150,62 +183,62 @@ export default {
       // return fn.call(card, type, payload)
     }
   },
-  pipe(...items) {
-    return function () {
-      const context = this
-      const cx = context.cx
-      const card = context.card
-      cx._setcontext(context)
-
-      let fnlist = R.flatten(items)
-
-      let current = Promise.resolve().then(() => {
-        console.group()
-        console.log('cxpipe start')
-        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
-        // BUG：这里call promise 产生错误
-        // mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
-        return mu.tcall(cx.phaseinfo, context, `begin pipe 发动${this.type}效果`)
-        // select current player/card
-      })
-      let promlist = fnlist.map((act) => {
-        current = current.then(() => {
-          console.log('pipe-----------------')
-          if (_.isFunction(act)) {
-            let res = mu.tcall(act, context, context)
-            return res
-          } else {
-            return console.log(act)
-          }
-        }).then((result) => {
-          // pipe next, re-align current source
-          mu.tcall(cx.run, context, 'EFFECT_SOURCE', card)
-        })
-        return current
-      })
-      // console.log(promlist)
-
-      return Promise.all(promlist)
-        .then(function (res) {
-          console.log('-pipe OK---------')
-        })
-        .catch((err) => {
-          console.log('%c-pipe catch------', 'color:red')
-          console.log('%ccxpipe effect 中断 promise all', 'color:red')
-          console.log('%c' + err, 'color:red')
-          // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
-          // console.log('context',context)
-          if (context.loop) {
-            throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
-          }
-        }).then(function (res) {
-          // final task
-          // mu.clearMessage()
-          console.groupEnd()
-          cx._setcontext()
-        })
-    }
-  },
+  // pipe(...items) {
+  //   return function () {
+  //     const context = this
+  //     const cx = context.cx
+  //     const card = context.card
+  //     cx._setcontext(context)
+  //
+  //     let fnlist = R.flatten(items)
+  //
+  //     let current = Promise.resolve().then(() => {
+  //       console.group()
+  //       console.log('cxpipe start')
+  //       mu.tcall(cxrun, context, 'EFFECT_SOURCE', card)
+  //       // BUG：这里call promise 产生错误
+  //       // mu.tcall(cx.phaseinfo, context, `${card.cardno} ${card.name} 发动${this.type}效果`)
+  //       return mu.tcall(cx.phaseinfo, context, `begin pipe 发动${this.type}效果`)
+  //       // select current player/card
+  //     })
+  //     let promlist = fnlist.map((act) => {
+  //       current = current.then(() => {
+  //         console.log('pipe-----------------')
+  //         if (_.isFunction(act)) {
+  //           let res = mu.tcall(act, context, context)
+  //           return res
+  //         } else {
+  //           return console.log(act)
+  //         }
+  //       }).then((result) => {
+  //         // pipe next, re-align current source
+  //         mu.tcall(cx.run, context, 'EFFECT_SOURCE', card)
+  //       })
+  //       return current
+  //     })
+  //     // console.log(promlist)
+  //
+  //     return Promise.all(promlist)
+  //       .then(function (res) {
+  //         console.log('-pipe OK---------')
+  //       })
+  //       .catch((err) => {
+  //         console.log('%c-pipe catch------', 'color:red')
+  //         console.log('%ccxpipe effect 中断 promise all', 'color:red')
+  //         console.log('%c' + err, 'color:red')
+  //         // TODO IDEA: 如果有catch时，错误会忽略/ effect.loop = true ／ 识别特殊 Error Object
+  //         // console.log('context',context)
+  //         if (context.loop) {
+  //           throw 'cxpipe throw ERROR IN EFFECT FUNCTION'
+  //         }
+  //       }).then(function (res) {
+  //         // final task
+  //         // mu.clearMessage()
+  //         console.groupEnd()
+  //         cx._setcontext()
+  //       })
+  //   }
+  // },
   GUIengage(...items) {
     let fnlist = items
 
@@ -218,22 +251,23 @@ export default {
     return function () {
       const context = this
       const cx = context.cx
-      const card = context.card
-      cx._setcontext(context)
+      const source = context.source
+      let nextlevel = false
+
+      if(cx.active) {
+        // throw new Error('engage active is true')
+        console.log(`%ccxengage next level`,'color:blue')
+        nextlevel = true
+      } else {
+        cx._setcontext(context)
+      }
 
       let fnlist = R.flatten(items)
-      // let fnlist = items
-
-      // compose chain list
-      // fnlist = [cx.openUI()].concat(fnlist)
-      // fnlist = fnlist.concat([cx.closeUI()])
-      // fnlist = R.flatten(fnlist)
-      // console.log(fnlist)
 
       let current = Promise.resolve().then(() => {
         console.group()
         console.log('cxengage start')
-        mu.tcall(cxrun,context,'EFFECT_SOURCE',card)
+        mu.tcall(cxrun, context, 'EFFECT_SOURCE', source)
         // BUG：这里call promise 产生错误
         // mu.tcall(cx.phaseinfo, context, `begin ${card.cardno} ${card.name} 发动${this.type}效果`)
         // FIXME: return promise 就可以
@@ -242,10 +276,13 @@ export default {
       })
       let promlist = fnlist.map((act) => {
         current = current.then(() => {
+          if(!this.loop) {
+            console.warn('$cx.engage nextlevel logic false')
+            throw new Error('nextlevel logic false')
+          }
           console.log('>>act-------------')
           if (_.isFunction(act)) {
             let res = mu.tcall(act, context, context)
-            // let res = act.call(context, context)
             return res
           } else {
             return console.log(act)
@@ -275,9 +312,15 @@ export default {
           }
         }).then(function (res) {
           // final task
-          // mu.clearMessage()
           console.groupEnd()
-          cx._setcontext()
+
+          if(nextlevel) {
+            mu.tcall(cx.run, context, 'EFFECT_SOURCE', source)
+          }
+          else {
+            // clear first level context
+            cx._setcontext()
+          }
         })
     }
   },
@@ -285,12 +328,12 @@ export default {
     // return [ this.phaseinfo('指定效果Target'), function() {
     // 获取函数名称
     // console.log('target caller', this.target.name );
-    return function() {
+    return function () {
       const context = this
       const cx = context.cx
-      const card = context.card
+      const source = context.source
 
-      const fnselector = function(payload) {
+      const fnselector = function (payload) {
         console.log('$cx.target exec default selector')
         let actpayload = {
           selector: payload.from,
@@ -300,14 +343,14 @@ export default {
         // let list = mu.selectcards(payload.from)
         // list = R.filter(payload.filter)(list)
         // console.log(list,_.isArray(list));
-        return dispatch(act,actpayload)
+        return dispatch(act, actpayload)
         // .then( (card)=> {
         //   console.log('$cx.target fnselector then',card)
         //   return card
         // })
       }
 
-      if(R.is(String,payload)) {
+      if (R.is(String, payload)) {
         const fromstring = payload
         payload = {
           from: fromstring,
@@ -323,44 +366,42 @@ export default {
 
       // console.log('target func', mu.getfuncname(is.attacker));
 
-      return new Promise(async function(resolve, reject) {
-        console.log('$cx.target')
-        // console.dir(payload)
+      return new Promise(async function (resolve, reject) {
+          console.log('$cx.target start')
+          // console.dir(payload)
 
-        let target = await mu.tcall(payload.selector,context,payload)
-        // let target = await mu.tcall(fnselector,context,payload)
-        // let target = await dispatch('EFFECT_CHOICE',payload.from)
+          let target = await mu.tcall(payload.selector, context, payload)
+          // let target = await mu.tcall(fnselector,context,payload)
+          // let target = await dispatch('EFFECT_CHOICE',payload.from)
 
-        // console.log('target res', target);
-        if(target) {
-          resolve(target)
-        }
-        else {
-          reject()
-        }
-      })
-      .then( (target) => {
-        this.target = target
-        dispatch('EFFECT_TARGET',target)
-        console.log('$cx.target targeting',context.target)
-      })
-      .catch((err) => {
-        cx._stop('$cx.target target is null')
-        // console.log('$cx.target target is null')
-        // context.loop = false
-        // throw new Error('$cx.target target is null')
-      })
+          if (target) {
+            resolve(target)
+          } else {
+            reject()
+          }
+        })
+        .then((target) => {
+          this.target = target
+          dispatch('EFFECT_TARGET', target)
+          console.log('$cx.target targeting', context.target)
+        })
+        .catch((err) => {
+          cx._stop('$cx.target target is null')
+          // console.log('$cx.target target is null')
+          // context.loop = false
+          // throw new Error('$cx.target target is null')
+        })
     }
-  // ]
+    // ]
   },
   opptarget(payload) {
-    if(R.is(String,payload)) {
+    if (R.is(String, payload)) {
       const fromstring = payload
       payload = {
         from: fromstring
       }
     }
-    payload = R.assoc('opponent',true)(payload)
+    payload = R.assoc('opponent', true)(payload)
     console.log('$cx.opptarget wrapper')
 
     return this.target(payload)
@@ -382,12 +423,12 @@ export default {
         console.log(`cx.buff ${card.name} +${power}`)
         commit('ADD_BUFF', buff)
         // resolve()
-        $effectUI.showbuff(buff,resolve)
+        $effectUI.showbuff(buff, resolve)
       })
     }
   },
   effectChoice(payload) {
-    return function() {
+    return function () {
       const context = this
       const cx = context.cx
       const card = context.card
@@ -399,10 +440,10 @@ export default {
       //     this.target = card
       //     console.log('effectChoice target',context.target)
       //   })
-      return dispatch('EFFECT_CHOICE',payload)
+      return dispatch('EFFECT_CHOICE', payload)
         .then((card) => {
           this.target = card
-          console.log('effectChoice target',context.target)
+          console.log('effectChoice target', context.target)
           // dispatch('EFFECT_TARGET',card)
         })
     }
@@ -416,13 +457,13 @@ export default {
   },
   message(message) {
     return function () {
-      this.text = _.isFunction(message) ? mu.tcall(message,this) : message
+      this.text = _.isFunction(message) ? mu.tcall(message, this) : message
       return $mainapp.gameloop_message(this.text)
     }
   },
   phaseinfo(message) {
     return function () {
-      this.text = _.isFunction(message) ? mu.tcall(message,this) : message
+      this.text = _.isFunction(message) ? mu.tcall(message, this) : message
       // this.text = message
       return $mainapp.gameloop_phaseinfo(this.text)
     }
@@ -433,17 +474,25 @@ export default {
     this.context.loop = false
     return Promise.reject(new Error(msg))
   },
-  when(pred = ()=>true, stopfn = ()=>'$cx.when logic false' ) {
+  when(pred = () => true, fnstop = () => '$cx.when logic false') {
     return function () {
       const context = this
       const cx = context.cx
       const run = mu.tcall(pred, this)
-      if(!run) {
-        context.reason = _.isFunction(stopfn) ? mu.tcall(stopfn,this) : stopfn
+      if (!run) {
+        context.reason = _.isFunction(fnstop) ? mu.tcall(fnstop, this) : fnstop
         return cx._stop('$cx.when logic false')
       }
 
       return Promise.resolve(true)
+    }
+  },
+  iif (pred = () => true, fntrue = () => true, fnfalse = () => true) {
+    return function () {
+      const logic = mu.tcall(pred,this)
+      const fn = logic ? fntrue : fnfalse
+      console.log('$cx.iif is',logic)
+      return mu.tcall(fn,this)
     }
   },
   reject(message) {

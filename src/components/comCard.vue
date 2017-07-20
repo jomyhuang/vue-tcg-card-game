@@ -17,6 +17,7 @@
       </div>
       <div v-else>
         <div class="card-title">{{card.name}}</div>
+        <!-- <div v-if="isactive">ACTIVE</div> -->
         <div>
           <span v-for="n in card.star">🌟</span>
         </div>
@@ -89,18 +90,33 @@ export default {
   beforeDestroy() {},
   computed: {
     classCard() {
-      const res = this.card ? {
+      let res = this.card ? {
           'normal': !this.card.selectable,
           'selectable': this.card.selectable,
+          'effectactive': false,
         } : {
           'normal': true,
           'selectable': false,
+          'effectactive': false,
         }
+      if(this.isactive) {
+        res = {
+          'normal': true,
+          'selectable': false,
+          'effectactive': true,
+        }
+      }
       return res
     },
     cardtext() {
       return this.card ? `${this.card.class} ${this.card.color} [${this.card.pro}]<br/>${this.card.power1} ${this.card.power2}<br/>${this.card.effecttext}` : 'NULL'
-    }
+    },
+    isactive() {
+      if(!this.$store.state.effect.source)
+        return false
+
+      return this.card ? this.card.key == (this.$store.state.effect.source.key) : false
+    },
   },
   methods: {
     // handleHover () {
@@ -180,18 +196,6 @@ export default {
   /*padding: 1px;*/
 }
 
-.comCard-iview {
-  /*background-color: lightgrey;*/
-  width: 120px;
-  height: 150px;
-  margin: 5px;
-  /*border: none 2px #000000;*/
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  padding: 1px;
-}
-
 .normal {
   background-color: lightgrey;
   border: solid 2px lightgrey;
@@ -199,6 +203,11 @@ export default {
 
 .selectable {
   background-color: lightgrey;
+  border: solid 2px red;
+}
+
+.effectactive {
+  background-color: yellow;
   border: solid 2px red;
 }
 

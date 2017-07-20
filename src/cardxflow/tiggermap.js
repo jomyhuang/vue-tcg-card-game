@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 export default {
   main: {
-    _type: 'active',
+    from: 'active',
   },
   atGraveyard: {
     slot: ['graveyard']

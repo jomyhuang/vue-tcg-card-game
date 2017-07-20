@@ -36,7 +36,7 @@ export default {
   },
   EFFECT_SET(state, payload) {
 
-    if (R.isEmpty(payload)) {
+    if (!payload) {
       state.effect = null
       state.effect = {}
     } else {
@@ -220,19 +220,19 @@ export default {
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {
     state.placeplayer = player
-    if(state.placeplayer)
-      console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
-    else
-      console.log('SELECT_PLAYER is null')
+    // if(state.placeplayer)
+    //   console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
+    // else
+    //   console.log('SELECT_PLAYER is null')
   },
   SELECT_CARD(state, card) {
     state.placeholder = card
     state.pickindex = -1
-    if (state.placeholder) {
-      console.log(`commit SELECT_CARD ${state.placeholder.name}`)
-    } else {
-      console.warn('commit SELECT_CARD null')
-    }
+    // if (state.placeholder) {
+    //   console.log(`commit SELECT_CARD ${state.placeholder.name}`)
+    // } else {
+    //   console.warn('commit SELECT_CARD null')
+    // }
   },
   SELECT_LIST(state, payload) {
     let list = payload

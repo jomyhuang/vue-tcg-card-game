@@ -561,19 +561,19 @@ export default {
     // EFFECTNEW add tag tigger
     let effect = R.path(['effect', tag])(card)
     if (effect) {
-      let payload = this.maketigger( {
+      let payload = this.maketigger({
+        from: 'tagtigger',
         tigger: tag,
         source: card,
         func: effect,
-        from: 'tagtigger',
         type: 'once',
         // slot: ['zone', 'supporter'],
-      } )
+      })
       const when = R.path(['effect', tag.concat('When')])(card)
-      if(when) {
+      if (when) {
         payload.when = when
       }
-      if(!payload.slot.length) {
+      if (!payload.slot.length) {
         payload.slot = ['zone', 'supporter']
       }
       // test smart slot tag
@@ -587,8 +587,7 @@ export default {
       //   payload.slot = [ 'graveyard' ]
       // }
 
-      $cx.$addtigger(payload)
-      return payload
+      return $cx.$addtigger(payload)
     }
 
     // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
@@ -625,13 +624,13 @@ export default {
     const list = R.path([player, slot])($store.state)
     return list ? R.filter(x => x.slot === slot)(list) : []
   },
-  moveslot(toslot, card, maketigger=true) {
+  moveslot(toslot, card, maketigger = true) {
     const from = card.slot
     card.slot = toslot
     // TODO: clear some tag/tigger when diff slot
-    if(from)
+    if (from)
       this.removeTag('at' + _.capitalize(from), card)
-    if(toslot && maketigger)
+    if (toslot && maketigger)
       this.addTag('at' + _.capitalize(toslot), card)
     return card
   },
@@ -642,7 +641,7 @@ export default {
       return
     }
     const effect = R.prop('effect')(card)
-    if(!effect) {
+    if (!effect) {
       return
     }
 
@@ -654,10 +653,9 @@ export default {
     // }
 
     R.forEachObjIndexed((v, k) => {
-      const map = R.propOr({},k)(tiggermap)
-      const type = R.propEq('_type','active')(map)
-
-      if (type) {
+      const map = R.propOr({}, k)(tiggermap)
+      const from = R.propEq('from', 'active')(map)
+      if (from) {
         let payload = this.addTag(k, card)
         console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
       }
@@ -670,14 +668,32 @@ export default {
     return dispatch('TIGGER_EFFECT', {
       tag: tag,
       source: card
-    }).then( async () => {
-      let next = $cx.$getnext('atGraveyard')
-      if(next) {
-        console.log('mu.tiggerEffect after ')
-        console.log('tiggerlist do atGraveyard')
-        await dispatch('TIGGER_EFFECT', { tag: next.tigger, source: next.source })
-        console.log('mu.tiggerEffect after finish ')
-      }
+    }).then(async() => {
+
+      await $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
+
+      // WAY1:
+      // let next
+      // do {
+      //   next = $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
+      //   if (next) {
+      //     console.log(`mu.tiggerEffect after emit ${next.tigger} ${next.source.cardno}`)
+      //     await dispatch('TIGGER_EFFECT', {
+      //       tag: next.tigger,
+      //       source: next.source
+      //     })
+      //     console.log('mu.tiggerEffect after emit finish ')
+      //   }
+      // } while (next)
+
+      // WAY2:
+      // let next = $cx.$getnext('atGraveyard')
+      // if(next) {
+      //   console.log('mu.tiggerEffect after ')
+      //   console.log('tiggerlist do atGraveyard')
+      //   await dispatch('TIGGER_EFFECT', { tag: next.tigger, source: next.source })
+      //   console.log('mu.tiggerEffect after finish ')
+      // }
     })
   }
 }

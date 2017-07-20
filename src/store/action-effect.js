@@ -31,9 +31,10 @@ export default {
     dispatch
   }, payload) {
     if (!payload) {
-      console.log('commit EFFECT_SOURCE ERROR no card')
+      console.log('commit EFFECT_SOURCE set null')
       commit('SELECT_PLAYER', null)
       commit('SELECT_CARD',  null)
+      commit('EFFECT_SET',  null)
       return
     }
 
@@ -42,6 +43,7 @@ export default {
     console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
+    commit('EFFECT_SET', { source: card })
   },
   EFFECT_TARGET({
     commit,
@@ -49,9 +51,10 @@ export default {
     dispatch
   }, payload) {
     if (!payload) {
-      console.log('commit EFFECT_TARGET ERROR no card')
+      console.log('commit EFFECT_TARGET set null')
       commit('SELECT_PLAYER', null)
       commit('SELECT_CARD', null)
+      commit('EFFECT_SET',  null)
       return
     }
 
@@ -60,6 +63,7 @@ export default {
     console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
+    commit('EFFECT_SET', { target: card })
     // TODO: if target is player? / register
   },
   // TIGGER_EFFECT22({
@@ -150,20 +154,25 @@ export default {
       throw new Error(`TIGGER_EFFECT tag is null`)
     }
 
-    let activelist = $cx.$getlist(tag, source)
-    if(!activelist.length) {
+    let tigger = $cx.$getnext(tag,source)
+    if(!tigger) {
       // no tigger to run
       return false
     }
-
-    console.log(`NEWTIGGER_EFFECT getlist ${tag}`,activelist)
-    if(activelist.length > 1) {
-      console.warn('NEWTIGGER_EFFECT activelist length >1 make sure piority')
-      throw new Error('NEWTIGGER_EFFECT activelist length >1 make sure piority')
-    }
+    // let activelist = $cx.$getlist(tag, source)
+    // if(!activelist.length) {
+    //   // no tigger to run
+    //   return false
+    // }
+    //
+    // console.log(`NEWTIGGER_EFFECT getlist ${tag}`,activelist)
+    // if(activelist.length > 1) {
+    //   console.warn('NEWTIGGER_EFFECT activelist length >1 make sure piority')
+    //   throw new Error('NEWTIGGER_EFFECT activelist length >1 make sure piority')
+    // }
 
     // check slot
-    let tigger = R.head(activelist)
+    // let tigger = R.head(activelist)
     let whenslot = tigger.slot
     if( !whenslot.includes(source.slot) ) {
       console.warn(`NEWTIGGER_EFFECT slot check error ${source.cardno} @ ${source.slot} `, whenslot)
@@ -196,16 +205,17 @@ export default {
       loop: true,
       UImode: false,
       cx: $cx,
+      tigger: tigger,
+      finish: false,
     }
 
     dispatch('EFFECT_SOURCE', source)
     console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag} effect action`, 'color:blue')
 
-    // TODO: enter effectfunc before when check (define in effect)
-    // EFFECTWHEN: do
     return mutil.tcall(effectfunc,context,context).then( () => {
       tigger.run = true
       tigger.turn = state.game.turnCount
+      dispatch('EFFECT_SOURCE', null)
     })
   },
   EFFECT_CHOICE({

@@ -5,7 +5,7 @@ import {
 } from '@/cardxflow'
 import R from 'ramda'
 import $cx from '@/cardxflow'
-import is from '@/cardxflow/is'
+import {is} from '@/cardxflow/is'
 
 
 export default {
@@ -15,13 +15,14 @@ export default {
       // console.log('JW15-001 mounted test ok')
     },
     isAttackerWhen: () => true,
-    isAttacker: $cx.pipe(
-        $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
-        $cx.GUIengage('do engage 2',
-          'do engage 2-1',
-          // $cx.run('EFFECT_CHOICE', 'hand'),
-          $cx.message('END PIPE')),
-    ),
+    isAttacker: $cx.engage($cx.buff(1000, 'special power')),
+    // isAttacker: $cx.engage(
+    //     $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
+    //     $cx.GUIengage('do engage 2',
+    //       'do engage 2-1',
+    //       // $cx.run('EFFECT_CHOICE', 'hand'),
+    //       $cx.message('END PIPE')),
+    // ),
     // isAttacker: $cx.engage($cx.buff(500), $cx.buff(500, 'special power!')),
     // isDefenser: $cx.engage(
     //   [$cx.tap('do this tap message array1')],
@@ -51,14 +52,18 @@ export default {
         // $cx.effectChoice('opp_zone'),
         // $cx.run('EFFECT_CHOICE', 'opp_zone'),
 
-        // $cx.when( ()=> false, '中断测试' ),
+        // $cx.when( is.attacker('test'), '中断测试' ),
         // $cx.run('ADD_TAG', 'isWork'),
+        $cx.iif( true,
+          $cx.engage($cx.target('opp_hand'),$cx.phaseinfo('true测试2')),
+          $cx.phaseinfo('false测试'),
+        ),
         $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
 
         // $cx.reject(),
-      // )(true)
+        // )(true)
 
         // $cx.phaseinfo('再次支援'),
         // $cx.target('hand'),
