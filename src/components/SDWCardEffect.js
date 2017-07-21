@@ -15,7 +15,7 @@ export default {
       // console.log('JW15-001 mounted test ok')
     },
     isAttackerWhen: () => true,
-    isAttacker: $cx.engage($cx.buff(1000, 'special power'),$cx.run('OPPADD_TAG','blocksupport')),
+    isAttacker: $cx.GUIengage($cx.buff(1000, 'special power'),$cx.run('OPPADD_TAG','blocksupport')),
     // isAttacker: $cx.engage(
     //     $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
     //     $cx.GUIengage('do engage 2',
@@ -54,10 +54,10 @@ export default {
 
         // $cx.when( is.attacker('test'), '中断测试' ),
         // $cx.run('ADD_TAG', 'isWork'),
-        $cx.iif( true,
-          $cx.engage($cx.target('opp_hand'),$cx.phaseinfo('true测试2')),
-          $cx.phaseinfo('false测试'),
-        ),
+        // $cx.iif( true,
+        //   $cx.engage($cx.target('opp_hand'),$cx.phaseinfo('true测试2')),
+        //   $cx.phaseinfo('false测试'),
+        // ),
         $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),

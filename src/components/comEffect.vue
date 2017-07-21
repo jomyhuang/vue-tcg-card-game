@@ -22,7 +22,8 @@
           </div>
         </transition>
       </el-row>
-      <div v-if="stage=='choice'">
+
+      <!-- <div v-if="stage=='choice'">
         <el-row type="flex" class="gameboard">
           <h2>CHOICE</h2>
           <el-carousel :interval="4000" type="card" height="200px">
@@ -31,12 +32,12 @@
             </el-carousel-item>
           </el-carousel>
         </el-row>
-      </div>
+      </div> -->
       <!-- </div> -->
     </div>
     <div v-else>
       <div slot="header" style="text-align:center">
-        NO CONTEXT
+        NO CONTEXT EFFECT
       </div>
     </div>
     <span slot="footer" class="dialog-footer" v-if="closeable">
@@ -161,6 +162,10 @@ export default {
     showstage(stage, data, onfinish, duration = 1500) {
       this.stagedata = data
       this._setstage(stage)
+
+      if(!this.context) {
+        console.warn(`comEffect showstage ${stage} context is null`)
+      }
 
       if (mu.isTestmode || !this.config.message) {
         console.info(`%comEffect showstage ${stage}`,'color:green')

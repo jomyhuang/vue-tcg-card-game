@@ -17,7 +17,7 @@
       <el-row class="gameboard">
         <h3>选择</h3>
         <el-carousel :interval="4000" type="card" height="200px" :autoplay="false" @change="change">
-          <el-carousel-item v-for="item in list" :key="item">
+          <el-carousel-item v-for="item in list" :key="item.key">
             <div @click.stop.prevent="selectcard($event,item)">
               <comCard :card="item"></comCard>
             </div>

@@ -422,8 +422,11 @@ export default {
         }
         console.log(`cx.buff ${card.name} +${power}`)
         commit('ADD_BUFF', buff)
-        // resolve()
-        $effectUI.showbuff(buff, resolve)
+
+        if(context.UImode)
+          $effectUI.showbuff(buff, resolve)
+        else
+          resolve()
       })
     }
   },
@@ -509,7 +512,7 @@ export default {
       return `${this.card.cardno} ${this.card.name} 发动${this.type}效果`
     }
 
-    return [this.phaseinfo(fnmsg), function () {
+    return [function () {
       const context = this
       const cx = context.cx
       return new Promise((resolve, reject) => {
@@ -521,7 +524,8 @@ export default {
         // $effectUI.showstart(context,resolve)
         resolve()
       })
-    }]
+    },
+    this.phaseinfo(fnmsg) ]
   },
   // _openGUI(auto = 0) {
   //   return [this.phaseinfo('open GUI message'), function () {
