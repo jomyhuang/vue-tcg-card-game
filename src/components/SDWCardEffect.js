@@ -15,7 +15,7 @@ export default {
       // console.log('JW15-001 mounted test ok')
     },
     isAttackerWhen: () => true,
-    isAttacker: $cx.engage($cx.buff(1000, 'special power')),
+    isAttacker: $cx.engage($cx.buff(1000, 'special power'),$cx.run('OPPADD_TAG','blocksupport')),
     // isAttacker: $cx.engage(
     //     $cx.GUIengage($cx.buff(500), $cx.buff(500, 'special power!')),
     //     $cx.GUIengage('do engage 2',

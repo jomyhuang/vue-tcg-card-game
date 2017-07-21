@@ -567,37 +567,51 @@ export default {
     console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
   },
   ADD_TAG(state, payload) {
-    if (!state.placeholder) {
-      console.log('commit ADD_TAG ERROR no placeholder card')
-      return
-    }
-    const card = state.placeholder
-    const tag = payload
-    mutil.addTag(tag,card)
-
-    console.log(`commit ADD_TAG ${state.placeholder.name}`, card.play)
-  },
-  REMOVE_TAG(state, payload) {
-    if (!state.placeholder) {
-      console.log('commit REMOVE_TAG ERROR no placeholder card')
-      return
-    }
-    const card = state.placeholder
-    const tag = payload
-    // if (R.is(String, tag)) {
-    //   card.play = R.dissoc(tag)(card.play)
-    // } else {
-    //   console.error('REMOVE_TAG payload must is string')
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
     // }
-    mutil.removeTag(tag,card)
-    console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
+    }
+
+    mutil.addTag(payload)
+    console.log(`commit ADD_TAG ${payload.tag}`)
   },
+  OPPADD_TAG(state, payload) {
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
+    // }
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
+    }
+    payload = R.assoc('opponent', true)(payload)
+
+    mutil.addTag(payload)
+    console.log(`commit OPPADD_TAG ${payload.tag}`)
+  },
+  // REMOVE_TAG(state, payload) {
+  //   if (!state.placeholder) {
+  //     console.log('commit REMOVE_TAG ERROR no placeholder card')
+  //     return
+  //   }
+  //   const card = state.placeholder
+  //   const tag = payload
+  //   mutil.removeTag(tag,card)
+  //   console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
+  // },
   CLEAR_TAG(state, payload) {
     if(!payload) {
-      console.log('commit CLEAR_TAG card is null')
+      console.warn('commit CLEAR_TAG card is null')
       return
     }
     const card = payload
+    const owner = payload.owner
     card.buffs = []
     // EFFECTNEW clear tag with tigger
     // card.play = {}
@@ -607,7 +621,12 @@ export default {
       if( !keep.includes(k) )
         mutil.removeTag(k,card)
     })(card.play)
+    // TODO: 独立清除player tag
+    R.forEachObjIndexed( (v,k) => {
+      if( !keep.includes(k) )
+        mutil.removeTag(k,owner)
+    })(owner.effects)
 
-    console.log(`commit CLEAR_TAG & tigger ${card.name}`)
+    // console.log(`commit CLEAR_TAG & tigger ${card.name}`)
   },
 }

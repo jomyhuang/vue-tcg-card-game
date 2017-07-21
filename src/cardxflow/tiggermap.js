@@ -11,4 +11,7 @@ export default {
   atBase: {
     slot: ['base']
   },
+  blocksupport: {
+    _type: 'player',
+  }
 }

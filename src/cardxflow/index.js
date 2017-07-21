@@ -48,13 +48,13 @@ export default {
     if (payload) {
       $store = payload.store
       $state = payload.store.state
-      console.log('cardxflow install $store/$state', $store)
+      // console.log('cardxflow install $store/$state', $store)
       $mainapp = payload.mainapp
-      console.log('cardxflow install $mainapp', $mainapp)
+      // console.log('cardxflow install $mainapp', $mainapp)
       $effectUI = payload.effectUI
-      console.log('cardxflow install $effectUI', $effectUI)
+      // console.log('cardxflow install $effectUI', $effectUI)
       $effectChoiceUI = payload.effectChoiceUI
-      console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
+      // console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
       // console.dir($effectChoiceUI)
     }
     mu.assert($store._actions, '请设置vuex store')

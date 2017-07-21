@@ -77,16 +77,16 @@ export default {
     if (payload) {
       if (payload.store) {
         $store = payload.store
-        console.log('mutil install $store', $store)
+        // console.log('mutil install $store', $store)
         dispatch = $store.dispatch
         commit = $store.commit
 
         $mainapp = payload.mainapp
-        console.log('mutil install $mainapp', $mainapp)
+        // console.log('mutil install $mainapp', $mainapp)
         $effectUI = payload.effectUI
-        console.log('mutil install $effectUI', $effectUI)
+        // console.log('mutil install $effectUI', $effectUI)
         $effectChoiceUI = payload.effectChoiceUI
-        console.log('mutil install $effectChoiceUI', $effectChoiceUI)
+        // console.log('mutil install $effectChoiceUI', $effectChoiceUI)
       } else {
         source = payload
         console.log('mixeffect 其他效果库')
@@ -451,7 +451,7 @@ export default {
       switch (selector) {
         case 'placelist':
           list = placelist
-          console.log(`mutil.selectcards (type keyword ${selector}) select`, list)
+          // console.log(`mutil.selectcards (type keyword ${selector}) select`, list)
           break
         default:
           const opt = R.split('_', selector)
@@ -461,22 +461,22 @@ export default {
             let oppplayer = this.opponent(placeplayer)
 
             list = oppplayer[opt[1]]
-            console.log(`mutil.selectcards (type string ${selector}) opponent select`, list)
+            // console.log(`mutil.selectcards (type string ${selector}) opponent select`, list)
           } else {
             list = placeplayer[selector]
-            console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
+            // console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
     } else if (_.isArray(selector)) { // array
       list = selector
-      console.log(`mutil.selectcards (type array) select`, list)
+      // console.log(`mutil.selectcards (type array) select`, list)
     } else if (_.isFunction(selector)) { // function
       // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
-      console.log(`mutil.selectcards (type function) select`, list)
+      // console.log(`mutil.selectcards (type function) select`, list)
     } else if (_.isNil(selector)) { // undefined/Nil
       list = placelist
-      console.log(`mutil.selectcards (type Nil) select placelist`, list)
+      // console.log(`mutil.selectcards (type Nil) select placelist`, list)
     } else {
       throw `mutil.selectcards (type unknown) select`
     }
@@ -545,64 +545,103 @@ export default {
 
     return tigger
   },
-  hasTag(tag, card = $store.state.placeholder) {
-    return !R.isNil(card.play[tag])
+  hasTag(tag, place = $store.state.placeholder) {
+    const isPlayerTag = R.prop('deck',place)
+    if(isPlayerTag)
+      return !R.isNil(place.effects[tag])
+    else
+      return !R.isNil(card.play[tag]) || !R.isNil(card.owner.effects[tag])
   },
-  addTag(tag, card = $store.state.placeholder, val = true) {
-    if (!card) {
-      throw new Errror('mu.addTag card is null')
+  addTag(payload, ...items ) {
+    let tag, card, player, opponent, val
+    if( R.is(Object, payload)) {
+      // 结构如果没有 let 必须要加 ()
+      ({ tag, card, player, opponent, val=true } = payload);
     }
-    card.play = R.assoc(tag, val)(card.play)
-    // if( _.startsWith(tag, 'at')) {
-    //   //
-    //   console.log(tag);
-    // }
+    else {
+      // 如果结构没有值就会变成undefined
+      // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
+      tag = payload;
+      ([ card, player, opponent, val=true ] = items);
+      // console.log(tag);
+      // console.log(card);
+    }
 
-    // EFFECTNEW add tag tigger
-    let effect = R.path(['effect', tag])(card)
-    if (effect) {
-      let payload = this.maketigger({
-        from: 'tagtigger',
-        tigger: tag,
-        source: card,
-        func: effect,
-        type: 'once',
-        // slot: ['zone', 'supporter'],
-      })
-      const when = R.path(['effect', tag.concat('When')])(card)
-      if (when) {
-        payload.when = when
-      }
-      if (!payload.slot.length) {
-        payload.slot = ['zone', 'supporter']
-      }
-      // test smart slot tag
-      // if( _.startsWith(tag, 'at')) {
-      //
-      //   console.log(payload);
-      //
-      //   throw new Error
-      // }
-      // if( tag === 'slotGRAVEYARD') {
-      //   payload.slot = [ 'graveyard' ]
-      // }
+    if (!card && !player) {
+      throw new Error('mu.addTag card/player is null')
+    }
+    const isPlayerTag = R.path([tag,'_type'])(tiggermap) == 'player' || player ? true : false
+    //
+    // console.log(tag,card,player);
+    if(isPlayerTag) {
+      if(R.is(Boolean, player))
+        player = $store.state.placeplayer
+      else
+        player = player ? player : $store.state.placeplayer
 
-      return $cx.$addtigger(payload)
+      player = opponent ? this.opponent(player) : player
+
+      console.log(`mu.addTag add player ${player.id} ${tag}`)
+      player.effects = R.assoc(tag, val)(player.effects)
+    }
+    else {
+      card = card ? card : $store.state.placeholder
+      if(!card)
+        throw new Error('mu.addTag card is null')
+
+      if(opponent) {
+        throw new Error('mu.addTag card tag but opponent is true')
+      }
+
+      card.play = R.assoc(tag, val)(card.play)
+
+      // EFFECTNEW add tag tigger
+      let effect = R.path(['effect', tag])(card)
+      if (effect) {
+        let tigger = this.maketigger({
+          from: 'tagtigger',
+          tigger: tag,
+          source: card,
+          func: effect,
+          type: 'once',
+          // slot: ['zone', 'supporter'],
+        })
+        const when = R.path(['effect', tag.concat('When')])(card)
+        if (when) {
+          tigger.when = when
+        }
+        if (!tigger.slot.length) {
+          tigger.slot = ['zone', 'supporter']
+        }
+
+        return $cx.$addtigger(tigger)
+      }
     }
 
     // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
     return card
   },
-  removeTag(tag, card = $store.state.placeholder) {
-    if (!card) {
-      console.log('mu.removeTag card is null')
+  removeTag(tag, place = $store.state.placeholder ) {
+    if (!place) {
+      console.log('mu.removeTag place is null')
       return
     }
-    card.play = R.dissoc(tag)(card.play)
-    // EFFECTNEW remove tag tigger
-    $cx.$removetigger(tag, card)
-    // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
-    return card
+    const isPlayerTag = R.prop('deck',place)
+
+    if(isPlayerTag) {
+      let player = place
+      player.effects = R.dissoc(tag)(player.effects)
+      // console.log(`mu.removeTag player ${tag}`,player);
+    }
+    else {
+      let card = place
+      card.play = R.dissoc(tag)(card.play)
+      // EFFECTNEW remove tag tigger
+      $cx.$removetigger(tag, card)
+      // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
+    }
+
+    return place
   },
   checkslot() {
     console.log('mutil.checkslot')
@@ -627,11 +666,16 @@ export default {
   moveslot(toslot, card, maketigger = true) {
     const from = card.slot
     card.slot = toslot
+    if(!$store.state.game.turnCount) {
+      // console.log('moveslot game not start yet skip tigger')
+      return card
+    }
+
     // TODO: clear some tag/tigger when diff slot
     if (from)
-      this.removeTag('at' + _.capitalize(from), card)
+      this.removeTag({ tag:'at' + _.capitalize(from), card: card })
     if (toslot && maketigger)
-      this.addTag('at' + _.capitalize(toslot), card)
+      this.addTag({ tag:'at' + _.capitalize(toslot), card: card})
     return card
   },
   activecard(card) {
@@ -656,7 +700,7 @@ export default {
       const map = R.propOr({}, k)(tiggermap)
       const from = R.propEq('from', 'active')(map)
       if (from) {
-        let payload = this.addTag(k, card)
+        let payload = this.addTag({ tag: k, card: card })
         console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
       }
     })(effect)

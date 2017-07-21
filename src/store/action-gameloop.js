@@ -405,7 +405,7 @@ export default {
       let battle = state.battle
       let score = state.battle.score
       if (score.draw) {
-        console.log('battle draw clear');
+        console.log('battle draw clear')
         R.forEach(x => {
           // commit('SELECT_PLAYER', x.player)
           commit('PICK_CARD', x.main)
