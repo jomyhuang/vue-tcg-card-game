@@ -32,13 +32,14 @@ export default {
     //   $cx.engage($cx.tap('do this tap message array1')),
     //   $cx.engage($cx.buff(500), $cx.tap('effect array2')),
     // ],
-    faceup() {
-      // dispatch('DRAW', 1)
-      return new Promise(function(resolve, reject) {
-        console.log('JW15-001 FACEUP effect this=', this)
-        resolve()
-      });
-    },
+    faceup: $cx.GUIengage($cx.phaseinfo('效果：对手无法支援'),$cx.run('OPPADD_TAG','blocksupport')),
+    // faceup() {
+    //   // dispatch('DRAW', 1)
+    //   return new Promise(function(resolve, reject) {
+    //     console.log('JW15-001 FACEUP effect this=', this)
+    //     resolve()
+    //   });
+    // },
     main() {
       return $cx.GUIengage(
       // return $cx.engage(

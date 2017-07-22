@@ -546,35 +546,45 @@ export default {
     return tigger
   },
   hasTag(tag, place = $store.state.placeholder) {
-    const isPlayerTag = R.prop('deck',place)
-    if(isPlayerTag)
+    if (!place)
+      throw new Error('mu.hasTag place is null')
+
+    const isPlayerTag = R.prop('deck', place)
+    if (isPlayerTag)
       return !R.isNil(place.effects[tag])
     else
       return !R.isNil(card.play[tag]) || !R.isNil(card.owner.effects[tag])
   },
-  addTag(payload, ...items ) {
+  addTag(payload, ...items) {
     let tag, card, player, opponent, val
-    if( R.is(Object, payload)) {
+    if (R.is(Object, payload)) {
       // 结构如果没有 let 必须要加 ()
-      ({ tag, card, player, opponent, val=true } = payload);
-    }
-    else {
+      ({
+        tag,
+        card,
+        player,
+        opponent,
+        val = true
+      } = payload);
+    } else {
       // 如果结构没有值就会变成undefined
       // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
       tag = payload;
-      ([ card, player, opponent, val=true ] = items);
+      ([card, player, opponent, val = true] = items);
       // console.log(tag);
       // console.log(card);
     }
 
     if (!card && !player) {
-      throw new Error('mu.addTag card/player is null')
+      // throw new Error('mu.addTag card/player is null')
+      console.warn('mu.addTag card/player is null', payload);
+      return false
     }
-    const isPlayerTag = R.path([tag,'_type'])(tiggermap) == 'player' || player ? true : false
+    const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
     //
     // console.log(tag,card,player);
-    if(isPlayerTag) {
-      if(R.is(Boolean, player))
+    if (isPlayerTag) {
+      if (R.is(Boolean, player))
         player = $store.state.placeplayer
       else
         player = player ? player : $store.state.placeplayer
@@ -583,13 +593,12 @@ export default {
 
       console.log(`mu.addTag add player ${player.id} ${tag}`)
       player.effects = R.assoc(tag, val)(player.effects)
-    }
-    else {
+    } else {
       card = card ? card : $store.state.placeholder
-      if(!card)
+      if (!card)
         throw new Error('mu.addTag card is null')
 
-      if(opponent) {
+      if (opponent) {
         throw new Error('mu.addTag card tag but opponent is true')
       }
 
@@ -621,19 +630,18 @@ export default {
     // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
     return card
   },
-  removeTag(tag, place = $store.state.placeholder ) {
+  removeTag(tag, place = $store.state.placeholder) {
     if (!place) {
       console.log('mu.removeTag place is null')
       return
     }
-    const isPlayerTag = R.prop('deck',place)
+    const isPlayerTag = R.prop('deck', place)
 
-    if(isPlayerTag) {
+    if (isPlayerTag) {
       let player = place
       player.effects = R.dissoc(tag)(player.effects)
       // console.log(`mu.removeTag player ${tag}`,player);
-    }
-    else {
+    } else {
       let card = place
       card.play = R.dissoc(tag)(card.play)
       // EFFECTNEW remove tag tigger
@@ -666,16 +674,22 @@ export default {
   moveslot(toslot, card, maketigger = true) {
     const from = card.slot
     card.slot = toslot
-    if(!$store.state.game.turnCount) {
+    if (!$store.state.game.turnCount) {
       // console.log('moveslot game not start yet skip tigger')
       return card
     }
 
     // TODO: clear some tag/tigger when diff slot
     if (from)
-      this.removeTag({ tag:'at' + _.capitalize(from), card: card })
+      this.removeTag({
+        tag: 'at' + _.capitalize(from),
+        card: card
+      })
     if (toslot && maketigger)
-      this.addTag({ tag:'at' + _.capitalize(toslot), card: card})
+      this.addTag({
+        tag: 'at' + _.capitalize(toslot),
+        card: card
+      })
     return card
   },
   activecard(card) {
@@ -700,7 +714,10 @@ export default {
       const map = R.propOr({}, k)(tiggermap)
       const from = R.propEq('from', 'active')(map)
       if (from) {
-        let payload = this.addTag({ tag: k, card: card })
+        let payload = this.addTag({
+          tag: k,
+          card: card
+        })
         console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
       }
     })(effect)

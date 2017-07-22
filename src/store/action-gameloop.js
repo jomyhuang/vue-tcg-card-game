@@ -254,6 +254,13 @@ export default {
   }) {
     dispatch('GAME_PHASE','BATTLE_PLAY_SUPPORTER')
 
+    if( mutil.hasTag('blocksupport',state.currentPlayer) ) {
+      console.info('blocksupport BATTLE_PLAY_SUPPORTER 效果启动无法使用支援')
+      // throw new Error('blocksupport');
+      return false
+    }
+
+
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_PLAY_SUPPORTER',
       selector: 'hand',
@@ -296,6 +303,13 @@ export default {
     dispatch
   }) {
     dispatch('GAME_PHASE','BATTLE_OPP_PLAY_SUPPORTER')
+
+    if( mutil.hasTag('blocksupport',state.opponentPlayer) ) {
+      console.info('blocksupport BATTLE_OPP_PLAY_SUPPORTER 效果启动无法使用支援')
+      // throw new Error('blocksupport');
+      // return mutil.tcall($cx.phaseinfo,this,'blocksupport 效果启动无法使用支援')
+      return false
+    }
 
     return dispatch('OPP_PLAY_CARD', {
       phase: 'BATTLE_OPP_PLAY_SUPPORTER',

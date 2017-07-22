@@ -18,12 +18,12 @@ export default {
     state,
     dispatch
   }, payload) {
-    commit('EFFECT_SET',{})
-    commit('EFFECT_SET',{
+    commit('EFFECT_SET', {})
+    commit('EFFECT_SET', {
       loop: true,
     })
-    commit('EFFECT_SET',payload)
-    console.log(`EFFECT_CONTEXT_INIT`,state.effect)
+    commit('EFFECT_SET', payload)
+    console.log(`EFFECT_CONTEXT_INIT`, state.effect)
   },
   EFFECT_SOURCE({
     commit,
@@ -33,8 +33,8 @@ export default {
     if (!payload) {
       console.log('commit EFFECT_SOURCE set null')
       commit('SELECT_PLAYER', null)
-      commit('SELECT_CARD',  null)
-      commit('EFFECT_SET',  null)
+      commit('SELECT_CARD', null)
+      commit('EFFECT_SET', null)
       return
     }
 
@@ -43,7 +43,9 @@ export default {
     console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
-    commit('EFFECT_SET', { source: card })
+    commit('EFFECT_SET', {
+      source: card
+    })
   },
   EFFECT_TARGET({
     commit,
@@ -54,7 +56,7 @@ export default {
       console.log('commit EFFECT_TARGET set null')
       commit('SELECT_PLAYER', null)
       commit('SELECT_CARD', null)
-      commit('EFFECT_SET',  null)
+      commit('EFFECT_SET', null)
       return
     }
 
@@ -63,7 +65,9 @@ export default {
     console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
-    commit('EFFECT_SET', { target: card })
+    commit('EFFECT_SET', {
+      target: card
+    })
     // TODO: if target is player? / register
   },
   // TIGGER_EFFECT22({
@@ -131,12 +135,17 @@ export default {
     dispatch
   }, payload) {
 
-    if( R.is(String, payload) ) {
+    if (R.is(String, payload)) {
       const fromstring = payload
       payload = {
         source: state.placeholder,
         tag: fromstring,
       }
+    }
+
+    if (!payload.source) {
+      console.warn('TIGGER_EFFECT source is null', payload);
+      return
     }
 
     const tag = payload.tag
@@ -154,8 +163,8 @@ export default {
       throw new Error(`TIGGER_EFFECT tag is null`)
     }
 
-    let tigger = $cx.$getnext(tag,source)
-    if(!tigger) {
+    let tigger = $cx.$getnext(tag, source)
+    if (!tigger) {
       // no tigger to run
       return false
     }
@@ -174,15 +183,15 @@ export default {
     // check slot
     // let tigger = R.head(activelist)
     let whenslot = tigger.slot
-    if( !whenslot.includes(source.slot) ) {
+    if (!whenslot.includes(source.slot)) {
       console.warn(`NEWTIGGER_EFFECT slot check error ${source.cardno} @ ${source.slot} `, whenslot)
       return false
     }
 
     // check when
-    if( !R.isNil(tigger.when) ) {
+    if (!R.isNil(tigger.when)) {
       // console.log('when',tigger.when)
-      if( !mutil.tcall(tigger.when,this,tigger) ) {
+      if (!mutil.tcall(tigger.when, this, tigger)) {
         console.warn(`NEWTIGGER_EFFECT ${tag} when check fail`)
         return false
       }
@@ -212,7 +221,7 @@ export default {
     dispatch('EFFECT_SOURCE', source)
     console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag} effect action`, 'color:blue')
 
-    return mutil.tcall(effectfunc,context,context).then( () => {
+    return mutil.tcall(effectfunc, context, context).then(() => {
       tigger.run = true
       tigger.turn = state.game.turnCount
       dispatch('EFFECT_SOURCE', null)
@@ -224,7 +233,7 @@ export default {
     dispatch
   }, payload) {
 
-    if (R.is(String,payload)) {
+    if (R.is(String, payload)) {
       payload = {
         selector: payload
       }
@@ -253,7 +262,7 @@ export default {
         card.name = card.name + '[效果指定]'
       },
       choiceUI: true,
-      source: R.prop('source',$cx.context),
+      source: R.prop('source', $cx.context),
       // many: 2,
     })(payload)
 
@@ -275,7 +284,7 @@ export default {
     dispatch
   }, payload) {
 
-    if (R.is(String,payload)) {
+    if (R.is(String, payload)) {
       payload = {
         selector: payload
       }
@@ -291,7 +300,7 @@ export default {
         card.name = card.name + '[OPP效果指定]'
       },
       choiceUI: true,
-      source: R.prop('source',$cx.context),
+      source: R.prop('source', $cx.context),
     })(payload)
 
     // if(R.is(String, R.prop('list',payload))) {
