@@ -192,31 +192,36 @@ how? getMessage(selector) -> return message
 
 
 //--------------------------- new effect system
-// tag system
-add tag,
-remove / auto by one-turn/next-turn
-
-
 #1 card.box/map(slot):
 => player.cardpool card all list
   => card.slot = 'deck/hand....'
   => deck is getter / filter by card.box is "box"
 
 => effectlist in cardflow
+=> tiggermap: tag factory
 
 #2 tag -> event tigger system
 => add tag -> add tigger (from: tag)
 => remove tag -> remove tigger (from: tag)
 
-// => ADD_TAG => 直接增加Tigger
+// => ADD_TAG／OPPADD_TAG => 直接增加Tigger
 //    REMOVE_TAG => 移除Tigger
-// => ADD_TAG => 放进 Tigger ／ 可直接 dispatch／remove
+// idea => ADD_TAG？ => 放进 Tigger ／ 可直接 dispatch／remove
+
+?? tag object -> 记录状态、tigger？
+?? card.play vs tigger list 分离记录，难以同步
 
 
 #3 play card  / ACTIVE_CARD
 play card 阶段 -> 主动效果（main...)
+mutil.activecard()
 
 => $playcard => 增加主动效果 => 从哪里启动？ => UI click
+
+#3-1 smart tag:
+=> $diff => 增加牌堆变化效果启动
+mutil.moveslot()
+auto add/remove smart tag // at[slot]: atBase...
 
 
 #4 event tigger ->
@@ -232,20 +237,80 @@ slot: [...] / 卡在哪里启动
 
 #5
 emit 'tag/tigger name' + card
-emit 'tag' ( -> list -> ... )
+  -> mutil.tiggerEffect() -> dispatch("TIGGER_EFFECT", tag string/payload
+  1、tiggerEffect(tag, card) 参数模式转换成为 dispatch -> payload
 
-=> $diff => 增加牌堆变化效果启动
-auto add/remove smart tag // is[slot]: isBase...
+emit 'tag' ( -> list -> ... )
+  -> tiggerEffect().then() 效果启动后，触动 emitnext loop
+  -> await $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
 
 
 #清除阶段
-CLEAR_TAG phase
+CLEAR_TAG
+
+clear tigger -> clear card/player tag?
+? maybe 有tag但是没有tigger
+* 将tigger内埋入清除函数（没有func也添加）
+由list端启动清除，统一
+
 
 ##逻辑条件：
 Tag 模式
 isAttacker / isAttackerWhen:
 ...$cx.when()
 ...$cx.iif()
+
+
+##GUI message
+type:
+async: 异步信息 promise resolve() when close (auto timeout/click)
+await async: 同步信息／等候auto信息关闭后继续
+testmode: overwrite/disable blocking, only output console.log
+fullmessage:
+
+style:
+console.log
+message
+notify
+
+message box (ok/cancel)
+modal dialog (custom)
+
+comMessage/comEffect
+comEffectChoice
+
+
+from:
+GameVue gameloop() : use dispatch / or internal function (仅供gameapp)
+store dispatch -> dispatch : use dispatch
+effect mixin function / cx$ chain function
+cx$ function (internal)
+mutil call?
+
+use:
+
+游戏阶段
+动作前信息
+agent动作信息
+=》触发大UI =》click/auto close
+=》HMI input （／=》 触发主动效果）
+进入效果
+=》卡牌点亮 =》  
+
+
+stage:
+
+message text:
+auto content? lazy content?
+
+
+
+
+
+
+
+
+
 
 
 4、更精炼的效果函数动作DSL表示方式：

@@ -17,6 +17,7 @@ export var $store = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+export var $messageUI
 var dispatch
 var commit
 
@@ -26,7 +27,7 @@ export function testfn() {
   console.log('test func this', this)
 }
 
-export var UIShow
+// export var UIShow
 
 export default {
   // store
@@ -34,17 +35,17 @@ export default {
   _isTestmode: false,
   ucardid: 0,
   // testmode: false,
-  tap(fn) {
-    console.log('mutil tap this func', this)
-  },
-  tapUI() {
-    console.log('tapUI', UIShow)
-    return UIShow(1500)
-  },
-  setUI(fn) {
-    // console.log('setUI',fn);
-    UIShow = fn
-  },
+  // tap(fn) {
+  //   console.log('mutil tap this func', this)
+  // },
+  // tapUI() {
+  //   console.log('tapUI', UIShow)
+  //   return UIShow(1500)
+  // },
+  // setUI(fn) {
+  //   // console.log('setUI',fn);
+  //   UIShow = fn
+  // },
   assert(...args) {
     return console.assert(...args)
   },
@@ -87,6 +88,7 @@ export default {
         // console.log('mutil install $effectUI', $effectUI)
         $effectChoiceUI = payload.effectChoiceUI
         // console.log('mutil install $effectChoiceUI', $effectChoiceUI)
+        $messageUI = payload.messageUI
       } else {
         source = payload
         console.log('mixeffect 其他效果库')
@@ -132,45 +134,6 @@ export default {
         const fn = card.effect['mounted'] || (() => {})
         const result = fn.call(card)
 
-        // OK1:
-        // let mounted = R.bind(R.prop('mounted')(card.effect),card)
-        // R.apply(mounted)(card)
-        // let log = (x) => console.log('tap ' + x)
-
-        // OK2: Ramda func way
-        // let mounted = R.path(['effect', 'mounted'])
-        // let callmounted =
-        //   R.when(
-        //     mounted,
-        //     R.pipe(
-        //       mounted,
-        //       // bind for mounted function
-        //       R.bind(R.__, card),
-        //       R.call,
-        //       // R.tap(console.log),
-        //       // bind for "return function"
-        //       // R.bind(R.__, card),
-        //       // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-        //       // OK! R.apply(R.__,[]),
-        //       // R.call,
-        //     )
-        //   )
-
-        // check it out: 如何带入闭包的card值
-        // call可以
-        // apply work 必须要有第二参数[]
-        // OK! let result = R.apply(callmounted(card),[])
-        // OK2: 传统bind方式
-        // let mounted = card.effect.mounted
-        // if(mounted) {
-        //   // OK1: bind way, to gen new function
-        //   // let bindfunc = mounted.bind(card)
-        //   // bindfunc({})
-        //   // OK2: apply this directly
-        // mounted.apply(card,{})
-        //
-        // let result = callmounted(card)
-
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
@@ -182,98 +145,77 @@ export default {
     this.mixin = true
     console.log('mutil mixin effect DB finish')
   },
-  ___callEffect(effectkey, initpayload = {}, condition) {
-    // move to TIGGER_EFFECT
-    // return new Promise(async function (resolve, reject) {
-    return () => {
-      let payload = {
-        card: undefined,
-        player: undefined,
-        opponent: undefined,
-        state: undefined,
-        commit: undefined,
-        dispath: undefined,
-        buff: undefined,
-        rxdispatch: undefined,
-        rxcommit: undefined,
-      }
-      let result = false
-
-      let card = R.prop('card')(initpayload)
-      if (R.isNil(card)) {
-        card = initpayload
-        initpayload = {
-          card: card
-        }
-      }
-
-      payload = R.merge(payload)(initpayload)
-      // console.log(card,payload);
-      // test
-      // card.play = {
-      //   isAttacker: true
-      // }
-      if (R.isNil(condition)) {
-        condition = (card, key) => R.path(['play', key])(card)
-      }
-
-      // console.log('condition', condition(card,effectkey));
-
-      if (condition(card, effectkey)) {
-        // console.log(`callEffect ${effectkey} activate check card effect function`)
-        let effect = R.path(['effect', effectkey])
-        // let effect = R.path(['effect', effectkey])(card)
-        // console.log(effect);
-
-        let effectfunc = R.when(
-          effect,
-          R.pipe(
-            effect,
-            R.bind(R.__, card),
-            R.apply(R.__, [payload]),
-            // bind for "return function"
-            // R.bind(R.__, card),
-            // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-            // R.apply(R.__, [payload]),
-          )
-        )
-
-        if (effect(card)) {
-          console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-          // result = effectfunc(card)
-          // return result
-          result = effect(card).apply(card, [payload])
-          if (R.is(Object, result)) {
-            // console.log('callEffect result is object')
-          } else {
-            result = true
-          }
-        } else {
-          // console.log(`callEffect ${card.name} no ${effectkey} function`)
-        }
-
-        // if (effect) {
-        //   console.log(`callEffect ${card.name} ${effectkey} function start`)
-        //   // pack 给内置函数，跟返回闭包箭头函数使用
-        //   let func = effect.apply(card, [payload])
-        //   // pack 给返回标准闭包函数使用
-        //   buffs = func.apply(card, [payload])
-        //   console.log(`callEffect ${effectkey} function end buff ${buffs}`)
-        //
-        //   // return buffs rights!
-        //   return buffs
-        // } else {
-        //   console.log(`callEffect ${card.name} no ${effectkey} function`)
-        // }
-      } else {
-        // console.log(`callEffect ${effectkey} no effect tag`);
-      }
-
-      return result
-      // resolve(result)
-      // })
-    }
-  },
+  // ___callEffect(effectkey, initpayload = {}, condition) {
+  //   // move to TIGGER_EFFECT
+  //   // return new Promise(async function (resolve, reject) {
+  //   return () => {
+  //     let payload = {
+  //       card: undefined,
+  //       player: undefined,
+  //       opponent: undefined,
+  //       state: undefined,
+  //       commit: undefined,
+  //       dispath: undefined,
+  //       buff: undefined,
+  //       rxdispatch: undefined,
+  //       rxcommit: undefined,
+  //     }
+  //     let result = false
+  //
+  //     let card = R.prop('card')(initpayload)
+  //     if (R.isNil(card)) {
+  //       card = initpayload
+  //       initpayload = {
+  //         card: card
+  //       }
+  //     }
+  //
+  //     payload = R.merge(payload)(initpayload)
+  //     if (R.isNil(condition)) {
+  //       condition = (card, key) => R.path(['play', key])(card)
+  //     }
+  //
+  //     // console.log('condition', condition(card,effectkey));
+  //
+  //     if (condition(card, effectkey)) {
+  //       // console.log(`callEffect ${effectkey} activate check card effect function`)
+  //       let effect = R.path(['effect', effectkey])
+  //       // let effect = R.path(['effect', effectkey])(card)
+  //       // console.log(effect);
+  //
+  //       let effectfunc = R.when(
+  //         effect,
+  //         R.pipe(
+  //           effect,
+  //           R.bind(R.__, card),
+  //           R.apply(R.__, [payload]),
+  //           // bind for "return function"
+  //           // R.bind(R.__, card),
+  //           // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+  //           // R.apply(R.__, [payload]),
+  //         )
+  //       )
+  //
+  //       if (effect(card)) {
+  //         console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
+  //         // result = effectfunc(card)
+  //         // return result
+  //         result = effect(card).apply(card, [payload])
+  //         if (R.is(Object, result)) {
+  //           // console.log('callEffect result is object')
+  //         } else {
+  //           result = true
+  //         }
+  //       } else {
+  //         // console.log(`callEffect ${card.name} no ${effectkey} function`)
+  //       }
+  //     } else {
+  //       // console.log(`callEffect ${effectkey} no effect tag`);
+  //     }
+  //
+  //     return result
+  //   }
+  // },
   Rdefaults(x, y) {
     const defaults = R.flip(R.merge)
     return defaults(x, y)
@@ -526,11 +468,11 @@ export default {
     return R.isNil(pack) || R.isNil(R.head(pack))
   },
   maketigger(payload) {
-    const map = R.propOr({}, payload.tigger)(tiggermap)
-    // const map = tiggermap[payload.tigger]
+    const map = R.propOr({}, payload.tag)(tiggermap)
+    // const map = tiggermap[payload.tag]
     // console.log(map);
     let tigger = R.merge({
-      tigger: undefined,
+      tag: undefined,
       type: 'once',
       source: undefined,
       run: false,
@@ -571,8 +513,6 @@ export default {
       // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
       tag = payload;
       ([card, player, opponent, val = true] = items);
-      // console.log(tag);
-      // console.log(card);
     }
 
     if (!card && !player) {
@@ -609,7 +549,7 @@ export default {
       if (effect) {
         let tigger = this.maketigger({
           from: 'tagtigger',
-          tigger: tag,
+          tag: tag,
           source: card,
           func: effect,
           type: 'once',

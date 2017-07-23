@@ -307,7 +307,6 @@ export default {
     if( mutil.hasTag('blocksupport',state.opponentPlayer) ) {
       console.info('blocksupport BATTLE_OPP_PLAY_SUPPORTER 效果启动无法使用支援')
       // throw new Error('blocksupport');
-      // return mutil.tcall($cx.phaseinfo,this,'blocksupport 效果启动无法使用支援')
       return false
     }
 

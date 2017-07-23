@@ -11,6 +11,7 @@ export var $state = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+export var $messageUI
 var $effectlist = []
 export var dispatch
 export var commit
@@ -48,14 +49,15 @@ export default {
     if (payload) {
       $store = payload.store
       $state = payload.store.state
-      // console.log('cardxflow install $store/$state', $store)
+      console.log('cardxflow install $store/$state', $store)
       $mainapp = payload.mainapp
-      // console.log('cardxflow install $mainapp', $mainapp)
+      console.log('cardxflow install $mainapp', $mainapp)
       $effectUI = payload.effectUI
-      // console.log('cardxflow install $effectUI', $effectUI)
+      console.log('cardxflow install $effectUI', $effectUI)
       $effectChoiceUI = payload.effectChoiceUI
-      // console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
-      // console.dir($effectChoiceUI)
+      console.log('cardxflow install $effectChoiceUI', $effectChoiceUI)
+      $messageUI = payload.messageUI
+      console.log('cardxflow install $messageUI', $messageUI)
     }
     mu.assert($store._actions, '请设置vuex store')
 
@@ -95,29 +97,29 @@ export default {
   },
   $addtigger(payload) {
     $effectlist.push(payload)
-    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tigger} ${payload.type}`)
+    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tag} ${payload.type}`)
     return payload
   },
   $removetigger(tag, card) {
     // if(tag == 'main') return
     // way1: remove
-    // $effectlist = R.filter( (x) => !(x.tigger == tag && x.source.key == card.key) )($effectlist)
+    // $effectlist = R.filter( (x) => !(x.tag == tag && x.source.key == card.key) )($effectlist)
     // way2: make inactive first
     $effectlist = R.map((x) => {
-      if (x.tigger == tag && x.source.key == card.key) x.active = false
+      if (x.tag == tag && x.source.key == card.key) x.active = false
       return x
     })($effectlist)
     // TODO: way3 transduce
     // console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length)
   },
   $getlist(tag, card) {
-    // return R.filter( (x) => x.tigger==tag )($effectlist)
+    // return R.filter( (x) => x.tag==tag )($effectlist)
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
     // TODO: add slot check
     const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
     const tagcheck = card ? (x) => x.source.play[tag] : () => true
 
-    return R.filter((x) => x.tigger == tag &&
+    return R.filter((x) => x.tag == tag &&
       !x.run && x.active
       // && mu.tcall(x.when)
       &&
@@ -125,7 +127,7 @@ export default {
       // && mu.tcall(slotcheck,this,x)
       &&
       mu.tcall(cardcheck, this, x))($effectlist)
-    // return R.filter( (x) => x.tigger==tag && x.source.play[tag] )($effectlist)
+    // return R.filter( (x) => x.tag==tag && x.source.play[tag] )($effectlist)
   },
   $getnext(tag, card) {
     const list = this.$getlist(tag, card)
@@ -149,11 +151,11 @@ export default {
       tigger = this.$getnext(tag)
 
       if (tigger) {
-        console.log(`%c$emitnext tigger is ${tigger.tigger}`, 'color:fuchsia',tigger.source)
+        console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia',tigger.source)
         // tigger now
         await dispatch('TIGGER_EFFECT', {
-          tag: tigger.tigger,
-          source: tigger.source
+          tag: tigger.tag,
+          source: tigger.source,
         })
         // throw new Error
       }

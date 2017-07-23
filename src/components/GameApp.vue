@@ -50,7 +50,7 @@
       <el-button type="primary" @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
       <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
       <BR/> 显示讯息
-      <el-switch v-model="isMessage" /> 异步讯息
+      <el-switch v-model="isMessage" /> 同步讯息
       <el-switch v-model="isAsyncMssage" />
       <el-button @click="gameTest()">TEST</el-button>
       <el-button @click="gameReset()">RESET</el-button>
@@ -124,8 +124,9 @@ export default {
       mainapp: this,
       effectUI: this.$refs.effectUI,
       effectChoiceUI: this.$refs.effectChoiceUI,
+      messageUI: this.$refs.messageUI,
     })
-    mu.setUI(this.battleshow)
+    // mu.setUI(this.battleshow)
     // mu.tapUI()
 
     // 打开测试模式
@@ -136,7 +137,6 @@ export default {
     // console.log('NODE_ENV',process.env.NODE_ENV)
     // Vue.config.test = process.env.NODE_ENV === 'testing'
     // console.log('Vue.config.test', Vue.config.test)
-
 
     // test 自定义插件
     this.muvue()
@@ -317,8 +317,6 @@ export default {
         console.log(`%c[notice] ${msg}`,'color:green')
       }
       return true
-      // return this.config.message ? this.$Notice.open({title: msg, duration: 2.5}) : true
-      // return this.config.message ? this.$refs.info.async_message(msg,duration) : true
     },
     UI_message(msg) {
       return this.__message(msg)

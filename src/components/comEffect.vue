@@ -41,6 +41,7 @@
       </div>
     </div>
     <span slot="footer" class="dialog-footer" v-if="closeable">
+      <el-button type="primary" @click="test">TEST</el-button>
       <b>waiting click to continue</b>
       <el-button type="primary" @click="show = false">确 定</el-button>
     </span>
@@ -190,6 +191,28 @@ export default {
     },
     showchoice(data, onfinish) {
       return this.showstage('choice', {}, onfinish, 0)
+    },
+    test() {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                });
+              }).catch(() => {
+                this.$message({
+                  type: 'info',
+                  message: '已取消删除'
+                });
+              });
+      this.$notify({
+                  title: '提示',
+                  message: '这是一条不会自动关闭的消息',
+                  duration: 0
+                });
     },
   }
 }
