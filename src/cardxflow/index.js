@@ -100,10 +100,11 @@ export default {
     const isPlayerTag = R.prop('player')(payload) ? true : false
 
     console.log(`$cx.$addtigger ${payload.source ? payload.source.cardno : payload.player.id} ${payload.tag} ${payload.type}`)
-    return payload
   },
   $removetigger(tag, card) {
-    // if(tag == 'main') return
+    if(!card) {
+      throw new Error('$removetigger card is null')
+    }
     // way1: remove
     // $effectlist = R.filter( (x) => !(x.tag == tag && x.source.key == card.key) )($effectlist)
     // way2: make inactive first
@@ -121,50 +122,62 @@ export default {
 
     return R.filter((x) => x.tag == tag &&
       !x.run && x.active &&
-      mu.tcall(tagcheck, this, x) &&
-      mu.tcall(cardcheck, this, x))($effectlist)
+      tagcheck(x) &&
+      cardcheck(x))($effectlist)
+      // mu.tcall(tagcheck, this, x) &&
+      // mu.tcall(cardcheck, this, x))($effectlist)
   },
   $getnext(tag, card) {
     const list = this.$getlist(tag, card)
     return list.length > 0 ? R.head(list) : null
   },
-  async $emitall(taglist, card) {
+  $emitall(taglist, card) {
     if (_.isString(taglist)) {
       const fromstring = taglist
       taglist = [fromstring]
     }
-    let tigger = undefined
-    let tag = R.head(taglist)
-    do {
-      // TODO: get list & make piority 修正算法
-      tigger = this.$getnext(tag)
-      if (tigger) {
-        console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
-        const isPlayerTag = tigger.player ? true : false
-        const isEmit = (tigger._type == 'emit') || tigger.player ? true : false
+    return new Promise(async (resolve, reject) => {
 
-        // tigger now
-        if (isEmit) {
-          console.log(`do emit tag ${tigger.tag}`)
-          mu.tcall(tigger.func, this, tigger)
+      let tigger
+      let tag = R.head(taglist)
+      do {
+        // TODO: get list & make piority 修正算法
+        tigger = undefined
+        if(card)
+          tigger = this.$getnext(tag,card)
+        if(!tigger)
+          tigger = this.$getnext(tag)
+
+        if (tigger) {
+          console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
+          const isPlayerTag = tigger.player ? true : false
+          const isEmit = tigger._type == 'emit' || tigger.player ? true : false
+
+          // tigger now
+          if (isEmit) {
+            console.log(`do emit tag ${tigger.tag} func`)
+            // TODO: await mu.tcall(tigger.func, this, tigger)
+            mu.tcall(tigger.func, this, tigger)
+            // await mu.tcall(tigger.func, this, tigger)
+          } else {
+            await dispatch('TIGGER_EFFECT', {
+              tag: tigger.tag,
+              source: tigger.source,
+            })
+          }
+
+          // TODO: 非常重要：不然会进入死循环
+          tigger.run = true
+
         } else {
-          await dispatch('TIGGER_EFFECT', {
-            tag: tigger.tag,
-            source: tigger.source,
-          })
+          taglist = R.drop(1, taglist)
+          tag = R.head(taglist)
         }
-
-        // TODO: 非常重要：不然会进入死循环
-        tigger.run = true
-
-      } else {
-        taglist = R.drop(1, taglist)
-        tag = R.head(taglist)
       }
-    }
-    while (tag)
+      while (tag)
 
-    return true
+      resolve()
+    })
   },
   _setcontext(context = null) {
     if (context) {

@@ -220,10 +220,10 @@ export default {
     console.log(`commit set GAME_NEXT_PLAYER OPP ${state.opponentPlayer.id}`)
   },
   // ---------------------------------------------------- EVENT
-  DO_EVENT(state,payload) {
-    console.log(`commit do event ${payload}`)
-    mutil.emitEvent(payload)
-  },
+  // DO_EVENT(state,payload) {
+  //   console.log(`commit do event ${payload}`)
+  //   return mutil.emitEvent(payload)
+  // },
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {
     state.placeplayer = player
@@ -602,16 +602,19 @@ export default {
     mutil.addTag(payload)
     console.log(`commit OPPADD_TAG ${payload.tag}`)
   },
-  // REMOVE_TAG(state, payload) {
-  //   if (!state.placeholder) {
-  //     console.log('commit REMOVE_TAG ERROR no placeholder card')
-  //     return
-  //   }
-  //   const card = state.placeholder
-  //   const tag = payload
-  //   mutil.removeTag(tag,card)
-  //   console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
-  // },
+  REMOVE_TAG(state, payload) {
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
+    // }
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
+    }
+    mutil.removeTag(payload)
+    // console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
+  },
   CLEAR_TAG(state, payload) {
     if(!payload) {
       console.warn('commit CLEAR_TAG card is null')

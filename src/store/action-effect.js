@@ -318,15 +318,12 @@ export default {
     //   commit('ACTIVE_CARD', card)
     // })
   },
-  DO_EVENT({
+  EMIT_EVENT({
     commit,
     state,
     dispatch
   }, payload) {
-    return new Promise(function(resolve, reject) {
-      console.log(`dispatch do event ${payload}`)
-      commit('DO_EVENT',payload)
-      resolve()
-    })
-  }
+    console.log(`dispatch do event ${payload}`)
+    return mutil.emitEvent(payload)
+  },
 }

@@ -520,6 +520,7 @@ export default {
       console.warn('mu.addTag card/player is null', payload);
       return false
     }
+
     const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
 
     // console.log(tag,card,player);
@@ -536,7 +537,12 @@ export default {
       console.log(`mu.addTag add player ${player.id} ${tag}`)
 
       player.effects = R.assoc(tag, val)(player.effects)
-      clearfn = () => this.removeTag(tag, player)
+
+      clearfn = () => commit('REMOVE_TAG', {
+        tag: tag,
+        player: player
+      })
+      // clearfn = () => this.removeTag(tag, player)
       // add clear tag
       let cleartigger = this.maketigger({
         from: 'clear',
@@ -581,7 +587,11 @@ export default {
 
       card.play = R.assoc(tag, val)(card.play)
       // add clear tag
-      clearfn = () => this.removeTag(tag, card)
+      clearfn = () => commit('REMOVE_TAG', {
+        tag: tag,
+        card: card
+      })
+      // clearfn = () => this.removeTag(tag, card)
       // add clear tag
       let cleartigger = this.maketigger({
         from: 'clear',
@@ -597,26 +607,41 @@ export default {
     // console.log(`mu.addtag ${tag}`,card.play);
     return tigger
   },
-  removeTag(tag, place = $store.state.placeholder) {
-    if (!place) {
-      console.log('mu.removeTag place is null')
-      return
+  removeTag(payload, ...items) {
+    let tag, card, player, opponent, val
+    if (R.is(Object, payload)) {
+      // 结构如果没有 let 必须要加 ()
+      ({
+        tag,
+        card,
+        player,
+        opponent,
+        val = true
+      } = payload);
+    } else {
+      // 如果结构没有值就会变成undefined
+      // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
+      tag = payload;
+      ([card, player, opponent, val = true] = items);
     }
-    const isPlayerTag = R.prop('deck', place)
+
+    if (!card && !player) {
+      console.warn('mu.removeTag card/player is null', payload);
+      return false
+    }
+    const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
 
     if (isPlayerTag) {
-      let player = place
       player.effects = R.dissoc(tag)(player.effects)
       // console.log(`mu.removeTag player ${tag}`,player);
     } else {
-      let card = place
       card.play = R.dissoc(tag)(card.play)
       // EFFECTNEW remove tag tigger
       $cx.$removetigger(tag, card)
       // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
     }
 
-    return place
+    return true
   },
   checkslot() {
     console.log('mutil.checkslot')
@@ -696,7 +721,7 @@ export default {
     return dispatch('TIGGER_EFFECT', {
       tag: tag,
       source: card
-    }).then(async () => {
+    }).then(async() => {
 
       await $cx.$emitall(['at1', 'at2', 'at3', 'atGraveyard'])
 
@@ -713,22 +738,10 @@ export default {
       //     console.log('mu.tiggerEffect after emit finish ')
       //   }
       // } while (next)
-
-      // WAY2:
-      // let next = $cx.$getnext('atGraveyard')
-      // if(next) {
-      //   console.log('mu.tiggerEffect after ')
-      //   console.log('tiggerlist do atGraveyard')
-      //   await dispatch('TIGGER_EFFECT', { tag: next.tigger, source: next.source })
-      //   console.log('mu.tiggerEffect after finish ')
-      // }
     })
   },
   emitEvent(tag, card) {
-    console.log(`emitEvent ${tag}`)
-    return new Promise(async function (resolve, reject) {
-      await $cx.$emitall(tag)
-      resolve()
-    })
+    console.log(`mu.emitEvent ${tag}`)
+    return $cx.$emitall(tag)
   },
 }
