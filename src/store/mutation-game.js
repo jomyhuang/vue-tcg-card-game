@@ -3,9 +3,11 @@ import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/deckplayer1.js'
 
 
+
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
+import $cx from '@/cardxflow'
 
 import firstAgent from '@/components/agent-first'
 
@@ -216,6 +218,11 @@ export default {
 
     console.log(`commit set GAME_NEXT_PLAYER CURR ${state.currentPlayer.id}`)
     console.log(`commit set GAME_NEXT_PLAYER OPP ${state.opponentPlayer.id}`)
+  },
+  // ---------------------------------------------------- EVENT
+  DO_EVENT(state,payload) {
+    console.log(`commit do event ${payload}`)
+    mutil.emitEvent(payload)
   },
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {
@@ -613,20 +620,5 @@ export default {
     const card = payload
     const owner = payload.owner
     card.buffs = []
-    // EFFECTNEW clear tag with tigger
-    // card.play = {}
-    // TODO: KEEP SOME TAG OVER TURN
-    const keep = []
-    R.forEachObjIndexed( (v,k) => {
-      if( !keep.includes(k) )
-        mutil.removeTag(k,card)
-    })(card.play)
-    // TODO: 独立清除player tag
-    R.forEachObjIndexed( (v,k) => {
-      if( !keep.includes(k) )
-        mutil.removeTag(k,owner)
-    })(owner.effects)
-
-    // console.log(`commit CLEAR_TAG & tigger ${card.name}`)
   },
 }

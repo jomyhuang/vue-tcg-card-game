@@ -87,7 +87,7 @@ export default {
     console.log('$cx.effectlist debug')
     // console.dir($effectlist)
     R.forEach((x) => {
-      console.log(`tigger ${x.source.cardno} ${x.tigger}`);
+      console.log(`tigger ${x.tag} ${x.source ? x.source.cardno : x.player.id} `);
       console.dir(x)
     })($effectlist)
   },
@@ -97,7 +97,9 @@ export default {
   },
   $addtigger(payload) {
     $effectlist.push(payload)
-    console.log(`$cx.$addtigger ${payload.source.cardno} ${payload.tag} ${payload.type}`)
+    const isPlayerTag = R.prop('player')(payload) ? true : false
+
+    console.log(`$cx.$addtigger ${payload.source ? payload.source.cardno : payload.player.id} ${payload.tag} ${payload.type}`)
     return payload
   },
   $removetigger(tag, card) {
@@ -133,16 +135,15 @@ export default {
     const list = this.$getlist(tag, card)
     return list.length > 0 ? R.head(list) : null
   },
-  async $emitnext(taglist, card) {
+  async $emitall(taglist, card) {
     if (_.isString(taglist)) {
       const fromstring = taglist
       taglist = [fromstring]
     }
     let tigger = undefined
+    let tag = R.head(taglist)
     do {
-      let tag = R.head(taglist)
-      if (!tag) break
-      taglist = R.drop(1, taglist)
+        // if (!tag) break
 
       // console.log(`%c$emitnext ${tag} ${card}`,'color:red')
       // TODO: get list & make piority
@@ -151,16 +152,35 @@ export default {
       tigger = this.$getnext(tag)
 
       if (tigger) {
-        console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia',tigger.source)
+        console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
+        const isPlayerTag = tigger.player ? true : false
+
         // tigger now
-        await dispatch('TIGGER_EFFECT', {
-          tag: tigger.tag,
-          source: tigger.source,
-        })
-        // throw new Error
+        if(isPlayerTag) {
+          console.log(`do player tag ${tigger.tag}`)
+          mu.tcall(tigger.func,this,tigger)
+        }
+        else {
+          if(tigger.tag == 'clear') {
+            console.log(`do card tag ${tigger.tag}`)
+            mu.tcall(tigger.func,this,tigger)
+          }
+          else {
+            await dispatch('TIGGER_EFFECT', {
+              tag: tigger.tag,
+              source: tigger.source,
+            })
+          }
+        }
+
+        tigger.run = true
+      }
+      else {
+        taglist = R.drop(1, taglist)
+        tag = R.head(taglist)
       }
     }
-    while (!tigger)
+    while (tag)
     // console.log('$emitnext finish');
 
     return tigger

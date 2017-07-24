@@ -521,8 +521,10 @@ export default {
       return false
     }
     const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
-    //
+
     // console.log(tag,card,player);
+    let clearfn = () => {}
+    let tigger
     if (isPlayerTag) {
       if (R.is(Boolean, player))
         player = $store.state.placeplayer
@@ -532,7 +534,20 @@ export default {
       player = opponent ? this.opponent(player) : player
 
       console.log(`mu.addTag add player ${player.id} ${tag}`)
+
       player.effects = R.assoc(tag, val)(player.effects)
+      clearfn = () => this.removeTag(tag, player)
+      // add clear tag
+      let cleartigger = this.maketigger({
+        from: 'clear',
+        tag: 'clear',
+        player: player,
+        func: clearfn,
+        type: 'once',
+      })
+
+      $cx.$addtigger(cleartigger)
+
     } else {
       card = card ? card : $store.state.placeholder
       if (!card)
@@ -542,12 +557,10 @@ export default {
         throw new Error('mu.addTag card tag but opponent is true')
       }
 
-      card.play = R.assoc(tag, val)(card.play)
-
       // EFFECTNEW add tag tigger
       let effect = R.path(['effect', tag])(card)
       if (effect) {
-        let tigger = this.maketigger({
+        tigger = this.maketigger({
           from: 'tagtigger',
           tag: tag,
           source: card,
@@ -563,12 +576,26 @@ export default {
           tigger.slot = ['zone', 'supporter']
         }
 
-        return $cx.$addtigger(tigger)
+        $cx.$addtigger(tigger)
       }
+
+      card.play = R.assoc(tag, val)(card.play)
+      // add clear tag
+      clearfn = () => this.removeTag(tag, card)
+      // add clear tag
+      let cleartigger = this.maketigger({
+        from: 'clear',
+        tag: 'clear',
+        source: card,
+        func: clearfn,
+        type: 'once',
+      })
+
+      $cx.$addtigger(cleartigger)
     }
 
-    // console.log(`mu.addtag ${card.cardno} ${tag}`,card.play);
-    return card
+    // console.log(`mu.addtag ${tag}`,card.play);
+    return tigger
   },
   removeTag(tag, place = $store.state.placeholder) {
     if (!place) {
@@ -669,9 +696,9 @@ export default {
     return dispatch('TIGGER_EFFECT', {
       tag: tag,
       source: card
-    }).then(async() => {
+    }).then(async () => {
 
-      await $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
+      await $cx.$emitall(['at1', 'at2', 'at3', 'atGraveyard'])
 
       // WAY1:
       // let next
@@ -696,5 +723,12 @@ export default {
       //   console.log('mu.tiggerEffect after finish ')
       // }
     })
-  }
+  },
+  emitEvent(tag, card) {
+    console.log(`emitEvent ${tag}`)
+    return new Promise(async function (resolve, reject) {
+      await $cx.$emitall(tag)
+      resolve()
+    })
+  },
 }

@@ -499,6 +499,10 @@ export default {
         commit('CLEAR_TAG',x)
       })(battle.chain)
 
+      // mutil.emitEvent('clear')
+      // commit('DO_EVENT','clear')
+      dispatch('DO_EVENT','clear')
+
       if(state.player1.supporter.length >0 || state.player2.supporter.length >0) {
         throw new Error('player1/player2 supporter is not empty')
         return reject()
