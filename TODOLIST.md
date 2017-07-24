@@ -284,18 +284,22 @@ from:
 GameVue gameloop() : use dispatch / or internal function (仅供gameapp)
 store dispatch -> dispatch : use dispatch
 effect mixin function / cx$ chain function
-cx$ function (internal)
+cx$ function (internal) / cx.GUImode is on
 mutil call?
 
 use:
 
 游戏阶段
 动作前信息
-agent动作信息
-=》触发大UI =》click/auto close
+agent talk 动作信息
+=》大UI =》click/auto close
 =》HMI input （／=》 触发主动效果）
 进入效果
-=》卡牌点亮 =》  
+=》卡牌点亮 =》效果信息 =》 交互Buff、Choice =》效果结束
+=》效果结束: 触发slot diff相关tag => 进入效果
+战斗结算
+回合结束
+游戏结束
 
 
 stage:

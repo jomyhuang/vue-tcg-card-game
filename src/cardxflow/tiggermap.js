@@ -13,5 +13,8 @@ export default {
   },
   blocksupport: {
     _type: 'player',
+  },
+  clear: {
+    _type: 'emit',
   }
 }

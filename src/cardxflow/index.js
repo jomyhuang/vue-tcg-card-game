@@ -115,21 +115,14 @@ export default {
     // console.log(`removetigger ${tag} ${card.cardno}`, $effectlist.length)
   },
   $getlist(tag, card) {
-    // return R.filter( (x) => x.tag==tag )($effectlist)
     const cardcheck = card ? (x) => x.source.key == card.key : () => true
-    // TODO: add slot check
     const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
     const tagcheck = card ? (x) => x.source.play[tag] : () => true
 
     return R.filter((x) => x.tag == tag &&
-      !x.run && x.active
-      // && mu.tcall(x.when)
-      &&
-      mu.tcall(tagcheck, this, x)
-      // && mu.tcall(slotcheck,this,x)
-      &&
+      !x.run && x.active &&
+      mu.tcall(tagcheck, this, x) &&
       mu.tcall(cardcheck, this, x))($effectlist)
-    // return R.filter( (x) => x.tag==tag && x.source.play[tag] )($effectlist)
   },
   $getnext(tag, card) {
     const list = this.$getlist(tag, card)
@@ -143,47 +136,35 @@ export default {
     let tigger = undefined
     let tag = R.head(taglist)
     do {
-        // if (!tag) break
-
-      // console.log(`%c$emitnext ${tag} ${card}`,'color:red')
-      // TODO: get list & make piority
-      // tigger = this.$getnext(tag, card)
-      // if (!tigger)
+      // TODO: get list & make piority 修正算法
       tigger = this.$getnext(tag)
-
       if (tigger) {
         console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
         const isPlayerTag = tigger.player ? true : false
+        const isEmit = (tigger._type == 'emit') || tigger.player ? true : false
 
         // tigger now
-        if(isPlayerTag) {
-          console.log(`do player tag ${tigger.tag}`)
-          mu.tcall(tigger.func,this,tigger)
-        }
-        else {
-          if(tigger.tag == 'clear') {
-            console.log(`do card tag ${tigger.tag}`)
-            mu.tcall(tigger.func,this,tigger)
-          }
-          else {
-            await dispatch('TIGGER_EFFECT', {
-              tag: tigger.tag,
-              source: tigger.source,
-            })
-          }
+        if (isEmit) {
+          console.log(`do emit tag ${tigger.tag}`)
+          mu.tcall(tigger.func, this, tigger)
+        } else {
+          await dispatch('TIGGER_EFFECT', {
+            tag: tigger.tag,
+            source: tigger.source,
+          })
         }
 
+        // TODO: 非常重要：不然会进入死循环
         tigger.run = true
-      }
-      else {
+
+      } else {
         taglist = R.drop(1, taglist)
         tag = R.head(taglist)
       }
     }
     while (tag)
-    // console.log('$emitnext finish');
 
-    return tigger
+    return true
   },
   _setcontext(context = null) {
     if (context) {
@@ -276,9 +257,9 @@ export default {
       const source = context.source
       let nextlevel = false
 
-      if(cx.active) {
+      if (cx.active) {
         // throw new Error('engage active is true')
-        console.log(`%ccxengage next level`,'color:blue')
+        console.log(`%ccxengage next level`, 'color:blue')
         nextlevel = true
       } else {
         cx._setcontext(context)
@@ -298,7 +279,7 @@ export default {
       })
       let promlist = fnlist.map((act) => {
         current = current.then(() => {
-          if(!this.loop) {
+          if (!this.loop) {
             console.warn('$cx.engage nextlevel logic false')
             throw new Error('nextlevel logic false')
           }
@@ -336,10 +317,9 @@ export default {
           // final task
           console.groupEnd()
 
-          if(nextlevel) {
+          if (nextlevel) {
             mu.tcall(cx.run, context, 'EFFECT_SOURCE', source)
-          }
-          else {
+          } else {
             // clear first level context
             cx._setcontext()
           }
@@ -445,7 +425,7 @@ export default {
         console.log(`cx.buff ${card.name} +${power}`)
         commit('ADD_BUFF', buff)
 
-        if(context.UImode)
+        if (context.UImode)
           $effectUI.showbuff(buff, resolve)
         else
           resolve()
@@ -512,12 +492,12 @@ export default {
       return Promise.resolve(true)
     }
   },
-  iif (pred = () => true, fntrue = () => true, fnfalse = () => true) {
+  iif(pred = () => true, fntrue = () => true, fnfalse = () => true) {
     return function () {
-      const logic = mu.tcall(pred,this)
+      const logic = mu.tcall(pred, this)
       const fn = logic ? fntrue : fnfalse
-      console.log('$cx.iif is',logic)
-      return mu.tcall(fn,this)
+      console.log('$cx.iif is', logic)
+      return mu.tcall(fn, this)
     }
   },
   reject(message) {
@@ -535,19 +515,20 @@ export default {
     }
 
     return [function () {
-      const context = this
-      const cx = context.cx
-      return new Promise((resolve, reject) => {
-        context.UImode = true
-        $effectUI.context = this
-        console.log('$cx._startGUI')
-        // $effectUI.open(auto, resolve)
-        // show message
-        // $effectUI.showstart(context,resolve)
-        resolve()
-      })
-    },
-    this.phaseinfo(fnmsg) ]
+        const context = this
+        const cx = context.cx
+        return new Promise((resolve, reject) => {
+          context.UImode = true
+          $effectUI.context = this
+          console.log('$cx._startGUI')
+          // $effectUI.open(auto, resolve)
+          // show message
+          // $effectUI.showstart(context,resolve)
+          resolve()
+        })
+      },
+      this.phaseinfo(fnmsg)
+    ]
   },
   // _openGUI(auto = 0) {
   //   return [this.phaseinfo('open GUI message'), function () {
