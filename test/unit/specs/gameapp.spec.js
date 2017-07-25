@@ -53,6 +53,9 @@ describe('GameAPP', () => {
     // vm = createVM(GameApp, true)
     let state = vm.$store.state
 
+    // set timeout
+    this.timeout(5000)
+
     // console.log(vm.$el);
     // createVM how to call?
     // vm.gameReset({decklist:[testdeck1,testdeck2]})
@@ -68,11 +71,15 @@ describe('GameAPP', () => {
     vm = createComponent(GameApp, true)
     let state = vm.$store.state
 
+    // set timeout
+    this.timeout(5000)
+
     // vm.gametestmode
     vm.gameReset({decklist:[testdeck1,testdeck2]})
     await vm.run_gameloop()
     expect(state.game.over).to.equal(true)
-    expect(state.game.turnCount).to.equal(3)
+    // expect(state.game.turnCount).to.equal(3)
+    expect(state.game.turnCount).to.equal(4)
     expect(state.game.score.win).to.equal(state.firstPlayer)
   })
 
@@ -96,21 +103,13 @@ describe('GameAPP', () => {
     let state = vm.$store.state
 
     // set timeout
-    this.timeout(3000)
+    this.timeout(5000)
 
     // vm.gameReset
     // set agent
     // vm.gametestmode
     vm.gameNewdeck()
     await vm.run_battle( {
-      // attacker: {
-      //   main: mutil.makecard('JW15-001',state.player1,true),
-      //   support: mutil.makecard('JW15-001',state.player1),
-      // },
-      // defenser: {
-      //   main: mutil.makecard('JW15-002',state.player2,true),
-      //   support: mutil.makecard('JW15-002',state.player2),
-      // }
       BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',state.player1,true),
       BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',state.player1),
       BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',state.player2,true),
@@ -136,7 +135,8 @@ describe('GameAPP', () => {
     // test faceup effect
     // expect(battle.defenser.player.hand.length).to.equal(5)
 
-    expect(battle.attacker.total).to.equal(9000)
+    expect(battle.attacker.total).to.equal(8000)
+    // expect(battle.attacker.total).to.equal(9000)
     expect(battle.defenser.total).to.equal(6000)
 
     expect(battle.score.finish).to.equal(true)

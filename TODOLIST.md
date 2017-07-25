@@ -182,60 +182,146 @@ context.targets.map(action) ->  chain squ action
 compose(seq)(target?)
 
 
-// XX
-run(dispatch/commit).then( action b ).then( action c ) ?
-
-
 // Reflect -> function -> desc/message
 selector: fn1 / is.fn1
 fn1.name -> get function name
 selector.name -> get function name
-
 is.fn1 only sense fn1, but is1 don't
 
 how? getMessage(selector) -> return message
 
-// tag system
-add tag,
-remove / auto by one-turn/next-turn
 
-// new effect system
-
+//--------------------------- new effect system
 #1 card.box/map(slot):
 => player.cardpool card all list
   => card.slot = 'deck/hand....'
   => deck is getter / filter by card.box is "box"
 
 => effectlist in cardflow
+=> tiggermap: tag factory
 
-#2 play card
--> active card (exclude hand, deck)
--> make into effectlist
-  source: this
-  tigger name: 'isAttacker'...
-  type: (once, end-of-turn, end-of-game)
-  condition: function, if tag is on, or card.box in 'xxx'...
-  finish: false
+#2 tag -> event tigger system
+=> add tag -> add tigger (from: tag)
+=> remove tag -> remove tigger (from: tag)
 
-#3 event on/oneturn/once -> promise emit
-async/await emit 'tigger name', this card (poirity), onfinish
-async/await emit ['tigger name'...]
-async/await emit ['tigger name'...] @ card.box (tigger by box-diff)
-* "one tag" only "one tigger" in game loop
+// => ADD_TAG／OPPADD_TAG => 直接增加Tigger
+//    REMOVE_TAG => 移除Tigger
+// idea => ADD_TAG？ => 放进 Tigger ／ 可直接 dispatch／remove
 
-active list = filter by tigger name or/ this card
-loop {
-  await event/tigger if condition
-  make finish true
-}
-remove once
+?? tag object -> 记录状态、tigger？
+?? card.play vs tigger list 分离记录，难以同步
 
 
-call onfinish(resolve)
+#3 play card  / ACTIVE_CARD
+play card 阶段 -> 主动效果（main...)
+mutil.activecard()
 
-in end of turn
-remove EOT effect
-renew finish
+=> $playcard => 增加主动效果 => 从哪里启动？ => UI click
+
+#3-1 smart tag:
+=> $diff => 增加牌堆变化效果启动
+mutil.moveslot()
+auto add/remove smart tag // at[slot]: atBase...
+
+
+#4 event tigger ->
+from: tag / active(play)
+tigger: name of tigger
+type: once/EOT/end-of-game
+条件：
+when: 启动前检查
+slot: [...] / 卡在哪里启动
+
+先单点触发 -》 Loop 触发（连续）
+
+
+#5
+emit 'tag/tigger name' + card
+  -> mutil.tiggerEffect() -> dispatch("TIGGER_EFFECT", tag string/payload
+  1、tiggerEffect(tag, card) 参数模式转换成为 dispatch -> payload
+
+emit 'tag' ( -> list -> ... )
+  -> tiggerEffect().then() 效果启动后，触动 emitnext loop
+  -> await $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
+
+
+#清除阶段
+CLEAR_TAG
+
+clear tigger -> clear card/player tag?
+? maybe 有tag但是没有tigger
+* 将tigger内埋入清除函数（没有func也添加）
+由list端启动清除，统一
+
+
+##逻辑条件：
+Tag 模式
+isAttacker / isAttackerWhen:
+...$cx.when()
+...$cx.iif()
+
+
+##GUI message
+type:
+async: 异步信息 promise resolve() when close (auto timeout/click)
+await async: 同步信息／等候auto信息关闭后继续
+mu.istestmode: overwrite/disable blocking, only output console.log
+config.message
+fullmessage
+mu.isUMI
+
+style:
+console.log
+message
+notify
+
+message box (ok/cancel)
+modal dialog (custom)
+
+comMessage/comEffect
+comEffectChoice
+
+
+from:
+GameVue gameloop() : use dispatch / or internal function (仅供gameapp)
+store dispatch -> dispatch : use dispatch
+effect mixin function / cx$ chain function
+cx$ function (internal) / cx.GUImode is on
+mutil call?
+
+use:
+
+游戏阶段
+动作前信息
+agent talk 动作信息
+=》大UI =》click/auto close
+=》HMI input （／=》 触发主动效果）
+进入效果
+=》卡牌点亮 =》效果信息 =》 交互Buff、Choice =》效果结束
+=》效果结束: 触发slot diff相关tag => 进入效果
+战斗结算
+回合结束
+游戏结束
+
+
+stage:
+
+message text:
+auto content? lazy content?
+
+
+$cx.message
+return $mainapp.gameloop_message(this.text)
+
+$cx.phaseinfo
+return $mainapp.gameloop_phaseinfo(this.text)
+
+UI_message
+run_message
+
+showstage()
+
+
 
 
 
@@ -247,27 +333,27 @@ renew finish
 // TODO LIST
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理
-==、支援增加的buff是在主战、还是支援精灵本身
+OK、支援增加的buff是在主战、还是支援精灵本身
 OK、check 对手回合发动卡牌的效果的处理、检查
 OK、效果自带的message展示系统
-==、effect tagging
-==、回合结束，清除阶段，清除掉所有play效果标签
-add
-clear
-check
-if
-
 OK、增加effect context，用于测试、记录、信息
 OK、effect pipe 中断，logic check
-==、play card -> zone, play 所在位置place location UI信息
+OK、play card -> zone, play 所在位置place location UI信息(slot)
+==、从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
+==、card component type 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
 
-==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
-=> 从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
+==、处理多个Targets
+有效果，才第一个显示效果信息
+没有卡选择状况处理
+如何获取function名称？ -> 显示判断信息
+do tasks by reducer
+OK、效果发动时候，点亮场面卡牌
+tag = (tigger object)?
+buff clear EOT、EOG
 
 
 7、HERO/英雄系统
-
-
+8、
 Effect FUNCTION -> Agent HMI -> GAMEVUE UI
                 -> STORE -----> COM -> GAMEVUE UI
                 ** -> UI component -> Message/interactive

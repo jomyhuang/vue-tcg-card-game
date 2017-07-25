@@ -10,6 +10,7 @@
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
+import $cx from '@/cardxflow'
 
 export default {
   // game loop
@@ -172,21 +173,23 @@ export default {
       //   // dispatch('BATTLE_EFFECT_DECALRE_ATTACKER')
       //   // console.log('BATTLE_EFFECT_DECALRE_ATTACKER finish')
       // },
-    }).then( (card) => {
+    }).then( async function(card) {
       commit('BATTLE_SET', {
         attacker: {
           main: card,
         }
       })
       commit('ADD_TAG', 'isAttacker')
+      commit('ADD_TAG', 'faceup')
       commit('SET_FACEUP')
 
       // NEWEFFECT
       commit('ACTIVE_CARD', card)
 
       // FIXME: await effect
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      dispatch('TIGGER_EFFECT', 'faceup')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // dispatch('TIGGER_EFFECT', 'faceup')
+      await mutil.tiggerEffect('faceup', state.battle.attacker.main)
     })
   },
   BATTLE_OPP_DECLARE_DEFENSER({
@@ -222,21 +225,24 @@ export default {
       //   commit('SELECT_PLAYER', state.currentPlayer)
       //   // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
       // },
-    }).then( (card) => {
+    }).then( async function(card) {
       commit('BATTLE_SET', {
         defenser: {
           main: card,
         }
       })
       commit('ADD_TAG', 'isDefenser')
+      commit('ADD_TAG', 'faceup')
       commit('SET_FACEUP')
 
       // NEWEFFECT
       commit('ACTIVE_CARD', card)
 
       // FIXME: await effect
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      dispatch('TIGGER_EFFECT', 'faceup')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // dispatch('TIGGER_EFFECT', 'faceup')
+      await mutil.tiggerEffect('faceup', state.battle.defenser.main)
+
       commit('SELECT_PLAYER', state.currentPlayer)
       // console.log('BATTLE_OPP_DECLARE_DEFENSER finish')
     })
@@ -247,6 +253,13 @@ export default {
     dispatch
   }) {
     dispatch('GAME_PHASE','BATTLE_PLAY_SUPPORTER')
+
+    if( mutil.hasTag('blocksupport',state.currentPlayer) ) {
+      console.info('blocksupport BATTLE_PLAY_SUPPORTER 效果启动无法使用支援')
+      // throw new Error('blocksupport');
+      return false
+    }
+
 
     return dispatch('PLAY_CARD', {
       phase: 'BATTLE_PLAY_SUPPORTER',
@@ -290,6 +303,12 @@ export default {
     dispatch
   }) {
     dispatch('GAME_PHASE','BATTLE_OPP_PLAY_SUPPORTER')
+
+    if( mutil.hasTag('blocksupport',state.opponentPlayer) ) {
+      console.info('blocksupport BATTLE_OPP_PLAY_SUPPORTER 效果启动无法使用支援')
+      // throw new Error('blocksupport');
+      return false
+    }
 
     return dispatch('OPP_PLAY_CARD', {
       phase: 'BATTLE_OPP_PLAY_SUPPORTER',
@@ -340,27 +359,42 @@ export default {
       commit('BATTLE_CALC')
 
       // currentPlayer
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      await dispatch('TIGGER_EFFECT', 'isAttacker')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.main)
-      await dispatch('TIGGER_EFFECT', 'main')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.support)
-      await dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('EFFECT_SOURCE', state.battle.attacker.support)
-      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // await dispatch('TIGGER_EFFECT', 'isAttacker')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.main)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.support)
+      // await dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('EFFECT_SOURCE', state.battle.attacker.support)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      await mutil.tiggerEffect('isAttacker', state.battle.attacker.main)
+      await mutil.tiggerEffect('main', state.battle.attacker.main)
+      await mutil.tiggerEffect('isAttacker', state.battle.attacker.support)
+      await mutil.tiggerEffect('main', state.battle.attacker.support)
+
+
+      // let next = $cx.$getnext('slotGRAVEYARD')
+      // if(next) {
+      //   console.log('tiggerlist do slotGRAVEYARD')
+      //   // await dispatch('TIGGER_EFFECT', { tag: next.tigger, source: next.source })
+      //   await mutil.tiggerEffect('slotGRAVEYARD', { tag: next.tigger, source: next.source } )
+      // }
 
       // finish then process ex-support
 
-
       // opponentPlayer
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      await dispatch('TIGGER_EFFECT', 'isDefenser')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.main)
-      await dispatch('TIGGER_EFFECT', 'main')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.support)
-      await dispatch('TIGGER_EFFECT', 'isSupporter')
-      dispatch('EFFECT_SOURCE', state.battle.defenser.support)
-      await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // await dispatch('TIGGER_EFFECT', 'isDefenser')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.main)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.support)
+      // await dispatch('TIGGER_EFFECT', 'isSupporter')
+      // dispatch('EFFECT_SOURCE', state.battle.defenser.support)
+      // await dispatch('TIGGER_EFFECT', 'main')
+      await mutil.tiggerEffect('isDefenser', state.battle.defenser.main)
+      await mutil.tiggerEffect('main', state.battle.defenser.main)
+      await mutil.tiggerEffect('isSupporter', state.battle.defenser.support)
+      await mutil.tiggerEffect('main', state.battle.defenser.support)
 
       // calc phase 2
       commit('BATTLE_CALC')
@@ -384,7 +418,7 @@ export default {
       let battle = state.battle
       let score = state.battle.score
       if (score.draw) {
-        console.log('battle draw clear');
+        console.log('battle draw clear')
         R.forEach(x => {
           // commit('SELECT_PLAYER', x.player)
           commit('PICK_CARD', x.main)
@@ -458,11 +492,14 @@ export default {
         }
       }
 
+      // CLEAR TAG
       console.log(`BATTLE_EFFECT_CLEAR clear play tag & buffs`)
-      console.log('battle.chian',battle.chain)
       R.map((x) => {
         commit('CLEAR_TAG',x)
       })(battle.chain)
+
+      // mutil.emitEvent('clear')
+      dispatch('EMIT_EVENT','clear')
 
       if(state.player1.supporter.length >0 || state.player2.supporter.length >0) {
         throw new Error('player1/player2 supporter is not empty')

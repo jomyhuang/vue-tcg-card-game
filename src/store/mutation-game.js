@@ -3,9 +3,11 @@ import cardDB from '@/components/SDWCardDB.json'
 import deck1 from '@/components/deckplayer1.js'
 
 
+
 import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
+import $cx from '@/cardxflow'
 
 import firstAgent from '@/components/agent-first'
 
@@ -36,7 +38,7 @@ export default {
   },
   EFFECT_SET(state, payload) {
 
-    if (R.isEmpty(payload)) {
+    if (!payload) {
       state.effect = null
       state.effect = {}
     } else {
@@ -47,6 +49,29 @@ export default {
   },
   STORE_MESSAGE(state, payload) {
     state.storemsg = payload
+  },
+  MESSAGE_LEVEL(state, payload) {
+    const level = payload
+    state.message.level = level
+    if(level === 3) {
+      state.message.styleUI = true
+      state.message.autoUI = false
+      state.message.HMIUI = true
+      state.message.duration = 1500
+    }
+    else if (level === 2) {
+      state.message.styleUI = true
+      state.message.autoUI = true
+      state.message.HMIUI = false
+      state.message.duration = 1500
+    }
+    else {
+      state.message.styleUI = false
+      state.message.autoUI = true
+      state.message.HMIUI = false
+      state.message.duration = 1000
+    }
+    console.log(`commit set MESSAGE_LEVEL ${level}`,state.message)
   },
   // ---------------------------------------------------- GAME_XXX
   // GAME_TESTMODE(state,payload=true) {
@@ -217,22 +242,27 @@ export default {
     console.log(`commit set GAME_NEXT_PLAYER CURR ${state.currentPlayer.id}`)
     console.log(`commit set GAME_NEXT_PLAYER OPP ${state.opponentPlayer.id}`)
   },
+  // ---------------------------------------------------- EVENT
+  // DO_EVENT(state,payload) {
+  //   console.log(`commit do event ${payload}`)
+  //   return mutil.emitEvent(payload)
+  // },
   // ---------------------------------------------------- SELECT CHAIN
   SELECT_PLAYER(state, player) {
     state.placeplayer = player
-    if(state.placeplayer)
-      console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
-    else
-      console.log('SELECT_PLAYER is null')
+    // if(state.placeplayer)
+    //   console.log(`commit SELECT_PLAYER ${state.placeplayer.id}`)
+    // else
+    //   console.log('SELECT_PLAYER is null')
   },
   SELECT_CARD(state, card) {
     state.placeholder = card
     state.pickindex = -1
-    if (state.placeholder) {
-      console.log(`commit SELECT_CARD ${state.placeholder.name}`)
-    } else {
-      console.warn('commit SELECT_CARD null')
-    }
+    // if (state.placeholder) {
+    //   console.log(`commit SELECT_CARD ${state.placeholder.name}`)
+    // } else {
+    //   console.warn('commit SELECT_CARD null')
+    // }
   },
   SELECT_LIST(state, payload) {
     let list = payload
@@ -381,20 +411,12 @@ export default {
       // throw new Error('error! card is activing')
       return
     }
-    // if( card.facedown ) {
-    //   console.warn('commit ACTIVE_CARD card is zone facedown in-active')
-    //   return
-    // }
-    // if( card.slot == 'hand' ) {
-    //   console.warn('commit ACTIVE_CARD card is hand in-active')
-    //   return
-    // }
 
     card.active = true
     state.activelist.push(card)
-    mutil.cxplaycard(card)
-    
-    console.log(`commit ACTIVE_CARD ${card.cardno} is activing`)
+    mutil.activecard(card)
+
+    console.log(`commit ACTIVE_CARD ${card.cardno} is active`)
   },
   PICK_CARD(state, card) {
     if (R.isNil(card)) {
@@ -409,6 +431,7 @@ export default {
         ['base', owner.base],
         ['graveyard', owner.graveyard],
         ['supporter', owner.supporter],
+        ['deck', owner.deck],
       ]
 
       let found = false
@@ -433,7 +456,7 @@ export default {
 
       if (!found) {
         console.error(`commit PICK_CARD ERROR ${card.name} not found in all pile`)
-        console.error(`commit PICK_CARD ERROR owner id ${card.owner.id} ${state.battle.attacker.support.name}`)
+        console.error(`commit PICK_CARD ERROR owner id ${card.owner.id}`,card)
         throw `commit PICK_CARD ERROR ${card.name} not found in all pile`
       }
     } else {
@@ -468,7 +491,7 @@ export default {
       state.placeholder.facedown = false
       // setting face up
       state.placeholder.play.faceup = true
-      console.log('SET_FACEUP face up tagging');
+      console.log('SET_FACEUP face up');
     }
   },
   TO_HAND(state) {
@@ -520,6 +543,7 @@ export default {
     owner.graveyard.push(state.placeholder)
     // state.placeholder.slot = 'graveyard'
     state.placeholder = mutil.moveslot('graveyard',state.placeholder)
+    // mutil.addTag('slotGRAVEYARD', state.placeholder)
     console.log(`commit TO_GRAVEYARD ${owner.id} ${state.placeholder.name}`)
     state.placeholder = null
   },
@@ -573,41 +597,54 @@ export default {
     console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
   },
   ADD_TAG(state, payload) {
-    if (!state.placeholder) {
-      console.log('commit ADD_TAG ERROR no placeholder card')
-      return
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
+    // }
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
     }
-    const card = state.placeholder
-    const tag = payload
-    if (R.is(String, tag)) {
-      card.play = R.assoc(tag, true)(card.play)
-    } else {
-      card.play = R.merge(tag, card.play)
+
+    mutil.addTag(payload)
+    console.log(`commit ADD_TAG ${payload.tag}`)
+  },
+  OPPADD_TAG(state, payload) {
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
+    // }
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
     }
-    console.log(`commit ADD_TAG ${state.placeholder.name}`, card.play)
+    payload = R.assoc('opponent', true)(payload)
+
+    mutil.addTag(payload)
+    console.log(`commit OPPADD_TAG ${payload.tag}`)
   },
   REMOVE_TAG(state, payload) {
-    if (!state.placeholder) {
-      console.log('commit REMOVE_TAG ERROR no placeholder card')
-      return
+    // if (!state.placeholder) {
+    //   console.log('commit ADD_TAG ERROR no placeholder card')
+    //   return
+    // }
+    if(_.isString(payload)) {
+      const card = state.placeholder
+      const tag = payload
+      payload = { tag: tag, card: card }
     }
-    const card = state.placeholder
-    const tag = payload
-    if (R.is(String, tag)) {
-      card.play = R.dissoc(tag)(card.play)
-    } else {
-      console.error('REMOVE_TAG payload must is string')
-    }
-    console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
+    mutil.removeTag(payload)
+    // console.log(`commit REMOVE_TAG ${state.placeholder.name}`, card.play)
   },
   CLEAR_TAG(state, payload) {
     if(!payload) {
-      console.log('commit CLEAR_TAG card is null')
+      console.warn('commit CLEAR_TAG card is null')
       return
     }
     const card = payload
-    card.play = {}
+    const owner = payload.owner
     card.buffs = []
-    console.log(`commit CLEAR_TAG ${card.name}`,card)
   },
 }

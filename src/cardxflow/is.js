@@ -2,6 +2,7 @@ import R from 'ramda'
 import _ from 'lodash'
 
 import $cx from '@/cardxflow'
+import { $store, $state } from '@/cardxflow'
 import mu from '@/mutil'
 
 function _condition(phase) {
@@ -12,14 +13,17 @@ function _condition(phase) {
   }
 }
 
-export default {
+export const is = {
 
-  attacker() {
-    const card = $cx.card()
-    console.log('is.attacker card',$cx.card())
+  attacker(name) {
+    console.log('is.attacker this',this)
     // console.log(card.play['isAttacker'])
 
-    return _condition('isAttacker')
+    return function() {
+      const context = this
+      console.log('is.attacker context',name,context);
+      return true
+    }
   },
 
 }

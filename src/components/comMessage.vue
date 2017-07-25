@@ -21,7 +21,7 @@
     </div>
     <div v-else>
       <div slot="header" style="text-align:center">
-        NO CONTEXT
+        NO CONTEXT MESSAGE
       </div>
     </div>
     <span slot="footer" class="dialog-footer" v-if="closeable">

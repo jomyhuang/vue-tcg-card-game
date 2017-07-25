@@ -2,6 +2,7 @@ import Vue from 'vue'
 import R from 'ramda'
 import _ from 'lodash'
 import $cx from '@/cardxflow'
+import tiggermap from '@/cardxflow/tiggermap'
 
 // import cardDB from '@/components/SDWCardDB.json'
 import cardDB from '@/components/KJCardDB.json'
@@ -16,31 +17,17 @@ export var $store = {}
 export var $mainapp
 export var $effectUI
 export var $effectChoiceUI
+export var $messageUI
+var dispatch
+var commit
 
-
-export function testfn() {
-  console.log('test func $store', $store)
-  console.log('test func this', this)
-}
-
-export var UIShow
 
 export default {
   // store
   mixin: false,
   _isTestmode: false,
-  // testmode: false,
-  tap(fn) {
-    console.log('mutil tap this func', this)
-  },
-  tapUI() {
-    console.log('tapUI', UIShow)
-    return UIShow(1500)
-  },
-  setUI(fn) {
-    // console.log('setUI',fn);
-    UIShow = fn
-  },
+  ucardid: 0,
+
   assert(...args) {
     return console.assert(...args)
   },
@@ -50,11 +37,11 @@ export default {
     return fn.name
   },
   clearMessage() {
-    if(this.isTestmode) return
+    if (this.isTestmode) return
     // $mainapp.$Message.destroy()
     // $mainapp.$Notice.destroy()
   },
-  setTestmode(mode=true) {
+  setTestmode(mode = true) {
     // manual test mode flag
     this.isTestmode = mode
     return mode
@@ -73,13 +60,17 @@ export default {
     if (payload) {
       if (payload.store) {
         $store = payload.store
-        console.log('mutil install $store', $store)
+        // console.log('mutil install $store', $store)
+        dispatch = $store.dispatch
+        commit = $store.commit
+
         $mainapp = payload.mainapp
-        console.log('mutil install $mainapp', $mainapp)
+        // console.log('mutil install $mainapp', $mainapp)
         $effectUI = payload.effectUI
-        console.log('mutil install $effectUI', $effectUI)
+        // console.log('mutil install $effectUI', $effectUI)
         $effectChoiceUI = payload.effectChoiceUI
-        console.log('mutil install $effectChoiceUI', $effectChoiceUI)
+        // console.log('mutil install $effectChoiceUI', $effectChoiceUI)
+        $messageUI = payload.messageUI
       } else {
         source = payload
         console.log('mixeffect 其他效果库')
@@ -96,19 +87,68 @@ export default {
     this._isTestmode = process.env.NODE_ENV === 'testing'
 
     // isTestmode property
-    Object.defineProperty(this,'isTestmode', {
+    Object.defineProperty(this, 'isTestmode', {
       // value: false,
-      get: function() {
+      get: function () {
         // console.log('isTestmode property get')
         return this._isTestmode || process.env.NODE_ENV === 'testing'
       },
-      set: function(val) {
+      set: function (val) {
         // console.log('isTestmode property set')
         this._isTestmode = val
       },
       // writable: true,
       enumerable: true,
-      configurable: true,
+      // configurable: true,
+    })
+
+    Object.defineProperty(this, 'messageLevel', {
+      // value: false,
+      get: function () {
+        return $store.state.message.level
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'styleUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.styleUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'autoUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.autoUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'HMIUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.HMIUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
     })
 
     const combine = (value, key) => {
@@ -125,45 +165,6 @@ export default {
         const fn = card.effect['mounted'] || (() => {})
         const result = fn.call(card)
 
-        // OK1:
-        // let mounted = R.bind(R.prop('mounted')(card.effect),card)
-        // R.apply(mounted)(card)
-        // let log = (x) => console.log('tap ' + x)
-
-        // OK2: Ramda func way
-        // let mounted = R.path(['effect', 'mounted'])
-        // let callmounted =
-        //   R.when(
-        //     mounted,
-        //     R.pipe(
-        //       mounted,
-        //       // bind for mounted function
-        //       R.bind(R.__, card),
-        //       R.call,
-        //       // R.tap(console.log),
-        //       // bind for "return function"
-        //       // R.bind(R.__, card),
-        //       // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-        //       // OK! R.apply(R.__,[]),
-        //       // R.call,
-        //     )
-        //   )
-
-        // check it out: 如何带入闭包的card值
-        // call可以
-        // apply work 必须要有第二参数[]
-        // OK! let result = R.apply(callmounted(card),[])
-        // OK2: 传统bind方式
-        // let mounted = card.effect.mounted
-        // if(mounted) {
-        //   // OK1: bind way, to gen new function
-        //   // let bindfunc = mounted.bind(card)
-        //   // bindfunc({})
-        //   // OK2: apply this directly
-        // mounted.apply(card,{})
-        //
-        // let result = callmounted(card)
-
       } else {
         console.warn(`mixinEffect key not found ${key}`);
       }
@@ -175,98 +176,77 @@ export default {
     this.mixin = true
     console.log('mutil mixin effect DB finish')
   },
-  ___callEffect(effectkey, initpayload = {}, condition) {
-    // move to TIGGER_EFFECT
-    // return new Promise(async function (resolve, reject) {
-    return () => {
-      let payload = {
-        card: undefined,
-        player: undefined,
-        opponent: undefined,
-        state: undefined,
-        commit: undefined,
-        dispath: undefined,
-        buff: undefined,
-        rxdispatch: undefined,
-        rxcommit: undefined,
-      }
-      let result = false
-
-      let card = R.prop('card')(initpayload)
-      if (R.isNil(card)) {
-        card = initpayload
-        initpayload = {
-          card: card
-        }
-      }
-
-      payload = R.merge(payload)(initpayload)
-      // console.log(card,payload);
-      // test
-      // card.play = {
-      //   isAttacker: true
-      // }
-      if (R.isNil(condition)) {
-        condition = (card, key) => R.path(['play', key])(card)
-      }
-
-      // console.log('condition', condition(card,effectkey));
-
-      if (condition(card, effectkey)) {
-        // console.log(`callEffect ${effectkey} activate check card effect function`)
-        let effect = R.path(['effect', effectkey])
-        // let effect = R.path(['effect', effectkey])(card)
-        // console.log(effect);
-
-        let effectfunc = R.when(
-          effect,
-          R.pipe(
-            effect,
-            R.bind(R.__, card),
-            R.apply(R.__, [payload]),
-            // bind for "return function"
-            // R.bind(R.__, card),
-            // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-            // R.apply(R.__, [payload]),
-          )
-        )
-
-        if (effect(card)) {
-          console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-          // result = effectfunc(card)
-          // return result
-          result = effect(card).apply(card, [payload])
-          if (R.is(Object, result)) {
-            // console.log('callEffect result is object')
-          } else {
-            result = true
-          }
-        } else {
-          // console.log(`callEffect ${card.name} no ${effectkey} function`)
-        }
-
-        // if (effect) {
-        //   console.log(`callEffect ${card.name} ${effectkey} function start`)
-        //   // pack 给内置函数，跟返回闭包箭头函数使用
-        //   let func = effect.apply(card, [payload])
-        //   // pack 给返回标准闭包函数使用
-        //   buffs = func.apply(card, [payload])
-        //   console.log(`callEffect ${effectkey} function end buff ${buffs}`)
-        //
-        //   // return buffs rights!
-        //   return buffs
-        // } else {
-        //   console.log(`callEffect ${card.name} no ${effectkey} function`)
-        // }
-      } else {
-        // console.log(`callEffect ${effectkey} no effect tag`);
-      }
-
-      return result
-      // resolve(result)
-      // })
-    }
-  },
+  // ___callEffect(effectkey, initpayload = {}, condition) {
+  //   // move to TIGGER_EFFECT
+  //   // return new Promise(async function (resolve, reject) {
+  //   return () => {
+  //     let payload = {
+  //       card: undefined,
+  //       player: undefined,
+  //       opponent: undefined,
+  //       state: undefined,
+  //       commit: undefined,
+  //       dispath: undefined,
+  //       buff: undefined,
+  //       rxdispatch: undefined,
+  //       rxcommit: undefined,
+  //     }
+  //     let result = false
+  //
+  //     let card = R.prop('card')(initpayload)
+  //     if (R.isNil(card)) {
+  //       card = initpayload
+  //       initpayload = {
+  //         card: card
+  //       }
+  //     }
+  //
+  //     payload = R.merge(payload)(initpayload)
+  //     if (R.isNil(condition)) {
+  //       condition = (card, key) => R.path(['play', key])(card)
+  //     }
+  //
+  //     // console.log('condition', condition(card,effectkey));
+  //
+  //     if (condition(card, effectkey)) {
+  //       // console.log(`callEffect ${effectkey} activate check card effect function`)
+  //       let effect = R.path(['effect', effectkey])
+  //       // let effect = R.path(['effect', effectkey])(card)
+  //       // console.log(effect);
+  //
+  //       let effectfunc = R.when(
+  //         effect,
+  //         R.pipe(
+  //           effect,
+  //           R.bind(R.__, card),
+  //           R.apply(R.__, [payload]),
+  //           // bind for "return function"
+  //           // R.bind(R.__, card),
+  //           // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
+  //           // R.apply(R.__, [payload]),
+  //         )
+  //       )
+  //
+  //       if (effect(card)) {
+  //         console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
+  //         // result = effectfunc(card)
+  //         // return result
+  //         result = effect(card).apply(card, [payload])
+  //         if (R.is(Object, result)) {
+  //           // console.log('callEffect result is object')
+  //         } else {
+  //           result = true
+  //         }
+  //       } else {
+  //         // console.log(`callEffect ${card.name} no ${effectkey} function`)
+  //       }
+  //     } else {
+  //       // console.log(`callEffect ${effectkey} no effect tag`);
+  //     }
+  //
+  //     return result
+  //   }
+  // },
   Rdefaults(x, y) {
     const defaults = R.flip(R.merge)
     return defaults(x, y)
@@ -325,7 +305,7 @@ export default {
   resetGameState(state) {
 
     const init = R.clone(initstate)
-    if(init.player1.deck.length>0) {
+    if (init.player1.deck.length > 0) {
       throw 'mutil.resetGameState init object is not default'
     }
     // FIXME: 在测试环境中 replacestate失效
@@ -337,7 +317,7 @@ export default {
       state[key] = value
     })(init)
 
-    if(state.player1.deck.length>0) {
+    if (state.player1.deck.length > 0) {
       throw 'mutil.resetGameState fail init object'
     }
 
@@ -363,6 +343,8 @@ export default {
     let gamecard = Object.assign({}, cardDB[cardid])
 
     gamecard = R.merge(gamecard, {
+      key: this.ucardid++,
+      // key: Symbol('uid'),
       facedown: facedown,
       selected: false,
       selectable: false,
@@ -442,7 +424,7 @@ export default {
       switch (selector) {
         case 'placelist':
           list = placelist
-          console.log(`mutil.selectcards (type keyword ${selector}) select`, list)
+          // console.log(`mutil.selectcards (type keyword ${selector}) select`, list)
           break
         default:
           const opt = R.split('_', selector)
@@ -452,22 +434,22 @@ export default {
             let oppplayer = this.opponent(placeplayer)
 
             list = oppplayer[opt[1]]
-            console.log(`mutil.selectcards (type string ${selector}) opponent select`, list)
+            // console.log(`mutil.selectcards (type string ${selector}) opponent select`, list)
           } else {
             list = placeplayer[selector]
-            console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
+            // console.log(`mutil.selectcards (type string ${selector}) placeplayer ${placeplayer.id} select`, list)
           }
       }
     } else if (_.isArray(selector)) { // array
       list = selector
-      console.log(`mutil.selectcards (type array) select`, list)
+      // console.log(`mutil.selectcards (type array) select`, list)
     } else if (_.isFunction(selector)) { // function
       // console.log(`mutil.selectcards (type function) select call`)
       list = selector.call(state)
-      console.log(`mutil.selectcards (type function) select`, list)
+      // console.log(`mutil.selectcards (type function) select`, list)
     } else if (_.isNil(selector)) { // undefined/Nil
       list = placelist
-      console.log(`mutil.selectcards (type Nil) select placelist`, list)
+      // console.log(`mutil.selectcards (type Nil) select placelist`, list)
     } else {
       throw `mutil.selectcards (type unknown) select`
     }
@@ -516,63 +498,281 @@ export default {
   packisNil(pack) {
     return R.isNil(pack) || R.isNil(R.head(pack))
   },
-  hasTag(tag, card = $store.state.placeholder) {
-    return !R.isNil(card.play[tag])
+  maketigger(payload) {
+    const map = R.propOr({}, payload.tag)(tiggermap)
+    // const map = tiggermap[payload.tag]
+    // console.log(map);
+    let tigger = R.merge({
+      tag: undefined,
+      type: 'once',
+      source: undefined,
+      run: false,
+      from: undefined,
+      active: true,
+      func: () => true,
+      target: undefined,
+      when: () => true,
+      slot: [],
+    })(payload)
+    tigger = R.merge(tigger)(map)
+
+    return tigger
   },
-  addTag(tag, card = $store.state.placeholder,val=true) {
-    if(!card) {
-      console.log('mu.addTag card is null')
-      return
-    }
-    card.play = R.assoc(tag, val)(card.play)
-    // console.log('addtag',card.play);
-    return card
+  hasTag(tag, place = $store.state.placeholder) {
+    if (!place)
+      throw new Error('mu.hasTag place is null')
+
+    const isPlayerTag = R.prop('deck', place)
+    if (isPlayerTag)
+      return !R.isNil(place.effects[tag])
+    else
+      return !R.isNil(card.play[tag]) || !R.isNil(card.owner.effects[tag])
   },
-  removeTag(tag, card = $store.state.placeholder) {
-    if(!card) {
-      console.log('mu.removeTag card is null')
-      return
+  addTag(payload, ...items) {
+    let tag, card, player, opponent, val
+    if (R.is(Object, payload)) {
+      // 结构如果没有 let 必须要加 ()
+      ({
+        tag,
+        card,
+        player,
+        opponent,
+        val = true
+      } = payload);
+    } else {
+      // 如果结构没有值就会变成undefined
+      // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
+      tag = payload;
+      ([card, player, opponent, val = true] = items);
     }
-    card.play = R.dissoc(tag)(card.play)
-    return card
+
+    if (!card && !player) {
+      // throw new Error('mu.addTag card/player is null')
+      console.warn('mu.addTag card/player is null', payload);
+      return false
+    }
+
+    const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
+
+    // console.log(tag,card,player);
+    let clearfn = () => {}
+    let tigger
+    if (isPlayerTag) {
+      if (R.is(Boolean, player))
+        player = $store.state.placeplayer
+      else
+        player = player ? player : $store.state.placeplayer
+
+      player = opponent ? this.opponent(player) : player
+
+      console.log(`mu.addTag add player ${player.id} ${tag}`)
+
+      player.effects = R.assoc(tag, val)(player.effects)
+
+      clearfn = () => commit('REMOVE_TAG', {
+        tag: tag,
+        player: player
+      })
+      // clearfn = () => this.removeTag(tag, player)
+      // add clear tag
+      let cleartigger = this.maketigger({
+        from: 'clear',
+        tag: 'clear',
+        player: player,
+        func: clearfn,
+        type: 'once',
+      })
+
+      $cx.$addtigger(cleartigger)
+
+    } else {
+      card = card ? card : $store.state.placeholder
+      if (!card)
+        throw new Error('mu.addTag card is null')
+
+      if (opponent) {
+        throw new Error('mu.addTag card tag but opponent is true')
+      }
+
+      // EFFECTNEW add tag tigger
+      let effect = R.path(['effect', tag])(card)
+      if (effect) {
+        tigger = this.maketigger({
+          from: 'tagtigger',
+          tag: tag,
+          source: card,
+          func: effect,
+          type: 'once',
+          // slot: ['zone', 'supporter'],
+        })
+        const when = R.path(['effect', tag.concat('When')])(card)
+        if (when) {
+          tigger.when = when
+        }
+        if (!tigger.slot.length) {
+          tigger.slot = ['zone', 'supporter']
+        }
+
+        $cx.$addtigger(tigger)
+      }
+
+      card.play = R.assoc(tag, val)(card.play)
+      // add clear tag
+      clearfn = () => commit('REMOVE_TAG', {
+        tag: tag,
+        card: card
+      })
+      // clearfn = () => this.removeTag(tag, card)
+      // add clear tag
+      let cleartigger = this.maketigger({
+        from: 'clear',
+        tag: 'clear',
+        source: card,
+        func: clearfn,
+        type: 'once',
+      })
+
+      $cx.$addtigger(cleartigger)
+    }
+
+    // console.log(`mu.addtag ${tag}`,card.play);
+    return tigger
+  },
+  removeTag(payload, ...items) {
+    let tag, card, player, opponent, val
+    if (R.is(Object, payload)) {
+      // 结构如果没有 let 必须要加 ()
+      ({
+        tag,
+        card,
+        player,
+        opponent,
+        val = true
+      } = payload);
+    } else {
+      // 如果结构没有值就会变成undefined
+      // 结构 payload 会跟下方的 () 变成函数错误，加上 ;
+      tag = payload;
+      ([card, player, opponent, val = true] = items);
+    }
+
+    if (!card && !player) {
+      console.warn('mu.removeTag card/player is null', payload);
+      return false
+    }
+    const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
+
+    if (isPlayerTag) {
+      player.effects = R.dissoc(tag)(player.effects)
+      // console.log(`mu.removeTag player ${tag}`,player);
+    } else {
+      card.play = R.dissoc(tag)(card.play)
+      // EFFECTNEW remove tag tigger
+      $cx.$removetigger(tag, card)
+      // console.log(`mu.removeTag ${card.cardno} ${tag}`,card.play);
+    }
+
+    return true
   },
   checkslot() {
     console.log('mutil.checkslot')
 
-    R.forEach( (player) => {
-      R.forEach( (slot) => {
-        R.forEach( (card) => {
-          if( card.slot !== slot ) {
+    R.forEach((player) => {
+      R.forEach((slot) => {
+        R.forEach((card) => {
+          if (card.slot !== slot) {
             console.log(`checkslot error ${player} ${slot} ${card.cardno} != ${card.slot}`);
             throw new Error('mutil.checkslot error! ')
           }
         })($store.state[player][slot])
-      })(['deck','hand','base','zone','graveyard'])
-  })(['player1','player2'])
+      })(['deck', 'hand', 'base', 'zone', 'graveyard'])
+    })(['player1', 'player2'])
 
     return true
   },
-  getslot(player,slot) {
-    const list = R.path([player,slot])($store.state)
-    return list ? R.filter( x => x.slot===slot )(list) : []
+  getslot(player, slot) {
+    const list = R.path([player, slot])($store.state)
+    return list ? R.filter(x => x.slot === slot)(list) : []
   },
-  moveslot(toslot,card) {
+  moveslot(toslot, card, maketigger = true) {
     const from = card.slot
     card.slot = toslot
+    if (!$store.state.game.turnCount) {
+      // console.log('moveslot game not start yet skip tigger')
+      return card
+    }
+
+    // TODO: clear some tag/tigger when diff slot
+    if (from)
+      this.removeTag({
+        tag: 'at' + _.capitalize(from),
+        card: card
+      })
+    if (toslot && maketigger)
+      this.addTag({
+        tag: 'at' + _.capitalize(toslot),
+        card: card
+      })
     return card
   },
-  makeeffect(payload) {
-    const effect = R.merge({
-      tigger: undefined,
-      type: 'once',
-      source: undefined,
-      when: () => true,
-      run: false,
-      target: undefined,
-    })(payload)
-    return effect
+  activecard(card) {
+
+    if (!card) {
+      console.log('mu.activecard is null');
+      return
+    }
+    const effect = R.prop('effect')(card)
+    if (!effect) {
+      return
+    }
+
+    // 主动技能列表
+    // const tiggerlist = {
+    //   main: {
+    //     type: 'once',
+    //   },
+    // }
+
+    R.forEachObjIndexed((v, k) => {
+      const map = R.propOr({}, k)(tiggermap)
+      const from = R.propEq('from', 'active')(map)
+      if (from) {
+        let payload = this.addTag({
+          tag: k,
+          card: card
+        })
+        console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
+      }
+    })(effect)
+
+    return card
   },
-  cxplaycard(card) {
-    return $cx.$playcard(card)
+  tiggerEffect(tag, card) {
+    // TAG tigger
+    return dispatch('TIGGER_EFFECT', {
+      tag: tag,
+      source: card
+    }).then(async() => {
+
+      await $cx.$emitall(['at1', 'at2', 'at3', 'atGraveyard'])
+
+      // WAY1:
+      // let next
+      // do {
+      //   next = $cx.$emitnext(['at1', 'at2', 'at3', 'atGraveyard'])
+      //   if (next) {
+      //     console.log(`mu.tiggerEffect after emit ${next.tigger} ${next.source.cardno}`)
+      //     await dispatch('TIGGER_EFFECT', {
+      //       tag: next.tigger,
+      //       source: next.source
+      //     })
+      //     console.log('mu.tiggerEffect after emit finish ')
+      //   }
+      // } while (next)
+    })
+  },
+  emitEvent(tag, card) {
+    console.log(`mu.emitEvent ${tag}`)
+    return $cx.$emitall(tag)
   },
 }

@@ -6,7 +6,7 @@ import _ from 'lodash'
 import R from 'ramda'
 import mutil from '@/mutil'
 
-import firstAgent from '@/components/agent-first'
+// import firstAgent from '@/components/agent-first'
 
 export default {
   // BATTLE/TURN -------------------------------------------------
@@ -180,10 +180,22 @@ export default {
       score.draw = true
       score.winside = 'draw'
       // TODO: add mark isWin/Lose/Draw mark
-      mutil.addTag('isDraw',battle.attacker.main)
-      mutil.addTag('isDraw',battle.attacker.support)
-      mutil.addTag('isDraw',battle.defenser.main)
-      mutil.addTag('isDraw',battle.defenser.support)
+      mutil.addTag({
+        tag: 'isDraw',
+        card: battle.attacker.main
+      })
+      mutil.addTag({
+        tag: 'isDraw',
+        card: battle.attacker.support
+      })
+      mutil.addTag({
+        tag: 'isDraw',
+        card: battle.defenser.main
+      })
+      mutil.addTag({
+        tag: 'isDraw',
+        card: battle.defenser.support
+      })
       console.log(`battle is DRAW`)
     } else {
       if (totalAttacker > totalDefenser) {
@@ -198,10 +210,22 @@ export default {
         // console.log(`battle result [defenser] WIN ${score.win.player.id} ${score.win.player.name}`)
       }
       // TODO: add mark isWin/Lose/Draw mark
-      mutil.addTag('isWin',score.win.main)
-      mutil.addTag('isWin',score.win.support)
-      mutil.addTag('isLose',score.lose.main)
-      mutil.addTag('isLose',score.lose.support)
+      mutil.addTag({
+        tag: 'isWin',
+        card: score.win.main
+      })
+      mutil.addTag({
+        tag: 'isWin',
+        card: score.win.support
+      })
+      mutil.addTag({
+        tag: 'isLose',
+        card: score.lose.main
+      })
+      mutil.addTag({
+        tag: 'isLose',
+        card: score.lose.support
+      })
       // console.log('tag check', score.win.main.play)
       console.log(`battle result [${score.winside}] WIN ${score.win.player.id} ${score.win.player.name}`)
     }
