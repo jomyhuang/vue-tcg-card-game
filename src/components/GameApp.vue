@@ -49,7 +49,7 @@
       <el-button type="primary" @click="run_gameloop()">QUICK RUN</el-button>
       <el-button type="primary" @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
       <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
-      <BR/> 显示讯息
+      <BR/> 显示讯息 Message LV{{$store.state.message.level}}
       <el-switch v-model="isMessage" /> 同步讯息
       <el-switch v-model="isAsyncMssage" />
       <el-button @click="gameTest()">TEST</el-button>
@@ -90,7 +90,17 @@ import mu from '@/mutil'
 import R from 'ramda'
 import $cx from '@/cardxflow'
 
+var $store
+var commit
+var dispatch
 
+function run_command(type, payload) {
+  if ($store._actions[type]) {
+    return $store.dispatch(type, payload)
+  } else {
+    return $store.commit(type, payload)
+  }
+}
 
 export default {
   name: 'GameApp',
@@ -101,6 +111,7 @@ export default {
       isMessage: true,
       isAsyncMssage: false,
       isTest: false,
+      messageLevel: 2,
     }
   },
   components: {
@@ -119,7 +130,11 @@ export default {
     // console.log('gameapp.vue mixinEffect effect');
     // mu.mixinEffect()
     console.log('gameapp.vue GAME initial')
-    this.$store.dispatch('GAME_INIT_STORE', {
+    $store = this.$store
+    commit = this.$store.commit
+    dispatch = this.$store.dispatch
+
+    dispatch('GAME_INIT_STORE', {
       store: this.$store,
       mainapp: this,
       effectUI: this.$refs.effectUI,
@@ -141,7 +156,10 @@ export default {
     // test 自定义插件
     this.muvue()
 
-    this.$store.dispatch('GAME_READY')
+    // init message system
+    commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : 2)
+
+    dispatch('GAME_READY')
   },
   beforeDestroy() {},
   computed: {
@@ -208,15 +226,11 @@ export default {
       })
     },
     gameReset(init) {
-      // this.$Message.info({
-      //           content: 'Game Reset',
-      //           duration: 2,
-      //       })
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
-      // mu.resetGameState()
       this.$store.dispatch('GAME_READY', init)
       this.UI_message('game Reset')
+      commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : this.messageLevel )
     },
     gameStart() {
       // console.log('game Start')

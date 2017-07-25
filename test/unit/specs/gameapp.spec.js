@@ -110,14 +110,6 @@ describe('GameAPP', () => {
     // vm.gametestmode
     vm.gameNewdeck()
     await vm.run_battle( {
-      // attacker: {
-      //   main: mutil.makecard('JW15-001',state.player1,true),
-      //   support: mutil.makecard('JW15-001',state.player1),
-      // },
-      // defenser: {
-      //   main: mutil.makecard('JW15-002',state.player2,true),
-      //   support: mutil.makecard('JW15-002',state.player2),
-      // }
       BATTLE_DECALRE_ATTACKER: mutil.makecard('JW15-001',state.player1,true),
       BATTLE_PLAY_SUPPORTER: mutil.makecard('JW15-001',state.player1),
       BATTLE_OPP_DECLARE_DEFENSER: mutil.makecard('JW15-002',state.player2,true),

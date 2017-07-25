@@ -6,6 +6,7 @@ import Rx from 'rxjs/Rx'
 import mu from '@/mutil'
 import is from '@/cardxflow/is'
 
+
 export var $store = {}
 export var $state = {}
 export var $mainapp
@@ -102,7 +103,7 @@ export default {
     console.log(`$cx.$addtigger ${payload.source ? payload.source.cardno : payload.player.id} ${payload.tag} ${payload.type}`)
   },
   $removetigger(tag, card) {
-    if(!card) {
+    if (!card) {
       throw new Error('$removetigger card is null')
     }
     // way1: remove
@@ -124,8 +125,8 @@ export default {
       !x.run && x.active &&
       tagcheck(x) &&
       cardcheck(x))($effectlist)
-      // mu.tcall(tagcheck, this, x) &&
-      // mu.tcall(cardcheck, this, x))($effectlist)
+    // mu.tcall(tagcheck, this, x) &&
+    // mu.tcall(cardcheck, this, x))($effectlist)
   },
   $getnext(tag, card) {
     const list = this.$getlist(tag, card)
@@ -136,26 +137,29 @@ export default {
       const fromstring = taglist
       taglist = [fromstring]
     }
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
 
       let tigger
       let tag = R.head(taglist)
+      let ismessage = true
       do {
         // TODO: get list & make piority 修正算法
         tigger = undefined
-        if(card)
-          tigger = this.$getnext(tag,card)
-        if(!tigger)
+        if (card)
+          tigger = this.$getnext(tag, card)
+        if (!tigger)
           tigger = this.$getnext(tag)
 
+        ismessage = ['clear'].includes(tag) ? false : true
         if (tigger) {
-          console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
+          if(ismessage) console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
+
           const isPlayerTag = tigger.player ? true : false
           const isEmit = tigger._type == 'emit' || tigger.player ? true : false
 
           // tigger now
           if (isEmit) {
-            console.log(`do emit tag ${tigger.tag} func`)
+            if(ismessage) console.log(`do emit tag ${tigger.tag} func`)
             // TODO: await mu.tcall(tigger.func, this, tigger)
             mu.tcall(tigger.func, this, tigger)
             // await mu.tcall(tigger.func, this, tigger)
@@ -282,8 +286,9 @@ export default {
 
       let current = Promise.resolve().then(() => {
         console.group()
-        console.log('cxengage start')
-        mu.tcall(cxrun, context, 'EFFECT_SOURCE', source)
+        console.log('$cx.engage start')
+        // mu.tcall(cxrun, context, 'EFFECT_SOURCE', source)
+        cxrun('EFFECT_SOURCE',source)
         // BUG：这里call promise 产生错误
         // mu.tcall(cx.phaseinfo, context, `begin ${card.cardno} ${card.name} 发动${this.type}效果`)
         // FIXME: return promise 就可以
@@ -313,8 +318,6 @@ export default {
       return Promise.all(promlist)
         .then(function (res) {
           console.log('>>engage OK-------')
-          // console.log('context',context)
-          // return 'then next'
         })
         .catch((err) => {
           console.log('%c>>engage catch------', 'color:red')
@@ -331,7 +334,8 @@ export default {
           console.groupEnd()
 
           if (nextlevel) {
-            mu.tcall(cx.run, context, 'EFFECT_SOURCE', source)
+            // mu.tcall(cx.run, context, 'EFFECT_SOURCE', source)
+            cxrun('EFFECT_SOURCE',source)
           } else {
             // clear first level context
             cx._setcontext()
@@ -339,7 +343,7 @@ export default {
         })
     }
   },
-  target(payload) {
+  target(payload,filter) {
     // return [ this.phaseinfo('指定效果Target'), function() {
     // 获取函数名称
     // console.log('target caller', this.target.name );
@@ -349,7 +353,7 @@ export default {
       const source = context.source
 
       const fnselector = function (payload) {
-        console.log('$cx.target exec default selector')
+        // console.log('$cx.target exec default selector')
         let actpayload = {
           selector: payload.from,
           filter: payload.filter,
@@ -475,15 +479,14 @@ export default {
   },
   message(message) {
     return function () {
-      this.text = _.isFunction(message) ? mu.tcall(message, this) : message
-      return $mainapp.gameloop_message(this.text)
+      let text = _.isFunction(message) ? mu.tcall(message, this) : message
+      return $mainapp.gameloop_message(text)
     }
   },
   phaseinfo(message) {
     return function () {
-      this.text = _.isFunction(message) ? mu.tcall(message, this) : message
-      // this.text = message
-      return $mainapp.gameloop_phaseinfo(this.text)
+      let text = _.isFunction(message) ? mu.tcall(message, this) : message
+      return $mainapp.gameloop_phaseinfo(text)
     }
   },
   _stop(msg) {
@@ -496,9 +499,9 @@ export default {
     return function () {
       const context = this
       const cx = context.cx
-      const run = mu.tcall(pred, this)
-      if (!run) {
-        context.reason = _.isFunction(fnstop) ? mu.tcall(fnstop, this) : fnstop
+      const logic = mu.tcall(pred, this)
+      if (!logic) {
+        context.reason = mu.tcall(fnstop, this)
         return cx._stop('$cx.when logic false')
       }
 
@@ -510,6 +513,48 @@ export default {
       const logic = mu.tcall(pred, this)
       const fn = logic ? fntrue : fnfalse
       console.log('$cx.iif is', logic)
+      return mu.tcall(fn, this)
+    }
+  },
+  maybe({
+    text = '是否发动效果',
+    opponent = false,
+  } = {}, fntrue = () => true, fnfalse = () => true) {
+    return async function () {
+      const context = this
+      const cx = context.cx
+      const source = context.source
+
+      console.log('$cx.maybe logic')
+      let logic = true
+      let player = opponent ? mu.opponent(source.owner) : source.owner
+      let isUMI = player.agent ? false : true
+      // TODO: get value from agent by player
+
+      // if (mu.isUMI || true) {
+      console.log('messageLevel',mu.messageLevel, mu.styleUI, mu.autoUI, mu.HMIUI, $store.state.message);
+      if (isUMI) {
+        await $mainapp.$confirm(text, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $mainapp.$message({
+            type: 'success',
+            message: '发动成功!'
+          })
+          logic = true
+        }).catch(() => {
+          $mainapp.$message({
+            type: 'info',
+            message: '发动取消'
+          })
+          logic = false
+        })
+      }
+
+      const fn = logic ? fntrue : fnfalse
+      console.log('$cx.maybe is', logic)
       return mu.tcall(fn, this)
     }
   },
@@ -534,91 +579,11 @@ export default {
           context.UImode = true
           $effectUI.context = this
           console.log('$cx._startGUI')
-          // $effectUI.open(auto, resolve)
-          // show message
-          // $effectUI.showstart(context,resolve)
           resolve()
         })
       },
+      // this.phaseinfo(`${this.card.cardno} ${this.card.name} 发动${this.type}效果`)
       this.phaseinfo(fnmsg)
     ]
-  },
-  // _openGUI(auto = 0) {
-  //   return [this.phaseinfo('open GUI message'), function () {
-  //     const context = this
-  //     const cx = context.cx
-  //     return new Promise((resolve, reject) => {
-  //       mu.tcall(cx.phaseinfo, this, 'open GUI message')
-  //       context.UImode = true
-  //       $effectUI.context = this
-  //       // $effectUI.open(auto, resolve)
-  //       $effectUI.open()
-  //       resolve()
-  //     })
-  //   }]
-  // },
-  // _closeGUI() {
-  //   return [this.phaseinfo('close GUI message'), function () {
-  //     const context = this
-  //     const cx = context.cx
-  //     return new Promise((resolve, reject) => {
-  //       context.UImode = false
-  //       // $effectUI.close()
-  //       // resolve()
-  //       $effectUI.waitclose(resolve)
-  //     })
-  //   }]
-  // },
-  // openUI(auto = 0) {
-  //   return function () {
-  //     const context = this
-  //     const cx = context.cx
-  //     return new Promise((resolve, reject) => {
-  //       mu.tcall(cx.phaseinfo, this, 'open UI message')
-  //       // context.UImode = true
-  //       $effectUI.context = this
-  //       // act state
-  //       $effectUI.open(auto, resolve)
-  //     })
-  //   }
-  // },
-  // closeUI() {
-  //   return function () {
-  //     const context = this
-  //     const cx = context.cx
-  //     return new Promise((resolve, reject) => {
-  //       // context.UImode = false
-  //       $effectUI.close()
-  //       resolve()
-  //     })
-  //   }
-  // },
-  RXbuff(power, tag) {
-    return function () {
-      const context = this
-      const cx = context.cx
-      const card = context.card
-      return new Promise((resolve, reject) => {
-        if (R.isNil(tag) && power > 0) {
-          tag = `UP +${power}`
-        }
-        let buff = {
-          power: power,
-          tag: tag,
-          source: card,
-        }
-        console.log(`cx.buff ${card.name} +${power}`)
-        commit('ADD_BUFF', buff)
-        // resolve()
-        // $effectUI.showbuff(buff,resolve)
-        // Rx.Observable.fromPromise(123)
-        // .flatMap(function(result) {
-        //   console.log('rx next1')
-        // })
-        // .subscribe(function onNext(result) {
-        //   console.log('rx finish')
-        // })
-      })
-    }
   },
 }

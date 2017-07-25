@@ -265,8 +265,10 @@ isAttacker / isAttackerWhen:
 type:
 async: 异步信息 promise resolve() when close (auto timeout/click)
 await async: 同步信息／等候auto信息关闭后继续
-testmode: overwrite/disable blocking, only output console.log
-fullmessage:
+mu.istestmode: overwrite/disable blocking, only output console.log
+config.message
+fullmessage
+mu.isUMI
 
 style:
 console.log
@@ -308,10 +310,16 @@ message text:
 auto content? lazy content?
 
 
+$cx.message
+return $mainapp.gameloop_message(this.text)
 
+$cx.phaseinfo
+return $mainapp.gameloop_phaseinfo(this.text)
 
+UI_message
+run_message
 
-
+showstage()
 
 
 
@@ -325,21 +333,21 @@ auto content? lazy content?
 // TODO LIST
 ==、HMI是否分离到 HMI agent - UI choice
 ==、处理select没有可选择状况的处理
-==、支援增加的buff是在主战、还是支援精灵本身
+OK、支援增加的buff是在主战、还是支援精灵本身
 OK、check 对手回合发动卡牌的效果的处理、检查
 OK、效果自带的message展示系统
 OK、增加effect context，用于测试、记录、信息
 OK、effect pipe 中断，logic check
 OK、play card -> zone, play 所在位置place location UI信息(slot)
 ==、从comZone, comHand -> Slient -> comCards (显示风格改变／不能被选择状态)
-==、card component 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
+==、card component type 在不同UI模式下，同一张卡，指定可以被 selectable？（非全局）
 
 ==、处理多个Targets
 有效果，才第一个显示效果信息
 没有卡选择状况处理
 如何获取function名称？ -> 显示判断信息
 do tasks by reducer
-效果发动时候，点亮场面卡牌
+OK、效果发动时候，点亮场面卡牌
 tag = (tigger object)?
 buff clear EOT、EOG
 

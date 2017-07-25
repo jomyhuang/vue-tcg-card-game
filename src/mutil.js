@@ -22,30 +22,12 @@ var dispatch
 var commit
 
 
-export function testfn() {
-  console.log('test func $store', $store)
-  console.log('test func this', this)
-}
-
-// export var UIShow
-
 export default {
   // store
   mixin: false,
   _isTestmode: false,
   ucardid: 0,
-  // testmode: false,
-  // tap(fn) {
-  //   console.log('mutil tap this func', this)
-  // },
-  // tapUI() {
-  //   console.log('tapUI', UIShow)
-  //   return UIShow(1500)
-  // },
-  // setUI(fn) {
-  //   // console.log('setUI',fn);
-  //   UIShow = fn
-  // },
+
   assert(...args) {
     return console.assert(...args)
   },
@@ -117,7 +99,56 @@ export default {
       },
       // writable: true,
       enumerable: true,
-      configurable: true,
+      // configurable: true,
+    })
+
+    Object.defineProperty(this, 'messageLevel', {
+      // value: false,
+      get: function () {
+        return $store.state.message.level
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'styleUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.styleUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'autoUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.autoUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'HMIUI', {
+      // value: false,
+      get: function () {
+        return $store.state.message.HMIUI
+      },
+      // set: function (val) {
+      //   // this._isTestmode = val
+      // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
     })
 
     const combine = (value, key) => {

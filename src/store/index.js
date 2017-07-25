@@ -85,9 +85,16 @@ const state = {
       asyncmessage: false,
     },
   },
+  message: {
+    level: 1,
+    styleUI: false,
+    autoUI: true,
+    HMIUI: false,
+    duration: 1000,
+  },
   turn: {},
   effect: {},
-  HMI: {},
+  // HMI: {},
 
   // re-state by initbattle
   battle: {

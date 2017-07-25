@@ -6,6 +6,8 @@ import {
 import R from 'ramda'
 import $cx from '@/cardxflow'
 import {is} from '@/cardxflow/is'
+import {$store} from '@/mutil'
+
 
 
 export default {
@@ -59,9 +61,19 @@ export default {
         //   $cx.engage($cx.target('opp_hand'),$cx.phaseinfo('true测试2')),
         //   $cx.phaseinfo('false测试'),
         // ),
-        $cx.target('opp_zone'),
-        $cx.run('PICK_CARD'),
-        $cx.run('TO_GRAVEYARD'),
+        // $cx.target('opp_zone'),
+        // $cx.run('PICK_CARD'),
+        // $cx.run('TO_GRAVEYARD'),
+
+        $cx.maybe({text:`回合 ${$store.state.game.turnCount} 是否发动效果？${this.source.effecttext} `},
+          $cx.GUIengage(
+            $cx.target('opp_zone'),
+            $cx.run('PICK_CARD'),
+            $cx.run('TO_GRAVEYARD'),
+          ),
+          $cx.GUIengage(
+            $cx.phaseinfo('取消不发动效果'),
+          )),
 
         // $cx.reject(),
         // )(true)

@@ -50,6 +50,29 @@ export default {
   STORE_MESSAGE(state, payload) {
     state.storemsg = payload
   },
+  MESSAGE_LEVEL(state, payload) {
+    const level = payload
+    state.message.level = level
+    if(level === 3) {
+      state.message.styleUI = true
+      state.message.autoUI = false
+      state.message.HMIUI = true
+      state.message.duration = 1500
+    }
+    else if (level === 2) {
+      state.message.styleUI = true
+      state.message.autoUI = true
+      state.message.HMIUI = false
+      state.message.duration = 1500
+    }
+    else {
+      state.message.styleUI = false
+      state.message.autoUI = true
+      state.message.HMIUI = false
+      state.message.duration = 1000
+    }
+    console.log(`commit set MESSAGE_LEVEL ${level}`,state.message)
+  },
   // ---------------------------------------------------- GAME_XXX
   // GAME_TESTMODE(state,payload=true) {
   //   state.testmode = payload
