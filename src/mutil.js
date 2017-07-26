@@ -27,6 +27,7 @@ export default {
   mixin: false,
   _isTestmode: false,
   ucardid: 0,
+  _asyncUI: false,
 
   assert(...args) {
     return console.assert(...args)
@@ -146,6 +147,18 @@ export default {
       // set: function (val) {
       //   // this._isTestmode = val
       // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'AsyncUI', {
+      // value: false,
+      get: function () {
+        return this._asyncUI
+      },
+      set: function (val) {
+        this._asyncUI = val
+      },
       // writable: false,
       enumerable: true,
       // configurable: true,
@@ -775,4 +788,7 @@ export default {
     console.log(`mu.emitEvent ${tag}`)
     return $cx.$emitall(tag)
   },
+  UIduration(duration) {
+    return this.isTestmode ? 1 : duration
+  }
 }

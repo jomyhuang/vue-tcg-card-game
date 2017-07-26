@@ -51,6 +51,7 @@
       <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
       <BR/> 显示讯息 Message LV{{$store.state.message.level}}
       <el-switch v-model="isMessage" /> 同步讯息
+      <!-- <el-switch v-model="mu.AsyncUI" /> -->
       <el-switch v-model="isAsyncMssage" />
       <el-button @click="gameTest()">TEST</el-button>
       <el-button @click="gameReset()">RESET</el-button>
@@ -62,6 +63,7 @@
       <el-button @click="scoreshow()">Score Show</el-button>
       <el-button @click="effectshow()">Effect Show</el-button>
       <el-button @click="effectchoiceshow()">Effect Choice Show</el-button>
+      <el-button @click="messageshow()">Message</el-button>
     </div>
   </el-row>
   <comMessage ref="messageUI"></comMessage>
@@ -229,8 +231,8 @@ export default {
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
       this.$store.dispatch('GAME_READY', init)
-      this.UI_message('game Reset')
       commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : this.messageLevel )
+      this.UI_message('game Reset')
     },
     gameStart() {
       // console.log('game Start')
@@ -244,6 +246,9 @@ export default {
     },
     battleshow(value = 1000, onclose, msg) {
       return this.$refs.battle.open(value, onclose, msg)
+    },
+    messageshow(value = 0, onclose, msg) {
+      return this.$refs.messageUI.open(value, onclose, msg)
     },
     scoreshow(value = 0, onclose, msg) {
       return this.$refs.score.open(value, onclose, msg)
@@ -281,16 +286,18 @@ export default {
     __message(msg, duration = 1500, fullmessage = false) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
-      console.info('%c' + msg, 'color:blue')
+      // console.info('%c' + msg, 'color:blue')
 
-      if (mu.isTestmode) return
+      return this.$refs.messageUI.showinfo(msg)
 
-      return new Promise((resolve, reject) => {
+      // if (mu.isTestmode) return
+
+      // return new Promise((resolve, reject) => {
 
         // const fullmessage = false
-        if (fullmessage || this.config.message) {
-          this.$refs.messageUI.showstart(msg, resolve)
-        } else {
+        // if (fullmessage || this.config.message) {
+        //   this.$refs.messageUI.showstart(msg, resolve)
+        // } else {
           // this.$message.closeAll()
           // this.$message({
           //   type: 'info',
@@ -301,9 +308,9 @@ export default {
           // if (!this.isAsyncMssage) {
           //   resolve()
           // }
-          resolve()
-        }
-      })
+          // resolve()
+        // }
+      // })
     },
     __notice(msg, duration = 1500) {
       // return promise from component
@@ -332,8 +339,8 @@ export default {
       }
       return true
     },
-    UI_message(msg) {
-      return this.__message(msg)
+    UI_message(msg,duration) {
+      return this.__message(msg,duration)
     },
     run_message(msg) {
       return this.__notice(msg)
@@ -635,7 +642,12 @@ export default {
     },
     gameTest() {
 
+
+      // mu.AsyncUI = false
+      console.log('AsyncUI',mu.AsyncUI);
+
       $cx.debug()
+
 
       // console.log('call emit');
       // this.$emit('testemit', this)
