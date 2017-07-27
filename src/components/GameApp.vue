@@ -26,7 +26,8 @@
       <comZone :player="$store.state.player1"></comZone>
     </div>
     <div class="gameboard" style="min-height:200px">
-      <comHand :player="$store.state.player1"></comHand>
+      <!-- prop {{this.stylemode}} -->
+      <comHand :player="$store.state.player1" :HOC1="HOCUITest" yyy="test"></comHand>
     </div>
     </el-col>
     <el-col :span="4">
@@ -42,7 +43,7 @@
   </el-row>
   <el-row class="gameboard">
     <div>
-      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+      <h2>{{ msg }} : 回合#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
       <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
       <el-button type="primary" @click="gameloop(true)">GAME LOOP UI</el-button>
@@ -114,7 +115,15 @@ export default {
       isAsyncMssage: false,
       isTest: false,
       messageLevel: 2,
+      HOCUITest: 222,
     }
+  },
+  props: {
+    stylemode: {
+      type: Number,
+      default: 555,
+    },
+    inheritAttrs: false,
   },
   components: {
     comDeck,
@@ -194,9 +203,9 @@ export default {
     },
   },
   methods: {
-    testui() {
-      console.log('TEST UI');
-    },
+    // testui() {
+    //   console.log('TEST UI');
+    // },
     // gameTestmode() {
     //   // mu.isTestmode = true
     //   // this.$store.dispatch('GAME_TESTMODE')
@@ -648,6 +657,10 @@ export default {
 
       $cx.debug()
 
+      console.log('HOC1');
+      this.HOCUITest = 777
+
+      console.log(this.$attrs);
 
       // console.log('call emit');
       // this.$emit('testemit', this)

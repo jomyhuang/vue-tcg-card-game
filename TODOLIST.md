@@ -234,6 +234,8 @@ slot: [...] / 卡在哪里启动
 
 先单点触发 -》 Loop 触发（连续）
 
+##使用第三方event system？
+
 
 #5
 emit 'tag/tigger name' + card
@@ -321,6 +323,24 @@ run_message
 
 showstage()
 
+
+#HOC 顶层组件
+通过props $attrs 向下传递
+: game state
+: UI selector click/slient
+
+?需要构建gameboard component
+use slot 技术
+
+
+
+#idea Cycle.js / rxjs
+
+view( state( gameboard( ...actions( ...cards( card() ) ) ) ) )
+
+stream? --- use strem way process effect  
+xstream
+most
 
 
 
