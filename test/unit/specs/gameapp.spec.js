@@ -78,8 +78,8 @@ describe('GameAPP', () => {
     vm.gameReset({decklist:[testdeck1,testdeck2]})
     await vm.run_gameloop()
     expect(state.game.over).to.equal(true)
-    // expect(state.game.turnCount).to.equal(3)
-    expect(state.game.turnCount).to.equal(4)
+    expect(state.game.turnCount).to.equal(3)
+    // expect(state.game.turnCount).to.equal(5)
     expect(state.game.score.win).to.equal(state.firstPlayer)
   })
 
@@ -135,7 +135,8 @@ describe('GameAPP', () => {
     // test faceup effect
     // expect(battle.defenser.player.hand.length).to.equal(5)
 
-    expect(battle.attacker.total).to.equal(8000)
+    expect(battle.attacker.total).to.equal(14666)
+    // expect(battle.attacker.total).to.equal(8000)
     // expect(battle.attacker.total).to.equal(9000)
     expect(battle.defenser.total).to.equal(6000)
 

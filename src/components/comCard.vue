@@ -90,7 +90,7 @@ export default {
   components: {},
   created() {},
   mounted() {
-    console.log('comCard', this.$attrs);
+    // console.log('comCard', this.$attrs);
   },
   beforeDestroy() {},
   computed: {

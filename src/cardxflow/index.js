@@ -6,7 +6,6 @@ import Rx from 'rxjs/Rx'
 import mu from '@/mutil'
 import is from '@/cardxflow/is'
 
-
 export var $store = {}
 export var $state = {}
 export var $mainapp
@@ -121,12 +120,18 @@ export default {
     const slotcheck = card ? (x) => x.slot.includes(x.source.slot) : () => true
     const tagcheck = card ? (x) => x.source.play[tag] : () => true
 
-    return R.filter((x) => x.tag == tag &&
-      !x.run && x.active &&
-      tagcheck(x) &&
-      cardcheck(x))($effectlist)
-    // mu.tcall(tagcheck, this, x) &&
-    // mu.tcall(cardcheck, this, x))($effectlist)
+    if (tag === 'main') {
+      // FIXME: main effect fix
+      console.warn('$getlist is main');
+      return R.filter((x) => x.tag == tag &&
+        tagcheck(x) &&
+        cardcheck(x))($effectlist)
+    } else {
+      return R.filter((x) => x.tag == tag &&
+        !x.run && x.active &&
+        tagcheck(x) &&
+        cardcheck(x))($effectlist)
+    }
   },
   $getnext(tag, card) {
     const list = this.$getlist(tag, card)
@@ -152,14 +157,14 @@ export default {
 
         ismessage = ['clear'].includes(tag) ? false : true
         if (tigger) {
-          if(ismessage) console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
+          if (ismessage) console.log(`%c$emitnext tigger is ${tigger.tag}`, 'color:fuchsia', tigger.source)
 
           const isPlayerTag = tigger.player ? true : false
           const isEmit = tigger._type == 'emit' || tigger.player ? true : false
 
           // tigger now
           if (isEmit) {
-            if(ismessage) console.log(`do emit tag ${tigger.tag} func`)
+            if (ismessage) console.log(`do emit tag ${tigger.tag} func`)
             // TODO: await mu.tcall(tigger.func, this, tigger)
             mu.tcall(tigger.func, this, tigger)
             // await mu.tcall(tigger.func, this, tigger)
@@ -192,6 +197,15 @@ export default {
       this.context = null
       this.active = false
       console.log('$cx.setcontext clear')
+    }
+  },
+  _settarget(card) {
+    if (this.context) {
+      this.context.target = card
+      console.log(`$cx.settarget ${card.cardno}`, card)
+    } else {
+      this.context.target = null
+      console.log(`$cx.settarget clear`)
     }
   },
   run(type, payload) {
@@ -288,7 +302,11 @@ export default {
         console.group()
         console.log('$cx.engage start')
         // mu.tcall(cxrun, context, 'EFFECT_SOURCE', source)
-        cxrun('EFFECT_SOURCE',source)
+        commit('EFFECT_SET', {
+          source: source,
+        })
+        cxrun('EFFECT_SOURCE')
+
         // BUG：这里call promise 产生错误
         // mu.tcall(cx.phaseinfo, context, `begin ${card.cardno} ${card.name} 发动${this.type}效果`)
         // FIXME: return promise 就可以
@@ -335,7 +353,8 @@ export default {
 
           if (nextlevel) {
             // mu.tcall(cx.run, context, 'EFFECT_SOURCE', source)
-            cxrun('EFFECT_SOURCE',source)
+            cxrun('EFFECT_SOURCE')
+
           } else {
             // clear first level context
             cx._setcontext()
@@ -343,7 +362,7 @@ export default {
         })
     }
   },
-  target(payload,filter) {
+  target(payload, filter) {
     // return [ this.phaseinfo('指定效果Target'), function() {
     // 获取函数名称
     // console.log('target caller', this.target.name );
@@ -401,7 +420,11 @@ export default {
         })
         .then((target) => {
           this.target = target
-          dispatch('EFFECT_TARGET', target)
+          // dispatch('EFFECT_TARGET', target)
+          commit('EFFECT_SET', {
+            target: target,
+          })
+          cxrun('EFFECT_TARGET')
           console.log('$cx.target targeting', context.target)
         })
         .catch((err) => {
@@ -446,6 +469,71 @@ export default {
           $effectUI.showbuff(buff, resolve)
         else
           resolve()
+      })
+    }
+  },
+  buffjiban(star, powerup) {
+    return function () {
+      const context = this
+      const cx = context.cx
+      const card = context.card
+      const fnbuff = (buff) => {
+        let power = 0
+        // console.log(buff.tag, card.slot)
+        let place = mu.battleplace(card)
+        let battle = $store.state.battle[place]
+        let ismain = card.key === battle.main.key
+        let list = []
+        let logic = false
+
+        if (ismain) {
+          list = [battle.support]
+          list = list.concat(battle.exsupport)
+        } else {
+          list = [battle.main]
+        }
+
+        logic = R.reduce((a, c) => {
+          // console.log('buffjiban logic',a,c);
+          if (!a) {
+            a = R.lte(star, R.prop('star', c))
+          }
+          return a
+        }, false)(list)
+
+        // console.log('buffjiban ',place,battle,ismain,list,logic)
+        if (logic) {
+          // console.log(`cx.buffjiban 羁绊${star}成功 +${powerup}`);
+          let msg = `cx.buffjiban 羁绊${star}成功 +${powerup}`
+          buff.tag = msg
+
+          // FIXME: show UI in buff calc
+          if (context.UImode)
+            $effectUI.showbuff(buff)
+
+        } else {
+          console.log(`cx.buffjiban 羁绊${star}失效`);
+        }
+
+        return logic ? powerup : 0
+      }
+
+      return new Promise(function (resolve, reject) {
+        let tag = `buffjiban 羁绊 ${star} ${powerup}`
+        let buff = {
+          power: fnbuff,
+          tag: tag,
+          source: card,
+          star: star,
+          powerup: powerup,
+        }
+        console.log(`add cx.buffjiban ${card.name} star ${star}+${powerup}`)
+        commit('ADD_BUFF', buff)
+
+        // if (context.UImode)
+        //   $effectUI.showbuff(buff, resolve)
+        // else
+        resolve()
       })
     }
   },
@@ -532,7 +620,7 @@ export default {
       // TODO: get value from agent by player
 
       // if (mu.isUMI || true) {
-      console.log('messageLevel',mu.messageLevel, mu.styleUI, mu.autoUI, mu.HMIUI, $store.state.message);
+      console.log('messageLevel', mu.messageLevel, mu.styleUI, mu.autoUI, mu.HMIUI, $store.state.message);
       if (isUMI) {
         await $mainapp.$confirm(text, '提示', {
           confirmButtonText: '确定',

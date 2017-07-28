@@ -673,6 +673,10 @@ export default {
       console.warn('mu.removeTag card/player is null', payload);
       return false
     }
+    // FIXME: main effect fix
+    if(tag === 'main')
+      return
+
     const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
 
     if (isPlayerTag) {
@@ -752,7 +756,7 @@ export default {
       if (from) {
         let payload = this.addTag({
           tag: k,
-          card: card
+          card: card,
         })
         console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
       }
@@ -790,5 +794,20 @@ export default {
   },
   UIduration(duration) {
     return this.isTestmode ? 1 : duration
-  }
+  },
+  battleplace(card) {
+    const owner = card.owner
+    let place
+
+    if($store.state.battle.attacker.player.id === owner.id) {
+      place = 'attacker'
+    } else if($store.state.battle.defenser.player.id === owner.id) {
+      place = 'defenser'
+    } else {
+      throw new Error('battleplace error no place')
+      return null
+    }
+
+    return place
+  },
 }

@@ -554,6 +554,7 @@ export default {
     }
     const owner = state.placeholder.owner
     owner.supporter.push(state.placeholder)
+
     state.placeholder.slot = 'supporter'
     state.placeholder = mutil.moveslot('supporter',state.placeholder)
     console.log(`commit TO_SUPPORTER ${owner.id} ${state.placeholder.name}`)
@@ -594,7 +595,7 @@ export default {
     const card = state.placeholder
     const buff = payload
     card.buffs.push(buff)
-    console.log(`commit ADD_BUFF ${state.placeholder.name}`, buff)
+    console.log(`commit ADD_BUFF ${card.name}`, buff)
   },
   ADD_TAG(state, payload) {
     // if (!state.placeholder) {

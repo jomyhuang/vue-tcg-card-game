@@ -30,45 +30,48 @@ export default {
     state,
     dispatch
   }, payload) {
-    if (!payload) {
-      console.log('commit EFFECT_SOURCE set null')
-      commit('SELECT_PLAYER', null)
-      commit('SELECT_CARD', null)
-      commit('EFFECT_SET', null)
-      return
-    }
+    // throw new Error('EFFECT_SOURCE new error')
 
-    const card = payload
+    // if (!payload) {
+    //   console.log('commit EFFECT_SOURCE set null')
+    //   commit('SELECT_PLAYER', null)
+    //   commit('SELECT_CARD', null)
+    //   commit('EFFECT_SET', null)
+    //   return
+    // }
+
+    const card = payload ? payload : state.effect.source
+    if(!card)
+      throw new Error('EFFECT_SOURCE error card is null')
+
     const owner = card.owner
-    console.log(`EFFECT_SOURCE select ${card.name} owner ${owner.id}`)
+    console.log(`EFFECT_SOURCE placeholder ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
-    commit('EFFECT_SET', {
-      source: card
-    })
   },
   EFFECT_TARGET({
     commit,
     state,
     dispatch
   }, payload) {
-    if (!payload) {
-      console.log('commit EFFECT_TARGET set null')
-      commit('SELECT_PLAYER', null)
-      commit('SELECT_CARD', null)
-      commit('EFFECT_SET', null)
-      return
-    }
+    // throw new Error('EFFECT_TARGET new error')
 
-    const card = payload
+    // if (!payload) {
+    //   console.log('commit EFFECT_TARGET set null')
+    //   commit('SELECT_PLAYER', null)
+    //   commit('SELECT_CARD', null)
+    //   commit('EFFECT_SET', null)
+    //   return
+    // }
+    //
+    const card = payload ? payload : state.effect.target
+    if(!card)
+      throw new Error('EFFECT_TARGET error card is null')
+
     const owner = card.owner
-    console.log(`EFFECT_TARGET select ${card.name} owner ${owner.id}`)
+    console.log(`EFFECT_TARGET placeholder ${card.name} owner ${owner.id}`)
     commit('SELECT_PLAYER', owner)
     commit('SELECT_CARD', card)
-    commit('EFFECT_SET', {
-      target: card
-    })
-    // TODO: if target is player? / register
   },
   // TIGGER_EFFECT22({
   //   commit,
@@ -218,13 +221,15 @@ export default {
       finish: false,
     }
 
-    dispatch('EFFECT_SOURCE', source)
     console.log(`NEWTIGGER_EFFECT RUN => ${source.cardno} ${source.key}@${source.slot} %c${tag} effect action`, 'color:blue')
 
     return mutil.tcall(effectfunc, context, context).then(() => {
       tigger.run = true
       tigger.turn = state.game.turnCount
-      dispatch('EFFECT_SOURCE', null)
+      // dispatch('EFFECT_SOURCE', null)
+      commit('EFFECT_SET', {
+        source: null,
+      })
     })
   },
   EFFECT_CHOICE({

@@ -65,6 +65,8 @@
       <el-button @click="effectshow()">Effect Show</el-button>
       <el-button @click="effectchoiceshow()">Effect Choice Show</el-button>
       <el-button @click="messageshow()">Message</el-button>
+      <BR/>
+      <el-input-number v-model="messageLevel" size="small" @change="handleLevel" :min="1" :max="3"></el-input-number>
     </div>
   </el-row>
   <comMessage ref="messageUI"></comMessage>
@@ -426,6 +428,7 @@ export default {
     // },
     async gameloop(umi = false) {
       console.log('start gameloop')
+      // commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : 3 )
 
       if (this.$store.state.game.started) {
         return await this.gameloop_message('对战已经开始')
@@ -555,6 +558,8 @@ export default {
     // run gameloop + step 非同步版本／回合step步进版本
     async run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
+      commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : 1 )
+      // this.messageLevel = 1
 
       if (R.isNil(this.$store.state.player1.agent)) {
         this.run_message('run_gameloop 无法使用UI agent')
@@ -684,6 +689,9 @@ export default {
       //   complete: () => console.log('done'),
       // })
       // console.log('just after subscribe');
+    },
+    handleLevel(value) {
+      commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : value )
     },
     // end of methods
   }

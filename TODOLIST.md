@@ -191,6 +191,10 @@ is.fn1 only sense fn1, but is1 don't
 how? getMessage(selector) -> return message
 
 
+//------- buff
+#if/fn buff
+
+
 //--------------------------- new effect system
 #1 card.box/map(slot):
 => player.cardpool card all list
