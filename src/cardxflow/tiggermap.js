@@ -4,6 +4,7 @@ import _ from 'lodash'
 export default {
   main: {
     from: 'active',
+    type: 'EOG',
   },
   atGraveyard: {
     slot: ['graveyard']

@@ -1,8 +1,11 @@
 <template>
 <div class="comHand">
   <h4>Hand : {{player.hand.length}} cards</h4>
+  <!-- <span>UITest: {{$attrs.UItest}} HOC1: {{$attrs.HOC1}} {{this.$attrs}}</span> -->
   <transition-group name="bounceRight" tag="div" class="flex-container">
-    <comCard v-for="(card,key,index) in player.hand" :card="card" :key="key"></comCard>
+    <!-- 向下传递 $attrs -->
+    <comCard v-for="(card,key,index) in player.hand" :card="card" :key="key" v-bind="$attrs"></comCard>
+    <!-- <comCard v-for="(card,key,index) in player.hand" :card="card" :key="key" :HOC1="$attrs.HOC1"></comCard> -->
   </transition-group>
 </div>
 </template>
@@ -24,13 +27,16 @@ export default {
     player: {
       type: Object,
       default: () => {},
-    }
+    },
+    // inheritAttrs: true,
   },
   components: {
     comCard,
   },
   created() {},
-  mounted() {},
+  mounted() {
+    // console.log('comHand', this.$attrs);
+  },
   beforeDestroy() {},
   computed: {},
   methods: {}

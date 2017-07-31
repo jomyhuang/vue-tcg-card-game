@@ -16,7 +16,7 @@ export default new Router({
     {
       path: '/gameapp',
       name: 'GameApp',
-      component: GameApp
+      component: GameApp,
     },
     {
       path: '/cardapp',

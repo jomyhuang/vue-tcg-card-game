@@ -17,6 +17,7 @@
       </div>
       <div v-else>
         <div class="card-title">{{card.name}}</div>
+        <!-- <div>UI {{this.format}} $attrs.HOC1 {{$attrs.HOC1}}</div> -->
         <!-- <div v-if="isactive">ACTIVE</div> -->
         <div>
           <span v-for="n in card.star">🌟</span>
@@ -77,6 +78,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    format: {
+      type: Number,
+      default: 999,
+    },
     // style: {
     //   type: String,
     //   default: 'normal',
@@ -85,7 +90,7 @@ export default {
   components: {},
   created() {},
   mounted() {
-    // this.trigger = this.$refs.cardtext
+    // console.log('comCard', this.$attrs);
   },
   beforeDestroy() {},
   computed: {

@@ -191,6 +191,10 @@ is.fn1 only sense fn1, but is1 don't
 how? getMessage(selector) -> return message
 
 
+//------- buff
+#if/fn buff
+
+
 //--------------------------- new effect system
 #1 card.box/map(slot):
 => player.cardpool card all list
@@ -233,6 +237,8 @@ when: 启动前检查
 slot: [...] / 卡在哪里启动
 
 先单点触发 -》 Loop 触发（连续）
+
+##使用第三方event system？
 
 
 #5
@@ -322,6 +328,37 @@ run_message
 showstage()
 
 
+#HOC 顶层组件
+通过props $attrs 向下传递
+: game state
+: UI selector click/slient
+
+?需要构建gameboard component
+?use slot 技术
+
+
+
+#idea Cycle.js / rxjs
+
+view( state( gameboard( cards/card( ...actions/task/stream/operator  ) ) ) )
+
+
+-> stream? --- use strem way process effect  
+xstream
+most
+
+HCI/agent <-> gameloop/logic
+
+stream = 带时间线的数据流
+
+
+state stream (select source) = ...action(source, payload)
+
+action( selector, ...pipe )
+...context/stream -> side effect vuex store <-> view
+view how to -> stream
+
+// check when.js / same from most.js
 
 
 

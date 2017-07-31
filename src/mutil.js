@@ -27,6 +27,7 @@ export default {
   mixin: false,
   _isTestmode: false,
   ucardid: 0,
+  _asyncUI: false,
 
   assert(...args) {
     return console.assert(...args)
@@ -146,6 +147,18 @@ export default {
       // set: function (val) {
       //   // this._isTestmode = val
       // },
+      // writable: false,
+      enumerable: true,
+      // configurable: true,
+    })
+    Object.defineProperty(this, 'AsyncUI', {
+      // value: false,
+      get: function () {
+        return this._asyncUI
+      },
+      set: function (val) {
+        this._asyncUI = val
+      },
       // writable: false,
       enumerable: true,
       // configurable: true,
@@ -660,6 +673,10 @@ export default {
       console.warn('mu.removeTag card/player is null', payload);
       return false
     }
+    // FIXME: main effect fix
+    if(tag === 'main')
+      return
+
     const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
 
     if (isPlayerTag) {
@@ -739,7 +756,7 @@ export default {
       if (from) {
         let payload = this.addTag({
           tag: k,
-          card: card
+          card: card,
         })
         console.log(`mu.activecard 主动技能 tigger ${card.cardno} ${k}`, payload)
       }
@@ -774,5 +791,23 @@ export default {
   emitEvent(tag, card) {
     console.log(`mu.emitEvent ${tag}`)
     return $cx.$emitall(tag)
+  },
+  UIduration(duration) {
+    return this.isTestmode ? 1 : duration
+  },
+  battleplace(card) {
+    const owner = card.owner
+    let place
+
+    if($store.state.battle.attacker.player.id === owner.id) {
+      place = 'attacker'
+    } else if($store.state.battle.defenser.player.id === owner.id) {
+      place = 'defenser'
+    } else {
+      throw new Error('battleplace error no place')
+      return null
+    }
+
+    return place
   },
 }

@@ -76,29 +76,73 @@ export default {
       x.chain = x.chain.concat(x.exsupport)
     })([battle.attacker, battle.defenser])
 
-    // console.log('battle',battle)
-    // attacker
-    let powerlist = []
-    R.forEach(x => {
+    const fncalcbuff = (x) => {
       if (x) {
-        let anti = mutil.checkAnti(x.antipro, battle.defenser.main.antipro)
+        let anti = mutil.checkAnti(x.antipro, mainopponent)
         let power = anti ? x.power2 : x.power1
-        // FIXME:
-        // card.power => is final power / isAntipro?
-        // card.buffs = [] is buff list
-        // fix this
-        // basic power
-        // powerlist.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
-        // x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
         powerlist.push(power)
         // plus buff power
         R.forEach(s => {
-          powerlist.push(s.power)
+          let power = R.propOr(0, 'power')(s)
+          let when = R.propOr(() => true, 'when')(s)
+          const logic = mutil.tcall(when, this, s)
+          if (logic) {
+            if (_.isFunction(power)) {
+              const fnbuff = power
+              power = mutil.tcall(fnbuff, this, s)
+              // console.log(`buff is function ${power}`)
+            }
+            powerlist.push(power)
+          }
+          else {
+            console.log(`buff.when logic is false`,when)
+          }
         })(x.buffs)
       } else {
-        console.warn('BATTLE_CALC attacker calc power object null')
+        console.warn('BATTLE_CALC calc power object null skip')
       }
-    })(battle.attacker.chain)
+    }
+
+    // console.log('battle',battle)
+    // attacker
+    let powerlist = []
+    let mainopponent = battle.defenser.main.antipro
+    R.forEach(fncalcbuff)(battle.attacker.chain)
+
+    // R.forEach(x => {
+    //   if (x) {
+    //     let anti = mutil.checkAnti(x.antipro, battle.defenser.main.antipro)
+    //     let power = anti ? x.power2 : x.power1
+    //     // FIXME:
+    //     // card.power => is final power / isAntipro?
+    //     // card.buffs = [] is buff list
+    //     // fix this
+    //     // basic power
+    //     // powerlist.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
+    //     // x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
+    //     powerlist.push(power)
+    //     // plus buff power
+    //     R.forEach(s => {
+    //       let power = R.propOr(0, 'power')(s)
+    //       let when = R.propOr(() => true, 'when')(s)
+    //       const logic = mutil.tcall(when, this, s)
+    //       if (logic) {
+    //         if (_.isFunction(power)) {
+    //           const fnbuff = power
+    //           power = mutil.tcall(fnbuff, this, s)
+    //           console.log(`buff is function ${power}`)
+    //         }
+    //
+    //         powerlist.push(power)
+    //       }
+    //       else {
+    //         console.log(`buff logic is skip`,when)
+    //       }
+    //     })(x.buffs)
+    //   } else {
+    //     console.warn('BATTLE_CALC attacker calc power object null')
+    //   }
+    // })(battle.attacker.chain)
 
     //  make power list = basic power + buff power
     // battle.attacker.power = mutil.makeflat(battle.attacker.chain)
@@ -113,19 +157,21 @@ export default {
 
     // defenser
     powerlist = []
-    R.forEach(x => {
-      if (x) {
-        let anti = mutil.checkAnti(x.antipro, battle.attacker.main.antipro)
-        let power = anti ? x.power2 : x.power1
-        // x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
-        powerlist.push(power)
-        R.forEach(s => {
-          powerlist.push(s.power)
-        })(x.buffs)
-      } else {
-        console.warn('BATTLE_CALC default calc power object null')
-      }
-    })(battle.defenser.chain)
+    mainopponent = battle.attacker.main.antipro
+    R.forEach(fncalcbuff)(battle.defenser.chain)
+    // R.forEach(x => {
+    //   if (x) {
+    //     let anti = mutil.checkAnti(x.antipro, battle.attacker.main.antipro)
+    //     let power = anti ? x.power2 : x.power1
+    //     // x.power.push(mutil.makepower(x, power, 'BASIC', anti ? '克制 power up' : '基本攻击'))
+    //     powerlist.push(power)
+    //     R.forEach(s => {
+    //       powerlist.push(s.power)
+    //     })(x.buffs)
+    //   } else {
+    //     console.warn('BATTLE_CALC default calc power object null')
+    //   }
+    // })(battle.defenser.chain)
 
     // battle.defenser.power = mutil.makeflat(battle.defenser.chain)
     battle.defenser.power = powerlist
@@ -140,6 +186,7 @@ export default {
     battle = state.battle,
     score = state.battle.score,
   } = {}) {
+    throw new Error('BATTLE_CALC2 error block code')
     console.log('BATTLE_CALC2 phase 2')
 
     // ------- attacker

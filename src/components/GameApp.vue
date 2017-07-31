@@ -26,7 +26,8 @@
       <comZone :player="$store.state.player1"></comZone>
     </div>
     <div class="gameboard" style="min-height:200px">
-      <comHand :player="$store.state.player1"></comHand>
+      <!-- prop {{this.stylemode}} -->
+      <comHand :player="$store.state.player1" :HOC1="HOCUITest" yyy="test"></comHand>
     </div>
     </el-col>
     <el-col :span="4">
@@ -42,7 +43,7 @@
   </el-row>
   <el-row class="gameboard">
     <div>
-      <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+      <h2>{{ msg }} : 回合#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
       <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
       <el-button type="primary" @click="gameloop(true)">GAME LOOP UI</el-button>
@@ -51,6 +52,7 @@
       <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
       <BR/> 显示讯息 Message LV{{$store.state.message.level}}
       <el-switch v-model="isMessage" /> 同步讯息
+      <!-- <el-switch v-model="mu.AsyncUI" /> -->
       <el-switch v-model="isAsyncMssage" />
       <el-button @click="gameTest()">TEST</el-button>
       <el-button @click="gameReset()">RESET</el-button>
@@ -62,6 +64,9 @@
       <el-button @click="scoreshow()">Score Show</el-button>
       <el-button @click="effectshow()">Effect Show</el-button>
       <el-button @click="effectchoiceshow()">Effect Choice Show</el-button>
+      <el-button @click="messageshow()">Message</el-button>
+      <BR/>
+      <el-input-number v-model="messageLevel" size="small" @change="handleLevel" :min="1" :max="3"></el-input-number>
     </div>
   </el-row>
   <comMessage ref="messageUI"></comMessage>
@@ -112,7 +117,15 @@ export default {
       isAsyncMssage: false,
       isTest: false,
       messageLevel: 2,
+      HOCUITest: 222,
     }
+  },
+  props: {
+    stylemode: {
+      type: Number,
+      default: 555,
+    },
+    inheritAttrs: false,
   },
   components: {
     comDeck,
@@ -192,9 +205,9 @@ export default {
     },
   },
   methods: {
-    testui() {
-      console.log('TEST UI');
-    },
+    // testui() {
+    //   console.log('TEST UI');
+    // },
     // gameTestmode() {
     //   // mu.isTestmode = true
     //   // this.$store.dispatch('GAME_TESTMODE')
@@ -229,8 +242,8 @@ export default {
       console.log('game reset');
       this.$store.dispatch('GAME_RESET')
       this.$store.dispatch('GAME_READY', init)
-      this.UI_message('game Reset')
       commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : this.messageLevel )
+      this.UI_message('game Reset')
     },
     gameStart() {
       // console.log('game Start')
@@ -244,6 +257,9 @@ export default {
     },
     battleshow(value = 1000, onclose, msg) {
       return this.$refs.battle.open(value, onclose, msg)
+    },
+    messageshow(value = 0, onclose, msg) {
+      return this.$refs.messageUI.open(value, onclose, msg)
     },
     scoreshow(value = 0, onclose, msg) {
       return this.$refs.score.open(value, onclose, msg)
@@ -281,16 +297,18 @@ export default {
     __message(msg, duration = 1500, fullmessage = false) {
       this.msg = msg
       this.run_command('STORE_MESSAGE', msg)
-      console.info('%c' + msg, 'color:blue')
+      // console.info('%c' + msg, 'color:blue')
 
-      if (mu.isTestmode) return
+      return this.$refs.messageUI.showinfo(msg)
 
-      return new Promise((resolve, reject) => {
+      // if (mu.isTestmode) return
+
+      // return new Promise((resolve, reject) => {
 
         // const fullmessage = false
-        if (fullmessage || this.config.message) {
-          this.$refs.messageUI.showstart(msg, resolve)
-        } else {
+        // if (fullmessage || this.config.message) {
+        //   this.$refs.messageUI.showstart(msg, resolve)
+        // } else {
           // this.$message.closeAll()
           // this.$message({
           //   type: 'info',
@@ -301,9 +319,9 @@ export default {
           // if (!this.isAsyncMssage) {
           //   resolve()
           // }
-          resolve()
-        }
-      })
+          // resolve()
+        // }
+      // })
     },
     __notice(msg, duration = 1500) {
       // return promise from component
@@ -332,8 +350,8 @@ export default {
       }
       return true
     },
-    UI_message(msg) {
-      return this.__message(msg)
+    UI_message(msg,duration) {
+      return this.__message(msg,duration)
     },
     run_message(msg) {
       return this.__notice(msg)
@@ -410,6 +428,7 @@ export default {
     // },
     async gameloop(umi = false) {
       console.log('start gameloop')
+      // commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : 3 )
 
       if (this.$store.state.game.started) {
         return await this.gameloop_message('对战已经开始')
@@ -539,6 +558,8 @@ export default {
     // run gameloop + step 非同步版本／回合step步进版本
     async run_gameloop(testturn = 0) {
       this.run_message('start run gameloop test')
+      commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : 1 )
+      // this.messageLevel = 1
 
       if (R.isNil(this.$store.state.player1.agent)) {
         this.run_message('run_gameloop 无法使用UI agent')
@@ -635,7 +656,16 @@ export default {
     },
     gameTest() {
 
+
+      // mu.AsyncUI = false
+      console.log('AsyncUI',mu.AsyncUI);
+
       $cx.debug()
+
+      console.log('HOC1');
+      this.HOCUITest = 777
+
+      console.log(this.$attrs);
 
       // console.log('call emit');
       // this.$emit('testemit', this)
@@ -659,6 +689,9 @@ export default {
       //   complete: () => console.log('done'),
       // })
       // console.log('just after subscribe');
+    },
+    handleLevel(value) {
+      commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : value )
     },
     // end of methods
   }

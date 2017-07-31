@@ -17,7 +17,7 @@
         <transition name="el-zoom-in-center">
           <div v-if="isstage('showbuff')">
             <h2>SHOW BUFF EFFECT</h2>
-            <h4>{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
+            <h4 v-if="isnum(stagedata.power)">{{stagedata.source.name}} +POWER {{stagedata.power}}</h4>
             <h5>{{stagedata.tag}}</h5>
           </div>
         </transition>
@@ -52,6 +52,7 @@
 <script>
 import Vue from 'vue'
 import mu from '@/mutil'
+import R from 'ramda'
 
 export default {
   name: 'comEffect',
@@ -110,6 +111,9 @@ export default {
     isstage(val) {
       return this.stage === val
     },
+    isnum(val) {
+      return R.is(Number,val)
+    },
     _opendialog() {
       // console.log('open dialog event special')
     },
@@ -160,7 +164,7 @@ export default {
         return
       }
     },
-    showstage(stage, data, onfinish, duration = 1500) {
+    showstage(stage, data, onfinish = ()=>true, duration = 1500) {
       this.stagedata = data
       this._setstage(stage)
 
@@ -169,7 +173,7 @@ export default {
       }
 
       if (mu.isTestmode || !this.config.message) {
-        console.info(`%comEffect showstage ${stage}`,'color:green')
+        console.info(`%ccomEffect showstage ${stage}`,'color:green')
         onfinish.call(this)
         return
       }
@@ -187,6 +191,7 @@ export default {
       return this.showstage('start', data, onfinish)
     },
     showbuff(buff, onfinish) {
+      console.log(`showbuff ${buff.tag}`)
       return this.showstage('showbuff', buff, onfinish)
     },
     showchoice(data, onfinish) {
