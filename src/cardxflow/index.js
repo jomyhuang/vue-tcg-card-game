@@ -122,7 +122,7 @@ export default {
 
     if (tag === 'main') {
       // FIXME: main effect fix
-      console.warn('$getlist is main');
+      console.warn('$getlist is [main]');
       return R.filter((x) => x.tag == tag &&
         tagcheck(x) &&
         cardcheck(x))($effectlist)
@@ -579,9 +579,10 @@ export default {
   },
   _stop(msg) {
     console.warn(msg)
-    // this.context.reason = msg
+    this.context.reason = msg
     this.context.loop = false
-    return Promise.reject(new Error(msg))
+    // return Promise.reject(new Error(msg))
+    return
   },
   when(pred = () => true, fnstop = () => '$cx.when logic false') {
     return function () {
@@ -589,6 +590,7 @@ export default {
       const cx = context.cx
       const logic = mu.tcall(pred, this)
       if (!logic) {
+        // context.reason = mu.tcall(fnstop, this)
         context.reason = mu.tcall(fnstop, this)
         return cx._stop('$cx.when logic false')
       }

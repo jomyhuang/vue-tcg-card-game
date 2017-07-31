@@ -334,18 +334,31 @@ showstage()
 : UI selector click/slient
 
 ?需要构建gameboard component
-use slot 技术
+?use slot 技术
 
 
 
 #idea Cycle.js / rxjs
 
-view( state( gameboard( ...actions( ...cards( card() ) ) ) ) )
+view( state( gameboard( cards/card( ...actions/task/stream/operator  ) ) ) )
 
-stream? --- use strem way process effect  
+
+-> stream? --- use strem way process effect  
 xstream
 most
 
+HCI/agent <-> gameloop/logic
+
+stream = 带时间线的数据流
+
+
+state stream (select source) = ...action(source, payload)
+
+action( selector, ...pipe )
+...context/stream -> side effect vuex store <-> view
+view how to -> stream
+
+// check when.js / same from most.js
 
 
 

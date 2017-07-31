@@ -65,13 +65,18 @@ export default {
     // }
     //
     const card = payload ? payload : state.effect.target
-    if(!card)
-      throw new Error('EFFECT_TARGET error card is null')
+    // if(!card)
+    //   throw new Error('EFFECT_TARGET error card is null')
 
-    const owner = card.owner
-    console.log(`EFFECT_TARGET placeholder ${card.name} owner ${owner.id}`)
-    commit('SELECT_PLAYER', owner)
-    commit('SELECT_CARD', card)
+    if(card) {
+      const owner = card.owner
+      console.log(`EFFECT_TARGET placeholder ${card.name} owner ${owner.id}`)
+      commit('SELECT_PLAYER', owner)
+      commit('SELECT_CARD', card)
+    }
+    else {
+      console.warn('EFFECT_TARGET error card is null')
+    }
   },
   // TIGGER_EFFECT22({
   //   commit,

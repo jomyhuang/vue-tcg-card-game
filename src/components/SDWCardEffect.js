@@ -63,6 +63,7 @@ export default {
         //   $cx.phaseinfo('false测试'),
         // ),
         $cx.buffjiban(3,6666),
+        // $cx.when(false),
         $cx.target('opp_zone'),
         $cx.run('PICK_CARD'),
         $cx.run('TO_GRAVEYARD'),
