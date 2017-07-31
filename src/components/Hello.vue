@@ -3,7 +3,7 @@
     <h1>Vue.js TCG card game practices</h1>
     <h3>powered by ES6, Vue.js, Vuex and ElementUI</h3>
     <h3>wish coder joy with Vue.js!</h3>
-    <h2><a href="/gameapp#/gameapp">GameApp Link</a></h2>
+    <h2><a href="/gameapp#/gameapp">GameApp Link 开始游戏</a></h2>
     <img src="../assets/sdwlogo.png" width="200">
     <h3>based on SEER Dimersion War TCG 赛尔号：《精灵战争》竞技卡</h3>
     <h3>please contact <a href="mailto:jomyhuang@qq.com">jomyhuang@qq.com</a> <b>QQ:149431663</b> if you interesting this project</h3>

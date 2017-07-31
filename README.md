@@ -23,9 +23,9 @@
 
 ## 关注进一步技术
 
+* 应用响应式编程、函数式编程到卡牌引擎
 * Reactive Functional Programming
 * RxJS / Cycle.js
-* 应用响应式编程、函数式编程到卡牌引擎
 
 
 ## 关于《赛尔号：精灵战争》 SEER DIMENSION WARS
