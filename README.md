@@ -39,7 +39,7 @@
 ## 学习材料(陆续补完)
 
 * ES6与函数式编程
-* fireplace Hearthstone simu
+* fireplace - Hearthstone simulator in Python
 * Vue.js / Vuex
 * Promise
 * Ramda
