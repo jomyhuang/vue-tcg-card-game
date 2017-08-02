@@ -61,13 +61,88 @@
       <div id="cycleapp">hello cycle.js</div>
     </div>
   </gameboard>
-
   <comMessage ref="messageUI"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
   <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
   <comEffectChoice ref="effectChoiceUI" v-model="$store.state.battle" :player="$store.state.player1"></comEffectChoice>
 
+
+  <el-row type="flex" class="gameboard">
+    <div id="cycleapp">HELLO</div>
+  </el-row>
+  <el-row type="flex" class="gameboard">
+    <el-col :span="4">
+      <div class="gameboard">
+        <h3>deck2</h3>
+        <comDeck :player="$store.state.player2"></comDeck>
+        <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
+      </div>
+    </el-col>
+    <el-col :span="20">
+      <div class="gameboard" style="min-height:200px">
+        <comHand :player="$store.state.player2"></comHand>
+      </div>
+      <div class="gameboard" style="min-height:200px">
+        <comZone :player="$store.state.player2"></comZone>
+      </div>
+    </el-col>
+  </el-row>
+  <el-row type="flex" class="gameboard">
+    <el-col :span="20">
+    <div class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player1"></comZone>
+    </div>
+    <div class="gameboard" style="min-height:200px">
+      <!-- prop {{this.stylemode}} -->
+      <comHand :player="$store.state.player1" :HOC1="HOCUITest" yyy="test"></comHand>
+    </div>
+    </el-col>
+    <el-col :span="4">
+    <div class="gameboard">
+      <h3>deck1</h3>
+      <comDeck :player="$store.state.player1"></comDeck>
+      <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
+      <BR/>
+      <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
+      <el-button @click="playcard()">PLAY</el-button>
+    </div>
+    </el-col>
+  </el-row>
+  <el-row class="gameboard">
+    <div>
+      <h2>{{ msg }} : 回合#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
+      <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
+      <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
+      <el-button type="primary" @click="gameloop(true)">GAME LOOP UI</el-button>
+      <el-button type="primary" @click="run_gameloop()">QUICK RUN</el-button>
+      <el-button type="primary" @click="run_gameloop(1)">QUICK RUN ONE TURN</el-button>
+      <el-button @click="gameTestBattle()">BATTLE TEST CARD</el-button>
+      <BR/> 显示讯息 Message LV{{$store.state.message.level}}
+      <el-switch v-model="isMessage" /> 同步讯息
+      <!-- <el-switch v-model="mu.AsyncUI" /> -->
+      <el-switch v-model="isAsyncMssage" />
+      <el-button @click="gameTest()">TEST</el-button>
+      <el-button @click="gameReset()">RESET</el-button>
+      <el-button @click="gameNewdeck()">NewDeck</el-button>
+      <el-button @click="gameNewdeck(true)">NewDeck UI</el-button>
+      <BR/> 模拟测试模式
+      <el-switch v-model="isTest" />
+      <el-button @click="battleshow(0)">Battle Show</el-button>
+      <el-button @click="scoreshow()">Score Show</el-button>
+      <el-button @click="effectshow()">Effect Show</el-button>
+      <el-button @click="effectchoiceshow()">Effect Choice Show</el-button>
+      <el-button @click="messageshow()">Message</el-button>
+      <BR/>
+      <el-input-number v-model="messageLevel" size="small" @change="handleLevel" :min="1" :max="3"></el-input-number>
+      <el-button @click="cycletest()">Cyclc.js</el-button>
+    </div>
+  </el-row>
+  <!-- <comMessage ref="messageUI"></comMessage>
+  <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
+  <comScore ref="score" v-model="$store.state.score"></comScore>
+  <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
+  <comEffectChoice ref="effectChoiceUI" v-model="$store.state.battle" :player="$store.state.player1"></comEffectChoice> -->
 </div>
 </template>
 
@@ -92,7 +167,7 @@ import $cx from '@/cardxflow'
 
 import xs from 'xstream'
 import {run} from '@cycle/run'
-import {makeDOMDriver,makeHTMLDriver,h1} from '@cycle/dom'
+import {makeDOMDriver,h1} from '@cycle/dom'
 
 var $store
 var commit
@@ -696,11 +771,10 @@ export default {
     cycletest() {
       const drivers = {
         // DOM: makeDOMDriver('#app')
-        // DOM: makeHTMLDriver()
         DOM: makeDOMDriver('#cycleapp')
       }
       const main = (sources) => {
-        // console.log('main',sources.DOM)
+        console.log('main',sources.DOM)
         // const sinks = {
         //   DOM: xs.periodic(1000).map(i =>
         //     h1('' + i + ' seconds elapsed')
