@@ -4,6 +4,9 @@
     <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
   </el-row> -->
   <el-row type="flex" class="gameboard">
+    <div id="cycleapp">HELLO</div>
+  </el-row>
+  <el-row type="flex" class="gameboard">
     <el-col :span="4">
       <div class="gameboard">
         <h3>deck2</h3>
@@ -67,6 +70,7 @@
       <el-button @click="messageshow()">Message</el-button>
       <BR/>
       <el-input-number v-model="messageLevel" size="small" @change="handleLevel" :min="1" :max="3"></el-input-number>
+      <el-button @click="cycletest()">Cyclc.js</el-button>
     </div>
   </el-row>
   <comMessage ref="messageUI"></comMessage>
@@ -94,6 +98,10 @@ import Rx from 'rxjs/Rx'
 import mu from '@/mutil'
 import R from 'ramda'
 import $cx from '@/cardxflow'
+
+import xs from 'xstream'
+import {run} from '@cycle/run'
+import {makeDOMDriver,h1} from '@cycle/dom'
 
 var $store
 var commit
@@ -692,6 +700,35 @@ export default {
     },
     handleLevel(value) {
       commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : value )
+    },
+    cycletest() {
+      const drivers = {
+        // DOM: makeDOMDriver('#app')
+        DOM: makeDOMDriver('#cycleapp')
+      }
+      function main(sources) {
+        console.log('main',sources.DOM)
+        const sinks = {
+          DOM: xs.periodic(1000).map(i =>
+            h1('' + i + ' seconds elapsed')
+          )
+        }
+        // const clock = xs.periodic(1000).map(i =>
+        //     h1('' + i + ' seconds elapsed')
+        //   )
+        // console.log('clock',clock)
+        // const sinks = {
+        //   DOM: clock
+        // }
+        // const full = sources.DOM.select('#app')
+        // console.log('full',full);
+        // const sinks = {
+        //   DOM: sources.DOM
+        // }
+        return sinks
+      }
+      console.log('cycletest')
+      run(main, drivers)
     },
     // end of methods
   }
