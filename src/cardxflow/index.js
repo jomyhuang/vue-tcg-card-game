@@ -278,6 +278,7 @@ export default {
 
     // compose chain list
     fnlist = this._startGUI().concat(fnlist)
+    // fnlist.unshift(this._startGUI())
     // console.log(fnlist)
     return this.engage(fnlist)
   },
@@ -662,7 +663,7 @@ export default {
       return `${this.card.cardno} ${this.card.name} 发动${this.type}效果`
     }
 
-    return [function () {
+    return [ function () {
         const context = this
         const cx = context.cx
         return new Promise((resolve, reject) => {

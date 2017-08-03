@@ -1,4 +1,4 @@
-static/* linguist-vendored
-build/* linguist-vendored
-code_ref/* linguist-vendored
-theme/* linguist-vendored
+static/* linguist-documentation
+build/* linguist-documentation
+code_ref/* linguist-documentation
+theme/* linguist-documentation
