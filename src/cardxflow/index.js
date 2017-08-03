@@ -67,7 +67,7 @@ export default {
     mu.mixinEffect(payload)
     console.log('cardflow link mutil')
 
-    this.$initeffect()
+    this._initeffect()
     // Vue.config.debug = process.env.DEBUG_MODE
     // Vue.config.test = process.env.NODE_ENV === 'development'
     // Vue.config.test = process.env.NODE_ENV === 'testing'
@@ -91,7 +91,7 @@ export default {
       console.dir(x)
     })($effectlist)
   },
-  $initeffect() {
+  _initeffect() {
     console.log('$cx.$initeffect')
     $effectlist = []
   },

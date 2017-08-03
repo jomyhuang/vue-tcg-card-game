@@ -334,7 +334,7 @@ export default {
       throw 'mutil.resetGameState fail init object'
     }
 
-    $cx.$initeffect()
+    $cx._initeffect()
 
     return init
   },

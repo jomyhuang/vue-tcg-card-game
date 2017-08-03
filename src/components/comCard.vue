@@ -143,10 +143,13 @@ export default {
     },
     selectcard(event) {
       if (this.card.selectable) {
-        if(this.onselect)
+        if(this.onselect) {
+          throw new Errror('comCard this onselect call')
           this.onselect.call(this,this.card)
-        else
+        }
+        else {
           this.$store.dispatch('ACT_SELECTED_CARD', this.card)
+        }
       } else {
         // console.log('card no choice')
         throw 'comCard selectcard call error!'

@@ -342,6 +342,11 @@ showstage()
 
 view( state( gameboard( cards/card( ...actions/task/stream/operator  ) ) ) )
 
+HOC gameboard (
+  agent HOC( slot ... ),
+  agent HOC( slot ... )
+  )
+
 
 -> stream? --- use strem way process effect  
 xstream

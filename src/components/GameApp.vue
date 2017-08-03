@@ -3,35 +3,25 @@
   <!-- <el-row type="flex" class="gameboard">
     <h2>{{ msg }} : Turn#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
   </el-row> -->
-  <el-row type="flex" class="gameboard">
-    <el-col :span="4">
-      <div class="gameboard">
-        <h3>deck2</h3>
-        <comDeck :player="$store.state.player2"></comDeck>
-        <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
-      </div>
-    </el-col>
-    <el-col :span="20">
-      <div class="gameboard" style="min-height:200px">
-        <comHand :player="$store.state.player2"></comHand>
-      </div>
-      <div class="gameboard" style="min-height:200px">
-        <comZone :player="$store.state.player2"></comZone>
-      </div>
-    </el-col>
-  </el-row>
-  <el-row type="flex" class="gameboard">
-    <el-col :span="20">
-    <div class="gameboard" style="min-height:200px">
+  <gameboard>
+    <div slot="oppdeck">
+      <h3>deck2</h3>
+      <comDeck :player="$store.state.player2"></comDeck>
+    </div>
+    <div slot="opphand" class="gameboard" style="min-height:200px">
+      <comHand :player="$store.state.player2"></comHand>
+    </div>
+    <div slot="oppzone" class="gameboard" style="min-height:200px">
+      <comZone :player="$store.state.player2"></comZone>
+    </div>
+    <div slot="zone" class="gameboard" style="min-height:200px">
       <comZone :player="$store.state.player1"></comZone>
     </div>
-    <div class="gameboard" style="min-height:200px">
+    <div slot="hand" class="gameboard" style="min-height:200px">
       <!-- prop {{this.stylemode}} -->
       <comHand :player="$store.state.player1" :HOC1="HOCUITest" yyy="test"></comHand>
     </div>
-    </el-col>
-    <el-col :span="4">
-    <div class="gameboard">
+    <div slot="deck" class="gameboard">
       <h3>deck1</h3>
       <comDeck :player="$store.state.player1"></comDeck>
       <!-- <span v-if="isTestmode" style="color:red">【测试中】</span> -->
@@ -39,10 +29,7 @@
       <el-button @click="$store.dispatch('DRAW',1)">DRAW</el-button>
       <el-button @click="playcard()">PLAY</el-button>
     </div>
-    </el-col>
-  </el-row>
-  <el-row class="gameboard">
-    <div>
+    <div slot="pad">
       <h2>{{ msg }} : 回合#{{ this.turnCount }} $ {{ $store.state.storemsg }}</h2>
       <!-- <Button @click="gameloop_temp()">TEST LOOP</Button> -->
       <el-button type="primary" @click="gameloop()">GAME LOOP</el-button>
@@ -67,13 +54,20 @@
       <el-button @click="messageshow()">Message</el-button>
       <BR/>
       <el-input-number v-model="messageLevel" size="small" @change="handleLevel" :min="1" :max="3"></el-input-number>
+      <el-button @click="cycletest()">Cyclc.js</el-button>
     </div>
-  </el-row>
+    <div>
+      <h5>free slot</h5>
+      <div id="cycleapp">hello cycle.js</div>
+    </div>
+  </gameboard>
+
   <comMessage ref="messageUI"></comMessage>
   <comBattle ref="battle" v-model="$store.state.battle"></comBattle>
   <comScore ref="score" v-model="$store.state.score"></comScore>
   <comEffect ref="effectUI" v-model="$store.state.battle"></comEffect>
   <comEffectChoice ref="effectChoiceUI" v-model="$store.state.battle" :player="$store.state.player1"></comEffectChoice>
+
 </div>
 </template>
 
@@ -86,6 +80,7 @@ import comScore from './comScore.vue'
 import comEffect from './comEffect.vue'
 import comEffectChoice from './comEffectChoice.vue'
 import comMessage from './comMessage.vue'
+import gameboard from './gameboard.vue'
 
 import testdeck1 from '@/components/decktest1.js'
 import testdeck2 from '@/components/decktest2.js'
@@ -94,6 +89,10 @@ import Rx from 'rxjs/Rx'
 import mu from '@/mutil'
 import R from 'ramda'
 import $cx from '@/cardxflow'
+
+import xs from 'xstream'
+import {run} from '@cycle/run'
+import {makeDOMDriver,makeHTMLDriver,h1} from '@cycle/dom'
 
 var $store
 var commit
@@ -136,6 +135,7 @@ export default {
     comScore,
     comEffect,
     comEffectChoice,
+    gameboard,
   },
   created() {},
   mounted() {
@@ -692,6 +692,40 @@ export default {
     },
     handleLevel(value) {
       commit('MESSAGE_LEVEL', mu.isTestmode ? 1 : value )
+    },
+    cycletest() {
+      const drivers = {
+        // DOM: makeDOMDriver('#app')
+        // DOM: makeHTMLDriver()
+        DOM: makeDOMDriver('#cycleapp')
+      }
+      const main = (sources) => {
+        // console.log('main',sources.DOM)
+        // const sinks = {
+        //   DOM: xs.periodic(1000).map(i =>
+        //     h1('' + i + ' seconds elapsed')
+        //   )
+        // }
+        // const clock = xs.periodic(1000).map(i =>
+        //     h1('' + i + ' seconds elapsed')
+        //   )
+        // console.log('clock',clock)
+        // const sinks = {
+        //   DOM: clock
+        // }
+        // const full = sources.DOM.select('#app')
+        // console.log('full',full);
+        // console.log(xs.of(1,2,3,4).map( i => h1('hello world!!' + i)))
+
+        const sinks = {
+          DOM: xs.fromArray([1,2,3,4]).map( i => h1('hello world!!' + i))
+        }
+        return sinks
+      }
+      console.log('cycletest')
+      // console.log(this);
+
+      run(main, drivers)
     },
     // end of methods
   }
