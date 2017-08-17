@@ -50,6 +50,13 @@ export default {
   getChoiceUI(UI) {
     return UI ? $effectChoiceUI : null
   },
+  // replace Object.defineProperty
+  get Hello() {
+    return 'Hellow'
+  },
+  set Hello(val) {
+    console.log('test hello set ok',val)
+  },
   // isTestmode {
   //   // manual test mode flag
   //   return this.testmode || process.env.NODE_ENV === 'testing'
@@ -189,77 +196,6 @@ export default {
     this.mixin = true
     console.log('mutil mixin effect DB finish')
   },
-  // ___callEffect(effectkey, initpayload = {}, condition) {
-  //   // move to TIGGER_EFFECT
-  //   // return new Promise(async function (resolve, reject) {
-  //   return () => {
-  //     let payload = {
-  //       card: undefined,
-  //       player: undefined,
-  //       opponent: undefined,
-  //       state: undefined,
-  //       commit: undefined,
-  //       dispath: undefined,
-  //       buff: undefined,
-  //       rxdispatch: undefined,
-  //       rxcommit: undefined,
-  //     }
-  //     let result = false
-  //
-  //     let card = R.prop('card')(initpayload)
-  //     if (R.isNil(card)) {
-  //       card = initpayload
-  //       initpayload = {
-  //         card: card
-  //       }
-  //     }
-  //
-  //     payload = R.merge(payload)(initpayload)
-  //     if (R.isNil(condition)) {
-  //       condition = (card, key) => R.path(['play', key])(card)
-  //     }
-  //
-  //     // console.log('condition', condition(card,effectkey));
-  //
-  //     if (condition(card, effectkey)) {
-  //       // console.log(`callEffect ${effectkey} activate check card effect function`)
-  //       let effect = R.path(['effect', effectkey])
-  //       // let effect = R.path(['effect', effectkey])(card)
-  //       // console.log(effect);
-  //
-  //       let effectfunc = R.when(
-  //         effect,
-  //         R.pipe(
-  //           effect,
-  //           R.bind(R.__, card),
-  //           R.apply(R.__, [payload]),
-  //           // bind for "return function"
-  //           // R.bind(R.__, card),
-  //           // ok for R.apply 必须要有第二参数[], 如果缺少必要参数就会“等待完整参数后才运行”
-  //           // R.apply(R.__, [payload]),
-  //         )
-  //       )
-  //
-  //       if (effect(card)) {
-  //         console.warn(`callEffect ${card.name} [${effectkey}] functor tigger`)
-  //         // result = effectfunc(card)
-  //         // return result
-  //         result = effect(card).apply(card, [payload])
-  //         if (R.is(Object, result)) {
-  //           // console.log('callEffect result is object')
-  //         } else {
-  //           result = true
-  //         }
-  //       } else {
-  //         // console.log(`callEffect ${card.name} no ${effectkey} function`)
-  //       }
-  //     } else {
-  //       // console.log(`callEffect ${effectkey} no effect tag`);
-  //     }
-  //
-  //     return result
-  //   }
-  // },
   Rdefaults(x, y) {
     const defaults = R.flip(R.merge)
     return defaults(x, y)
@@ -580,6 +516,7 @@ export default {
 
       console.log(`mu.addTag add player ${player.id} ${tag}`)
 
+      // FIXME: commit outer
       player.effects = R.assoc(tag, val)(player.effects)
 
       clearfn = () => commit('REMOVE_TAG', {
@@ -629,6 +566,7 @@ export default {
         $cx.$addtigger(tigger)
       }
 
+      // FIXME: commit outer
       card.play = R.assoc(tag, val)(card.play)
       // add clear tag
       clearfn = () => commit('REMOVE_TAG', {
@@ -680,6 +618,7 @@ export default {
     const isPlayerTag = R.path([tag, '_type'])(tiggermap) == 'player' || player ? true : false
 
     if (isPlayerTag) {
+      // FIXME: commit outer
       player.effects = R.dissoc(tag)(player.effects)
       // console.log(`mu.removeTag player ${tag}`,player);
     } else {

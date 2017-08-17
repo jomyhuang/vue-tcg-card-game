@@ -423,3 +423,20 @@ isSupporter
 main
 // isWin
 // isLose
+
+
+-----
+tips:
+
+1、到底那个好？
+
+objA = makefactory( payload = { ... } )
+// merge payload and return objA
+
+final commit just write store.state.data = objA
+commit(act1(act2(makefactory({...}))))
+
+
+objA = payload .. {...}
+
+// final commit makefactory then set state

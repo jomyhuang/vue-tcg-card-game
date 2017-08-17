@@ -656,16 +656,8 @@ export default {
     },
     gameTest() {
 
-
-      // mu.AsyncUI = false
-      console.log('AsyncUI',mu.AsyncUI);
-
-      $cx.debug()
-
-      console.log('HOC1');
-      this.HOCUITest = 777
-
-      console.log(this.$attrs);
+      console.log('mutil.get', mu.Hello )
+      mu.Hello = 'this is test'
 
       // console.log('call emit');
       // this.$emit('testemit', this)
